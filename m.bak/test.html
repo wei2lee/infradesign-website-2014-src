@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=1024, initial-scale=1">
+    <title></title>
+    <!--<link href="css/vendor/bootstrap/bootstrap.less" rel="stylesheet/less" type="text/css">-->
+    <link href="css/vendor/bootstrap.css" rel="stylesheet">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js"></script>  
+
+  </head>
+  <body>
+
+  </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="js/vendor/bootstrap.js"></script>
+</html>
+
+<script>
+var extendObj = function(childObj, parentObj) {
+    childObj.prototype = parentObj.prototype;
+};
+    
+function Person() {
+    return this;   
+}
+Person.prototype = {
+    walk : function(){
+        console.log('walk');   
+    },
+    printProto : function() {
+        //console.log(this.__proto__ + ',' + this.constructor.name);   
+    }
+}
+    
+Student.prototype = Object.create(Person.prototype);
+function Student() {
+    return this;   
+}
+Student.prototype.jump = function(){
+    console.log('jump');   
+}
+    
+
+function HighStudent() {
+    return this;   
+}
+HighStudent.prototype = $.extend(Object.create(Student.prototype), {
+    run : function(){
+        console.log('run');   
+    },
+    walk : function(){
+        Student.prototype.walk.call(this);
+        console.log('walk!!');  
+    }
+});
+
+
+var hs = new HighStudent();
+hs.walk();
+hs.jump();
+hs.run();
+    
+new Person().printProto();
+new Student().printProto();
+new HighStudent().printProto();
+    
+console.log(Person.prototype);
+console.log(Student.prototype);
+console.log(HighStudent.prototype);
+   
+
+console.log(new Person().__proto__);
+console.log(new Student().__proto__);
+console.log(new HighStudent().__proto__);
+    
+console.log(new Person().prototype);
+console.log(new Student().prototype);
+console.log(new HighStudent().prototype);
+    
+console.log(new HighStudent() instanceof Person);
+console.log(new Student() instanceof Person);
+console.log(new Person() instanceof Person);
+    
+console.log(new HighStudent() instanceof Student);
+console.log(new Student() instanceof Student);
+console.log(new Person() instanceof Student);
+    
+console.log(new HighStudent() instanceof HighStudent);
+console.log(new Student() instanceof HighStudent);
+console.log(new Person() instanceof HighStudent);
+    
+</script>
