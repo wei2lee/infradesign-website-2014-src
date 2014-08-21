@@ -159,14 +159,23 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
         evt.data.onKeyDown(evt);   
     }
 });
+
 function HomeController() {
+    this.sel = '#home';
+    this.url = 'home';
+    this.suburls = ['banner', 'prosales', 'saleskit', 'virtual-tour', 'ar'];
+    return this;   
+}
+HomeController.prototype = $.extend(Object.create(SliderController.prototype), {});
+
+function AboutController() {
     this.sel = '#about';
     this.url = 'about';
     this.isRoot = true;
     this.suburls = ['what-define-us', 'what-we-do', 'how-we-work'];
     return this;   
 }
-HomeController.prototype = $.extend(Object.create(SliderController.prototype), {});
+AboutController.prototype = $.extend(Object.create(SliderController.prototype), {});
 
 function PlatformController() {
     this.sel = '#platform';
@@ -495,7 +504,7 @@ FoliosController.prototype = $.extend(Object.create(SliderController.prototype),
         this.foliosanim1_1.restart();
     },
     
-    onShown : function(a) {         console.log('onShown');
+    onShown : function(a) {         
         SliderController.prototype.onShown.call(this,a);
         this.stopPreloadFoliosImage();  
         this.stopFoliosAnimation();
@@ -676,6 +685,7 @@ $(document).ready(function(){
     });
     
     app.controllers.home = new HomeController();
+    app.controllers.about = new AboutController();
     app.controllers.platform = new PlatformController();
     app.controllers.crew = new CrewController();
     app.controllers.folios = new FoliosController();
