@@ -30,7 +30,7 @@ Controller.prototype = {
     $sel : null,
     isRoot : false,
     testURL : function(lastevt, evt){        
-        console.log((typeof evt.pathNames) + ',length=' + evt.pathNames.length + ', [' + evt.pathNames + '],' + this.isRoot + ', ' +  (evt.pathNames[0] == '') + ',' + (evt.pathNames[0] == '/') );
+        //console.log((typeof evt.pathNames) + ',length=' + evt.pathNames.length + ', [' + evt.pathNames + '],' + this.isRoot + ', ' +  (evt.pathNames[0] == '') + ',' + (evt.pathNames[0] == '/') );
         if(evt.pathNames.length == 0){
             return this.isRoot;   
         }else{
@@ -41,9 +41,9 @@ Controller.prototype = {
         var _this = this;
         if(this.testURL(lastevt, evt)){
             $.each(app.controllers, function(i,controller){
-                if(_this == controller) controller.show();
-                else controller.hide();
+                if(_this != controller) controller.hide();
             });
+            this.show();
             return true;   
         }
         return false;
@@ -126,15 +126,16 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
             else _this.$slider.goToPrevSlide();
         });
         $(document).on('keydown', this, this._onKeyDown);
+        
+        this.$sliderContents.stop(true).animate({scrollTop:1},500);
     },
     onHide : function(a) {
         this.hammer.off('swipeleft swiperight');
         $(document).off('keydown', this._onKeyDown);
+        this.$sliderContents.scrollTop(1);
     },
     onHidden : function(a) {
-        console.log(this.sel + ' onHidden');
-        //this.$slider.goToSlide(0);   
-        //this.$sliderContents.scrollTop(1);
+        this.$slider.goToSlide(0);   
     },
     onKeyDown : function(evt){
         
@@ -172,9 +173,7 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
         var _this = this;
         SliderController.prototype.init.call(this);
         this.$sel.find('[data-slidercontent]').click(function(){
-            
             var i = _this.subsels.indexOf($(this).attr('data-slidercontent'));
-            console.log('click!!!' + $(this).attr('data-slidercontent') + ','+i);
             if(i>=0){
                 _this.$slider.goToSlide(i);   
             }
@@ -279,12 +278,127 @@ function ContactController() {
 ContactController.prototype = $.extend(Object.create(SliderController.prototype), {
     init : function() {
         SliderController.prototype.init.call(this);
+        var _this = this;
+        var fields = {};
+        $('#contact form')
+            .bootstrapValidator({
+                fields: fields = {
+                    cu_name: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The name is required and cannot be empty.'
+                            }
+                        }
+                    },
+                    cu_contact: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The contact is required and cannot be empty.'
+                            }
+                        }
+                    },
+                    cu_email: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The email address is required and cannot be empty.'
+                            },
+                            emailAddress: {
+                                message: 'The email address is not valid.'
+                            }
+                        }
+                    },
+                    cu_message: {
+                        validators: {
+                            notEmpty: {
+                                message: 'The message is required and cannot be empty.'
+                            }
+                        }
+                    }
+                }
+            })
+
+        .on('success.form.bv', function(e) {
+                // Reset the message element when the form is valid
+                var progressDialog = bootbox.dialog({
+                    message: "Sending Enquiry...",
+                    closeButton: false
+                });
+                var bv = $('#contact form').data('bootstrapValidator'); 
+                var data = {};
+                $.each(fields, function(name){
+                   data[name.substring(3)] = bv.getFieldElements(name).val(); 
+                });
+                console.log(data);
+                $.ajax(
+                {
+                    type: "POST",
+                    url: "../contact.php",
+                    data:data,
+                    success: function(response)
+                    {
+                        $("#mainContainer").css("cursor", "auto");
+                        progressDialog.close();
+                        bootbox.dialog({
+                            message: "Your enquiry is sent, Thank you!",
+                            closeButton: true
+                        });
+                        $.cookie("signed", "yes", { expires:365 });
+                    },
+                    error: function(xhr, optns, err)
+                    {
+                        $("#mainContainer").css("cursor", "auto");
+                        progressDialog.close();
+                        bootbox.dialog({
+                            message: "Your enquiry is sent, Thank you!",
+                            closeButton: true
+                        });
+                    }
+                });
+            
+            })
+            .on('error.form.bv', function(e) {
+                // Reset the message element when the form is valid
+                var alert_message = '';
+                var bv = $('#contact form').data('bootstrapValidator');   
+                var msgs = bv.getMessages();
+                for (k in msgs) alert_message += '<p>' + msgs[k] + '</p>';
+                alert_message = '<div class="cu_form_danger">' + alert_message + '</div>';
+                bootbox.dialog({
+                    className: "",
+                    title: 'Form Validation Error',
+                    message: alert_message
+                });
+                //$(bv.getInvalidFields()[0]).focus();
+            })
+            .on('error.field.bv', function(e, data) {
+                data.element
+                    .data('bv.messages')
+                    .find('.help-block[data-bv-for="' + data.field + '"]')
+                    .hide();
+            })
+            .on('success.field.bv', function(e, data) {
+                // Remove the field messages
+
+            });
+        $('#contact form [type=reset]').click(function(){
+            $('#contact form').data('bootstrapValidator').resetForm();
+        });
+        
     }
 });
 
 
 
 $(document).ready(function(){
+    $("body").on("show", ".modal", function () { console.log('modal show');
+        $(this).css({
+            'top': '50%',
+            'margin-top': function () {
+                return -($(this).height() / 2);
+            }
+        });
+    });
+
     bouncefix.add('sliderContent');
     bouncefix.add('mainScrollContent');
     
