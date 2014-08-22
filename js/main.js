@@ -7,6 +7,13 @@ var callBack = null;
 var panoramaAreaViewSlider;
 
 /* Utilities */
+function getUrlQueryByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
 Filters = {};
 Filters.getPixels = function(img) {
   var c = this.getCanvas(img.width, img.height);
@@ -390,11 +397,20 @@ function visit(dir)
 
 /* Execution */
 $(function () {
+    isgoapp = getURLParameter('go') == '1';
+    
+    
     var ua = navigator.userAgent;
     ios = ua.match(/iP/i);
     android = ua.match(/Android/i);
     ie = ua.match(/MSIE/i);
 
+    // Header 
+    if(isgoapp){
+        $('#nav').hide();
+        $('#logo').css({'float':'none', 'margin':'20px auto 0 auto', 'display':'inline-block', 'cursor':'pointer'});
+    }
+    
     // Initialize Intro page
     if ($("body").hasClass("intro")) {
         $(".intro #content").children("div").css("height", "640px");
@@ -468,28 +484,31 @@ $(function () {
         });
         
         function preloadFoliosImage() {
+            //alert('preload');
             var total = $(".folios_page>div").length;
             var loaded = 0;
             var imgs = [];
             $(".folios_page>div").each(function(ind,ele){
                 var backgroundimage = $(ele).css('background-image');
-                var reg = /url\((.+?)\)/;
+                var reg = /url\("?(.+?)"?\)/;
                 var m = reg.exec(backgroundimage);
                 var img = new Image();
                 var _this = $(this);
                 
                 img.onload = function() {
                     loaded++;
+                    
                     imgs.push({'ele':_this, 'img':img});
                     if(loaded >= total){
                         onPreloadedFoliosImage(imgs);
                     }
                 }
+                //console.log(backgroundimage + ',' + m[1]);
                 img.src = m[1];
             });   
         }
         function onPreloadedFoliosImage(imgs) {
-            
+            //alert('onPreloaded');
             $.each(imgs, function(ind,preloadobj){
                 var obj = Filters.filterImage(Filters.grayscale, preloadobj.img);
                 var style = "left:0px; top:0px; width:"+preloadobj.ele.css('width')+"; height:"+preloadobj.ele.css('height')+"; background-image:url("+obj.canvas.toDataURL("image/png")+")";
@@ -499,6 +518,7 @@ $(function () {
         }
         var foliosanim1delay = new TimelineMax({paused:true});
         var foliosanim1 = new TimelineMax({paused:true});
+        var foliosanim1_1 = new TimelineMax({paused:true});
         var foliosanim2delay = new TimelineMax({paused:true});
         var foliosanim2 = new TimelineMax({paused:true});
         function startFoliosAnimation() {
@@ -602,7 +622,8 @@ $(function () {
                     }
                 );
             }));
-            
+            TweenMax.set($("#folios_page2>div"), {alpha:0});
+            TweenMax.set($("#folios_page1>div"), {alpha:0});
             foliosanim1.restart();
         }
         function stopFoliosAnimation() {
@@ -649,7 +670,7 @@ $(function () {
         if ($.cookie("signed") == "yes") visit(getURLParameter("dir"));
     }
     // Default initializing
-    $("a.selected").css("cursor", "default").click(function () { return false; });
+    //$("a.selected").css("cursor", "default").click(function () { return false; });
     if (ios) $(window).bind("orientationchange", resizeHandler);
     if (android) window.scrollTo(0, 1);
     $(window).bind("resize", resizeHandler);
@@ -676,9 +697,10 @@ var homeSliderOption;
 
 var showcase360panorama;
 function initHome() {         
-    
+    var $sel;
     
     /* sections */
+    sectionLength = 5;
     sections = $(".section");
     $(".sections").fadeIn();
     section_content_containers = {};
@@ -689,16 +711,15 @@ function initHome() {
     });
     sectionSlideHandles = {
         0:onSectionHomeSlide,
-        5:onSection360Slide
+        3:onSection360Slide
     };
     sectionLogonHandles = {
-        5:onSection360Logon   
     }
     var sectionKeyNavEnable = true;
 
     sectionContainerSliderOption = {
         mode:'horizontal',
-        controls:true, pager:false, touchEnabled:false, startSlide:0,
+        controls:true, pager:false, touchEnabled:false, startSlide:0, infiniteLoop:false,
         onSlideBefore:function($slideElement, oldIndex, newIndex){ 
             var f = sectionSlideHandles[newIndex];
             if(f){
@@ -725,7 +746,7 @@ function initHome() {
         }
     };
     function commonSlideHandle(type, $slideElement, oldIndex, newIndex){
-
+        
         switch(type){
             case "willSlideTo": 
                 if(newIndex != 0){
@@ -733,12 +754,19 @@ function initHome() {
                     section_content_containers[newIndex].scrollTop(0);
                     $("#fb-btn, #tw-btn").removeClass("bright");      
                 }
+                if(newIndex == sectionLength-1){ 
+                    var sectionControl = sectionContainerSlider.parent().parent().find(".bx-controls-direction");
+                    sectionControl.find('.bx-next').fadeOut();
+                }
                 break;
             case "didSlideTo":
-
                 break;
             case "willSlideFrom":
                 section_content_containers[oldIndex].css("overflow", "hidden");
+                if(oldIndex == sectionLength-1){
+                    var sectionControl = sectionContainerSlider.parent().parent().find(".bx-controls-direction");
+                    sectionControl.find('.bx-next').fadeIn();
+                }
                 break;
             case "didSlideFrom":
                 section_content_containers[oldIndex].scrollTop(0);
@@ -769,6 +797,15 @@ function initHome() {
     $('a.section_down_btn').click(function(){
         openRegisterPopup();
     });
+    
+    $('a.scroll-to-register').click(function(){
+        var sectionContainer = $(this).parents('.section_content_container'); 
+        var top = sectionContainer.find('.inline-register').position().top;
+        var time = 750;
+        
+        console.log('scroll top='+top+',time='+time);
+        sectionContainer.stop(true).animate({scrollTop:top}, time);
+    });
 
 
     /* Section Home */
@@ -780,7 +817,8 @@ function initHome() {
                 sectionControl.fadeOut();   
                 break;
             case "didSlideTo":
-                homeSlider.startAuto();
+                if(homeSliderOption.auto)
+                    homeSlider.startAuto();
                 break;
             case "willSlideFrom":
                 if(delayHomeSliderStartAutoAfterPagerClick) clearTimeout(delayHomeSliderStartAutoAfterPagerClick);
@@ -812,10 +850,16 @@ function initHome() {
 
         }
     };
+    if(isgoapp){
+        homeSliderOption.pager = false;
+        homeSliderOption.auto = false;
+        $('#home_slide02_container').remove();
+    }
 
     homeSlider = $("#home_bxslider").bxSlider(homeSliderOption);
     function startHomeSliderAuto() {
-        homeSlider.startAuto();
+        if(homeSliderOption.auto)
+            homeSlider.startAuto();
     }
     function stopHomeSliderAuto() {
         homeSlider.stopAuto();
@@ -858,24 +902,33 @@ function initHome() {
     });
     
     /* Section Prosales */
-    $("a.demoversion").click(function(){
-        if(!isRegistered){
-        openRegisterPopup(); 
-        }
+    $sel = $('#section_prosales');
+    $sel.find("a.demoversion").click(function(){
     });
+    $sel.find('#prosales_video').click(function(){
+       $(this)[0].play();
+       $(this).off('click'); 
+    });
+    
+    
+    
     /* Section 360 */
+    $sel = $('#section_360');
+    $sel.find('.change-time-btn-group a').click(function(){
+        var data = $(this).attr('data');
+        setPanoramaShowcaseTime(data,true);
+    });
+    panoramaShowcaseTime = -1;
     showcase_panorama = $("#section_360 .section_content_extra #showcase_panorama_view");
     showcase_tour = $("#section_360 .section_content_extra #showcase_360_view");
     showcase_tour.find("iframe").bind("mousewheel", function(){ return false; });
-    function onSection360Slide(type){
+    function onSection360Slide(type){ console.log('onSection360Slide@'+type);
         switch(type){
             case "willSlideTo":     
                 break;
             case "didSlideTo":
-                if(isRegistered){
-                    startShowcasePanoramaSlideShow();
-                    startShowcase360tour();
-                }
+                startShowcasePanoramaSlideShow();
+                startShowcase360tour();
                 break;
             case "willSlideFrom":
                 stopShowcasePanoramaSlideShow();
@@ -897,21 +950,80 @@ function initHome() {
     function stopShowcase360tour(){
         showcase_tour.find('iframe').attr('src', '');
     }
+    
     function startShowcasePanoramaSlideShow(){
-        var datasrc = showcase_panorama.attr('data-src');
-        showcase_panorama.css({'background-position-x':'0%', 'background-position-y':'0%' });
-        showcase_panorama.css({'background-image':'url('+datasrc+')'});
+        setPanoramaShowcaseTime(0);
+        new Image().src = showcase_panorama.attr('data-src-1');
+        
+        showcase_panorama.css({'background-position': '0% 50%' });
         showcase_panorama.hide();
         animateShowcasePanoramaSlideShow();
     }
+    function setPanoramaShowcaseTime(i,a){
+        if(i == 'evening') i = 0;
+        else if(i == 'night') i = 1;
+        if(panoramaShowcaseTime == i)return;
+        panoramaShowcaseTime = i; 
+        
+        if(i == -1){
+            return;   
+        }
+        
+        $sel.find('.change-time-btn-group a').removeClass('selected');
+        $sel.find('.change-time-btn-group a[data='+['evening','night'][i]+']').addClass('selected');
+        
+        
+        
+        var datasrcs = [showcase_panorama.attr('data-src-0'), showcase_panorama.attr('data-src-1')];
+        if(!a){
+            if(i == 0){
+                showcase_panorama.css({'background-image':'url('+datasrcs[0]+')'});
+            }else if(i == 1){
+                showcase_panorama.css({'background-image':'url('+datasrcs[1]+')'});
+            }
+        }else{
+            var tl = new TimelineMax({paused:true});
+            tl.append(TweenMax.to(showcase_panorama, 0.3, {alpha:0}));
+            tl.append(TweenMax.delayedCall(0,function(){
+                if(i == 0){
+                    showcase_panorama.css({'background-image':'url('+datasrcs[0]+')'});
+                }else if(i == 1){
+                    showcase_panorama.css({'background-image':'url('+datasrcs[1]+')'});
+                }
+            }));
+            tl.append(TweenMax.to(showcase_panorama, 0.3, {alpha:1}));
+            tl.play();
+        }
+    }
+    
+    var panoramaShowcaseTimeline = new TimelineMax({paused:true});
     function animateShowcasePanoramaSlideShow() {
         showcase_panorama.stop(true).fadeIn();
+        var anim = panoramaShowcaseTimeline = new TimelineMax({paused:true});
+        var o = {
+            x:0, 
+            onUpdate:function(){
+                //console.log('o.x='+o.x);
+                showcase_panorama.css({'background-position':o.x+'% 50%'});
+            }
+        }
+        anim.append(TweenMax.fromTo(o, 12, {x:0}, {x:100, ease:Quad.easeInOut, onUpdate:o.onUpdate},2));
+        anim.append(TweenMax.fromTo(o, 12, {x:100}, {x:0, ease:Quad.easeInOut, onUpdate:o.onUpdate},2));
+        anim.append(TweenMax.delayedCall(0, function(){
+            anim.restart(); 
+        }),2);
+        
+        anim.restart(); 
         return;
     }
     function stopShowcasePanoramaSlideShow(){
         showcase_panorama.stop(true);
+        panoramaShowcaseTimeline.kill();
     }
-
+    
+    /* */
+    
+    
     /* popup */
     var popupRegisterContainer = $("#popup_register_container");
     popupRegisterHtml = $("#popup_content_register").wrap('<div>').parent().html();
@@ -919,6 +1031,23 @@ function initHome() {
     popupVideoHtml = $("#popup_content_video").wrap('<div>').parent().html();
     popupRegisterContainer.remove();
     var submitted = false;
+    
+    $('.inline-register').each(function(){
+        var prefix = $(this).attr('data-input-id-prefix');
+        //console.log('popup_register');
+        $(this).find('label[for]').each(function(){
+            //console.log('label');
+             $(this).attr('for', prefix + $(this).attr('for')) ;
+        });
+        $(this).find('input[id]').each(function(){
+            //console.log('input');
+             $(this).attr('id', prefix + $(this).attr('id')) ;
+        });
+        
+        $(this).find('input[type=submit]').click(onPopupRegisterSubmit);
+        $(this).find('input[type=reset]').click(onPopupRegisterReset);
+    });
+    
     function openRegisterPopup(){
         sectionKeyNavEnable = false;
         submitted = false;
@@ -935,53 +1064,69 @@ function initHome() {
         sectionKeyNavEnable = true;
     }
     function onPopupRegisterReset(){
-        $("#popup_content_register .error p").html("&nbsp;");
-        $("#register_name").focus();
+        var form = $(this).parents('.inline-register'); 
+        var ele_id = $(this).attr('id');
+        var prefix = '';
+        var regex = /(.+?_).+/;
+        var m = ele_id.match(regex)
+        if(m.length>0) prefix = m[1];   
+        else console.log('form error');   
+        form.find(".error p").html("&nbsp;");
+        $("#"+ prefix +"register_name").focus();
     }
     function onPopupRegisterSubmit(){
-        $("#popup_content_register .error p").html("&nbsp;");
+        var form = $(this).parents('[data-input-id-prefix]');
+        
+        var id = $(this).attr('id');
+        var prefix = '';
+        var regex = /(.+?_).+/;
+        var m = id.match(regex)
+        if(m.length>0) prefix = m[1];   
+        else console.log('form error');
+        form.find(".error p").html("&nbsp;");
+        
         var reason = "";
         var user = {};
-        user.name = $("#register_name").val().trim();
-        user.email = $("#register_email").val().trim();
-        user.contact = $("#register_contact").val().trim();
-        user.company = $("#register_company").val().trim();
-        user.businesstype = $("#register_businesstype").val().trim();
+        user.name = $("#"+prefix+"register_name").val().trim();
+        user.email = $("#"+prefix+"register_email").val().trim();
+        user.contact = $("#"+prefix+"register_contact").val().trim();
+        user.company = $("#"+prefix+"register_company").val().trim();
+        user.businesstype = $("#"+prefix+"register_businesstype").val().trim();
         user.interest = {};
-        user.interest.prosalesdemoversion = $("#register_prosalesdemoversion").is(':checked');
-        user.interest.ar = $("#register_ar").is(':checked');
-        user.interest.crm = $("#register_crm").is(':checked');
-        user.interest.virtualtour = $("#register_virtualtour").is(':checked');
-        user.interest.mobileapplication = $("#register_mobileapplication").is(':checked');
+        user.interest.prosalesdemoversion = $("#"+prefix+"register_prosalesdemoversion").is(':checked');
+        user.interest.ar = $("#"+prefix+"register_ar").is(':checked');
+        user.interest.crm = $("#"+prefix+"register_crm").is(':checked');
+        user.interest.virtualtour = $("#"+prefix+"register_virtualtour").is(':checked');
+        user.interest.mobileapplication = $("#"+prefix+"register_mobileapplication").is(':checked');
         
         try {
             if(user.name == ""){
-                $("#register_name").focus();
+                $("#"+prefix+"register_name").focus();
                 reason = "Error : Please enter your name.";   
                 throw reason;
             }
             if(user.email == ""){
-                $("#register_name").focus();
+                $("#"+prefix+"register_name").focus();
                 reason = "Error : Please enter your email.";   
                 throw reason;
             }
             if(!isEmailAddress(user.email)){
-                $("#register_email").focus();
+                $("#"+prefix+"register_email").focus();
                 reason = "Error : Please enter correct format email.";   
                 throw reason;
             }
             if(user.contact == ""){
-                $("#register_contact").focus();
+                $("#"+prefix+"register_contact").focus();
                 reason = "Error : Please enter your contact.";   
                 throw reason;
             }
             if(!isPhoneNumber(user.contact)){
-                $("#register_contact").focus();
+                $("#"+prefix+"register_contact").focus();
                 reason = "Error : Please enter correct format contact."; 
                 throw reason;
             }
             if(user.company == ""){
-                $("#register_company").focus();
+                $("#"+prefix+"register_company").focus();
                 reason = "Error : Please enter your company.";   
                 throw reason;
             }
@@ -998,14 +1143,18 @@ function initHome() {
                 throw reason;
             }
         } catch(err){
-            $("#popup_content_register .error p").delay(200).html(reason).show();
+            form.find(".error p").delay(200).html(reason).show();
             return;
         }
+        
+        
         submitted = true;
-        $.fancybox.close();
+        //$.fancybox.close();
         openThankPopup();
     }
     function openThankPopup(){
+        console.log(popupThankHtml);
+        
         $.fancybox.open({
             content : popupThankHtml,
             afterClose : onThankPopupClosed
@@ -1071,6 +1220,7 @@ function initHome() {
 
     /* login */
     function setRegistered(_isRegistered){
+        /*
         if(isRegistered == _isRegistered)return;
         isRegistered = _isRegistered;
         if(isRegistered){
@@ -1082,7 +1232,7 @@ function initHome() {
             }
         }else{
             $(".sections").removeClass("islogon");
-        }
+        }//*/
     }
 
     /* post initialization */
@@ -1097,5 +1247,7 @@ function initHome() {
         $(window).trigger('resize');
     },100);
     
-    openRegisterPopup();
+    
+    //openThankPopup();
+    //openRegisterPopup();
 }

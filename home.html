@@ -14,7 +14,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
 		
 		<link rel="stylesheet" href="css/normalize.css">
-		<link rel="stylesheet" href="css/main.css?t=113">
+		<link rel="stylesheet" href="css/main.css?v=118">
         <link rel="stylesheet" href="js/bxslider/jquery.bxslider.css">
 	    <link rel="stylesheet" href="js/fancybox/jquery.fancybox.css?v=2.1.5" media="screen" />
         <link rel="stulesheet" href="js/stylecheckbox/stylecheckbox.css">
@@ -65,10 +65,11 @@
             <!-- #content -->
             <div id="popup_register_container" style="display:none;">
                 <div id="popup_content_video">
-                    <video id="popup_video" width="640" height="480" controls autoplay>
+                    <video id="popup_video" width="640" height="480" controls>
                       Your browser does not support the video tag.
                     </video>
                 </div>
+                
                 <div id="popup_register">
                     <form id="popup_content_register" action="javascript:void(0)">
 
@@ -104,10 +105,13 @@
                     <div id="popup_content_thank">
                         <div>
                             <h1>
-                                Thank You
                                 <p>for your enquiry.</p>
                             </h1>
                             <p>We will be in touch with you shortly. Have a great day ahead.</p>
+                            <p>Visit our website
+                                <br/><a href='http://www.infradesign.com.my'>www.infradesign.com.my</a>
+                            </p>
+                            
                         </div>
                     </div>
                 </div>
@@ -125,25 +129,22 @@
                                 <div class="home_slide" id="home_slide01">
                                     <ul>
                                         <li>
+                                            <a data-sectionid="section_prosales"><img src="img/go_home_btn_prosales.png" width="100%" height="auto"></a>
+                                            <a style="visibility:hidden;" datasrc1="videos/ProSales_Introduction_compressed.mp4" datatype1="video/mp4" datasrc2="videos/ProSales_Introduction_compressed.ogg" datatype2="video/ogg" datasrc3="videos/ProSales_Introduction_compressed.webmhd.webm" datatype3="video/webm" class="video_play_btn"><img src="img/go_btn_video_play.png" width="100%" height="auto"><span>video</span></a>
+                                        </li>
+                                        <li>
                                             <a data-sectionid="section_saleskit"><img src="img/go_home_btn_propertygoapp.png" width="100%" height="auto"></a>
                                             <a style="visibility:hidden;" class="video_play_btn"><img src="img/go_btn_video_play.png" width="100%" height="auto"><span>video</span></a>
                                         </li>
                                         <li>
-                                            <a data-sectionid="section_crm"><img src="img/go_home_btn_crm.png" width="100%" height="auto"></a>
-                                            <a style="visibility:hidden;" class="video_play_btn"><img src="img/go_btn_video_play.png" width="100%" height="auto"><span>video</span></a>
+                                            <a data-sectionid="section_360"><img src="img/go_home_btn_360.png" width="100%" height="auto"></a>
+                                            <a style="visibility:hidden;" datasrc1="videos/Infra_AR_video_rev1_compressed.mp4" datatype1="video/mp4" datasrc2="videos/Infra_AR_video_rev1_compressed.ogg" datatype2="video/ogg" datasrc3="videos/Infra_AR_video_rev1_compressed.webmhd.webm" datatype3="video/webm" class="video_play_btn"><img src="img/go_btn_video_play.png" width="100%" height="auto"><span>video</span></a>
                                         </li>
-                                        <li>
-                                            <a data-sectionid="section_ar"><img src="img/go_home_btn_ar.png" width="100%" height="auto"></a>
-                                            <a datasrc1="videos/Infra_AR_video_rev1_compressed.mp4" datatype1="video/mp4" datasrc2="videos/Infra_AR_video_rev1_compressed.ogg" datatype2="video/ogg" datasrc3="videos/Infra_AR_video_rev1_compressed.webmhd.webm" datatype3="video/webm" class="video_play_btn"><img src="img/go_btn_video_play.png" width="100%" height="auto"><span>video</span></a>
-                                        </li>
-                                        <li>
-                                            <a data-sectionid="section_prosales"><img src="img/go_home_btn_prosales.png" width="100%" height="auto"></a>
-                                            <a datasrc1="videos/ProSales_Introduction_compressed.mp4" datatype1="video/mp4" datasrc2="videos/ProSales_Introduction_compressed.ogg" datatype2="video/ogg" datasrc3="videos/ProSales_Introduction_compressed.webmhd.webm" datatype3="video/webm" class="video_play_btn"><img src="img/go_btn_video_play.png" width="100%" height="auto"><span>video</span></a>
-                                        </li>
+
                                     </ul>
                                 </div>
                                 </div>
-                                <div>
+                                <div id='home_slide02_container'>
                                 <div class="home_slide" id="home_slide02">
                                     <p>
                                     IT'S NOT<br>
@@ -181,13 +182,23 @@
                                             manage to print all the documents you need
                                         </p>
                                     </div>
-                                    <a class="demoversion"><img src="img/go_prosales_demoversion.png" width="100%" height="auto"></a>
+                                    <!--<a class="demoversion"><img src="img/go_prosales_demoversion.png" width="100%" height="auto"></a>-->
                                 </div>
+                                    
+                                    
+                                <a href='javascript:void(0)' class='scroll-to-register'><img src='img/go_demoversion.png'></a>
                                     
                                 </div>
                                 <div class="section_content section_content_extra">
+                                    <video id='prosales_video' style='width:100%; height:auto;' controls poster='img/prosales_video_box.png'>
+                                        <source type='video/mp4' src='videos/ProSales_Introduction_rev1.mp4'></source>
+                                    </video>
+                                    
+                                    <div class='save-group'>
                                     <img class="savecost" src="img/go_prosales_savecost.jpg" width="auto" height="100%">
                                     <img class="savetime" src="img/go_prosales_savetime.jpg" width="auto" height="100%">
+                                    <div style='clear:both;'></div>
+                                    </div>
                                     <ul class="section_listing1">
                                         <li><img src="img/go_prosales_benefit_1_easy.png" width="100%" height="auto">Easy Update &amp; Maintenance</li>
                                         <li><img src="img/go_prosales_benefit_2_real.png" width="100%" height="auto">Real Time Sales Monitoring</li>
@@ -198,9 +209,57 @@
                                         <li><img src="img/go_prosales_benefit_6_flexi.png" width="100%" height="auto">Flexi Reports</li>
                                         <li><img src="img/go_prosales_benefit_7_good.png" width="100%" height="auto">Good Aesthetics</li>
                                     </ul>
+                                
+                                    <div class='scale-container' id='prosales-content-2'>
+                                        <img src='img/go_prosales_bg_02.png'>
+                                        <div class='scale-content'>
+                                            <div id="crm_anywhere">
+                                                <p id="crm_everything1">Everything sales people need to manage their customers, <b>prospects and sales</b>, with lighting fast <b>search and data entry</b> that works seamlessly on <b>desktops, tablets and smartphones.</b></p>
+                                                <p id="crm_everything2">Everything managers need to control access, produce sales forecasts and run <b>activity reports.</b></p>
+                                                <ul>
+                                                    <li><b>No Software Installation</b></li>
+                                                    <li><b>Access anytime, anywhere...</b></li>
+                                                    <li><b>24/7 Uptime, 365 days</b></li>
+                                                    <li><b>Build in Marketing &amp; SMS</b></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="popup_register" class='inline-register' data-input-id-prefix='prosales_'>
+                                    <form id="popup_content_register" action="javascript:void(0)">
+
+                                        <h4>Need more info?  Then register to experience the difference!</h4>
+                                        <div class="textfields">
+                                            <label for="register_name">Name*</label><input type="text" name="name" id="register_name" value="" placeholder=""><br>
+                                            <label for="register_email">Email*</label><input type="text" name="email" id="register_email" value="" placeholder=""><br>
+                                            <label for="register_contact">Contact*</label><input type="text" name="contact" id="register_contact" value="" placeholder="03-88888888, 012-3333333"><br>
+                                            <label for="register_company">Company*</label><input type="text" name="company" id="register_company" value=""><br>
+                                            <label for="register_businesstype">Business Type</label><input type="text" name="businesstype" id="register_businesstype" value=""><br>
+                                        </div>
+                                        <label check-boxes-label for="interest">Interest*</label>
+                                        <div class="checkboxes">
+                                            <div><input id="register_prosalesdemoversion" type="checkbox"><label register_prosalesdemoversion-check-box for="register_prosalesdemoversion"><div>Prosales Demo Version<br><span id="validfor30days">(valid for 30days)</span></div><span class="styledelement"></span></label></div>
+
+                                            <div><input id="register_ar" type="checkbox"><label for="register_ar">AR<span class="styledelement"></span></label></div>
+                                            <div><input id="register_crm" type="checkbox"><label for="register_crm">CRM<span class="styledelement"></span></label></div>
+                                            <div><input id="register_virtualtour" type="checkbox"><label for="register_virtualtour">360 Virtual Tour<span class="styledelement"></span></label></div>
+                                            <div><input id="register_mobileapplication" type="checkbox"><label for="register_mobileapplication">Mobile Application<span class="styledelement"></span></label></div>
+                                        </div>
+                                        <div class="buttons">
+                                            <input type="reset" id="register_reset" value="RESET">
+                                            <input type="submit" id="register_submit" value="SUBMIT">
+                                        </div>
+                                        <div class="error"><p>&nbsp;</p></div>
+                                        <div class="contactus">
+                                            or contact us
+                                            <a>012. 528 2857</a>
+                                            <a>012. 376 6611</a>
+                                        </div>
+
+                                    </form>
                                 </div>
                             </div>
-                            <div class="section_down_btn_container"><a class="section_down_btn"></a></div>
                         </div>
                 </div>
                 </li>
@@ -219,6 +278,8 @@
                                     and marketing materials anywhere with you. Ensuring that you always<br>
                                     have the latest documents available.
                                 </p>
+                                    
+                                <a href='javascript:void(0)' class='scroll-to-register'><img src='img/go_demoversion.png'></a>
                                     
                                     
                                 </div>
@@ -242,41 +303,127 @@
                                         <li><img src="img/go_saleskit_17_offline.png" width="100%" height="auto"></li>
                                     </ul>
                                 </div>
+                                <div id="popup_register" class='inline-register' data-input-id-prefix='saleskit_'>
+                                    <form id="popup_content_register" action="javascript:void(0)">
+
+                                        <h4>Need more info?  Then register to experience the difference!</h4>
+                                        <div class="textfields">
+                                            <label for="register_name">Name*</label><input type="text" name="name" id="register_name" value="" placeholder=""><br>
+                                            <label for="register_email">Email*</label><input type="text" name="email" id="register_email" value="" placeholder=""><br>
+                                            <label for="register_contact">Contact*</label><input type="text" name="contact" id="register_contact" value="" placeholder="03-88888888, 012-3333333"><br>
+                                            <label for="register_company">Company*</label><input type="text" name="company" id="register_company" value=""><br>
+                                            <label for="register_businesstype">Business Type</label><input type="text" name="businesstype" id="register_businesstype" value=""><br>
+                                        </div>
+                                        <label check-boxes-label for="interest">Interest*</label>
+                                        <div class="checkboxes">
+                                            <div><input id="register_prosalesdemoversion" type="checkbox"><label register_prosalesdemoversion-check-box for="register_prosalesdemoversion"><div>Prosales Demo Version<br><span id="validfor30days">(valid for 30days)</span></div><span class="styledelement"></span></label></div>
+
+                                            <div><input id="register_ar" type="checkbox"><label for="register_ar">AR<span class="styledelement"></span></label></div>
+                                            <div><input id="register_crm" type="checkbox"><label for="register_crm">CRM<span class="styledelement"></span></label></div>
+                                            <div><input id="register_virtualtour" type="checkbox"><label for="register_virtualtour">360 Virtual Tour<span class="styledelement"></span></label></div>
+                                            <div><input id="register_mobileapplication" type="checkbox"><label for="register_mobileapplication">Mobile Application<span class="styledelement"></span></label></div>
+                                        </div>
+                                        <div class="buttons">
+                                            <input type="reset" id="register_reset" value="RESET">
+                                            <input type="submit" id="register_submit" value="SUBMIT">
+                                        </div>
+                                        <div class="error"><p>&nbsp;</p></div>
+                                        <div class="contactus">
+                                            or contact us
+                                            <a>012. 528 2857</a>
+                                            <a>012. 376 6611</a>
+                                        </div>
+
+                                    </form>
+                                </div>
                             </div>
-                            <div class="section_down_btn_container"><a class="section_down_btn"></a></div>
                         </div>
                         <div class="section_page" style="display:none;"></div>
                 </div>
                 </li>
                 <li>
-                <div class="section" id="section_crm" data-slideindex="3">
+                <div class="section" id="section_360" data-slideindex="3">
                     <div class="section_page">
                         <div class="section_content_container">
                             <div class="section_header"></div>
                             <div class="section_content">
+                            <p class="title">
+                                A COMPREHENSIVE DIGITAL SUITE
+
+                            </p>
+                            <p class="msg">
+                                360° Virtual Tour is a smart solution for your customers who will be able to experience a<br>
+                                360 degree interior view of any property with just one touch
+                            </p>
+                                
+                            <a href='javascript:void(0)' class='scroll-to-register'><img src='img/go_demoversion.png'></a>
+                                
                             </div>
                             <div class="section_content section_content_extra">
-                                <div id="crm_anywhere">
-                                    <p id="crm_everything1">Everything sales people need to manage their customers, <b>prospects and sales</b>, with lighting fast <b>search and data entry</b> that works seamlessly on <b>desktops, tablets and smartphones.</b></p>
-                                    <p id="crm_everything2">Everything managers need to control access, produce sales forecasts and run <b>activity reports.</b></p>
-                                    <ul>
-                                        <li><b>No Software Installation</b></li>
-                                        <li><b>Access anytime, anywhere...</b></li>
-                                        <li><b>24/7 Uptime, 365 days</b></li>
-                                        <li><b>Build in Marketing &amp; SMS</b></li>
-                                    </ul>
+                                <div class="section_360_showcase" id="showcase_360">
+                                    <h2>360° VIRTUAL REALITY TOUR</h2>
+                                    <div data-src="panorama/html/panorama/TYPE A HTML5/TYPE A.html" id="showcase_360_view">
+                                        <img src="img/go_size1024x480.png" width="100%" height="auto">
+                                        <iframe width="100%" height="100%"></iframe></div>
+                                    <div class='showcase-desc'>
+                                        <p>360˚ Virtual Tour is a smart solution for your customers who will be able to experience a 360 degree interior view of any property with just one touch. This is a time and money savvy application to let your customers explore the property of their choice on your ipad or smart phone without the need of having an actual show house. </p>
+                                    </div>
                                 </div>
-                                <div id="crm_charts">
-                                <img src="img/go_crm_chart1.png" width="100%" height="auto">
+                                <div class="section_360_showcase" id="showcase_panorama">
+                                    <h2>PANORAMA AERIAL VIEW</h2>
+                                    <div data-src-0="img/go_360_showcase_panorama_evening.jpg" data-src-1="img/go_360_showcase_panorama_night.jpg" id="showcase_panorama_view">
+                                        <img src="img/go_size1024x410.png" width="100%" height="auto">
+                                    </div>
+                                    <div class='showcase-desc'>
+                                        <p>Capture dazzling panoramas from an elevated height. By using a balloon and camera rig, we have managed to launch this fixture into new heights so our clients can present the exact views from their high-rise properties. </p>
+                                        <div class='change-time-btn-group'>
+                                            <a data='evening' href='javascript:void(0)'>EVENING VIEW</a> | <a data='night' href='javascript:void(0)'>NIGHT VIEW</a>
+                                        </div>
+                                        <div class='clearfix'></div>
+                                    </div>
                                 </div>
                             </div>
+                            <div id="popup_register" class='inline-register' data-input-id-prefix='vr_'>
+                                <form id="popup_content_register" action="javascript:void(0)">
+
+                                    <h4>Need more info?  Then register to experience the difference!</h4>
+                                    <div class="textfields">
+                                        <label for="register_name">Name*</label><input type="text" name="name" id="register_name" value="" placeholder=""><br>
+                                        <label for="register_email">Email*</label><input type="text" name="email" id="register_email" value="" placeholder=""><br>
+                                        <label for="register_contact">Contact*</label><input type="text" name="contact" id="register_contact" value="" placeholder="03-88888888, 012-3333333"><br>
+                                        <label for="register_company">Company*</label><input type="text" name="company" id="register_company" value=""><br>
+                                        <label for="register_businesstype">Business Type</label><input type="text" name="businesstype" id="register_businesstype" value=""><br>
+                                    </div>
+                                    <label check-boxes-label for="interest">Interest*</label>
+                                    <div class="checkboxes">
+                                        <div><input id="register_prosalesdemoversion" type="checkbox"><label register_prosalesdemoversion-check-box for="register_prosalesdemoversion"><div>Prosales Demo Version<br><span id="validfor30days">(valid for 30days)</span></div><span class="styledelement"></span></label></div>
+
+                                        <div><input id="register_ar" type="checkbox"><label for="register_ar">AR<span class="styledelement"></span></label></div>
+                                        <div><input id="register_crm" type="checkbox"><label for="register_crm">CRM<span class="styledelement"></span></label></div>
+                                        <div><input id="register_virtualtour" type="checkbox"><label for="register_virtualtour">360 Virtual Tour<span class="styledelement"></span></label></div>
+                                        <div><input id="register_mobileapplication" type="checkbox"><label for="register_mobileapplication">Mobile Application<span class="styledelement"></span></label></div>
+                                    </div>
+                                    <div class="buttons">
+                                        <input type="reset" id="register_reset" value="RESET">
+                                        <input type="submit" id="register_submit" value="SUBMIT">
+                                    </div>
+                                    <div class="error"><p>&nbsp;</p></div>
+                                    <div class="contactus">
+                                        or contact us
+                                        <a>012. 528 2857</a>
+                                        <a>012. 376 6611</a>
+                                    </div>
+
+                                </form>
+                            </div>
                         </div>
-                        <div class="section_down_btn_container"><a class="section_down_btn"></a></div>
+                        
                     </div>
                     
                     <div class="section_page" style="display:none;"></div>
                 </div>
                 </li>
+                    
                 <li>
                 <div class="section" id="section_ar" data-slideindex="4">
                     <div class="section_page">
@@ -290,6 +437,9 @@
                                 Create interactive print experiences with an Augmented<br>
                                 Reality view of your products.
                             </p>
+                                
+                            <a href='javascript:void(0)' class='scroll-to-register'><img src='img/go_demoversion.png'></a>
+                                
                             </div>
                             <div class="section_content section_content_extra">
                                 <h2>SMART WAY,  IT CAN MAKE ....</h2>
@@ -302,47 +452,41 @@
                                 <h2>POWER TO HARNESS YOUR BUSINESS TO THE NEXT LEVEL</h2>
                                 <p>Enter a new virtual world and discover the possibilities of Augmented Reality with Infra Design. Introducing a new dimension of a live, direct or indirect, view of a physical, real-world environment whose elements are augmented by computer-generated sensory input such as sound, video and graphics. A fasinating technology that manipulates real world data and overlays it with computer-generated wizardry, means exciting possibilities for our clients to explore and use to capture consumer interests.  </p>
                             </div>
-                        </div>
+                            <div id="popup_register" class='inline-register' data-input-id-prefix='ar_'>
+                                <form id="popup_content_register" action="javascript:void(0)">
 
-                        <div class="section_down_btn_container"><a class="section_down_btn"></a></div>
-                    </div>
-                    
-                    <div class="section_page" style="display:none;"></div>
-                </div>
-                </li>
-                <li>
-                <div class="section" id="section_360" data-slideindex="5">
-                    <div class="section_page">
-                        <div class="section_content_container">
-                            <div class="section_header"></div>
-                            <div class="section_content">
-                            <p class="title">
-                                A COMPREHENSIVE DIGITAL SUITE
-
-                            </p>
-                            <p class="msg">
-                                360° Virtual Tour is a smart solution for your customers who will be able to experience a<br>
-                                360 degree interior view of any property with just one touch
-                            </p>
-                            </div>
-                            <div class="section_content section_content_extra">
-                                <div class="section_360_showcase" id="showcase_360">
-                                    <h2>360° VIRTUAL REALITY TOUR</h2>
-                                    <div data-src="panorama/html/panorama/TYPE A HTML5/TYPE A.html" id="showcase_360_view">
-                                        <img src="img/go_size1024x480.png" width="100%" height="auto">
-                                        <iframe width="100%" height="100%"></iframe></div>
-                                    <p>360˚ Virtual Tour is a smart solution for your customers who will be able to experience a 360 degree interior view of any property with just one touch. This is a time and money savvy application to let your customers explore the property of their choice on your ipad or smart phone without the need of having an actual show house. </p>
-                                </div>
-                                <div class="section_360_showcase" id="showcase_panorama">
-                                    <h2>PANORAMA AERIAL VIEW</h2>
-                                    <div data-src="img/go_360_showcase_panorama.jpg" id="showcase_panorama_view">
-                                        <img src="img/go_size1024x410.png" width="100%" height="auto">
+                                    <h4>Need more info?  Then register to experience the difference!</h4>
+                                    <div class="textfields">
+                                        <label for="register_name">Name*</label><input type="text" name="name" id="register_name" value="" placeholder=""><br>
+                                        <label for="register_email">Email*</label><input type="text" name="email" id="register_email" value="" placeholder=""><br>
+                                        <label for="register_contact">Contact*</label><input type="text" name="contact" id="register_contact" value="" placeholder="03-88888888, 012-3333333"><br>
+                                        <label for="register_company">Company*</label><input type="text" name="company" id="register_company" value=""><br>
+                                        <label for="register_businesstype">Business Type</label><input type="text" name="businesstype" id="register_businesstype" value=""><br>
                                     </div>
-                                    <p>Capture dazzling panoramas from an elevated height. By using a balloon and camera rig, we have managed to launch this fixture into new heights so our clients can present the exact views from their high-rise properties. </p>
-                                </div>
+                                    <label check-boxes-label for="interest">Interest*</label>
+                                    <div class="checkboxes">
+                                        <div><input id="register_prosalesdemoversion" type="checkbox"><label register_prosalesdemoversion-check-box for="register_prosalesdemoversion"><div>Prosales Demo Version<br><span id="validfor30days">(valid for 30days)</span></div><span class="styledelement"></span></label></div>
+                                        <div><input id="register_ar" type="checkbox"><label for="register_ar">AR<span class="styledelement"></span></label></div>
+                                        <div><input id="register_crm" type="checkbox"><label for="register_crm">CRM<span class="styledelement"></span></label></div>
+                                        <div><input id="register_virtualtour" type="checkbox"><label for="register_virtualtour">360 Virtual Tour<span class="styledelement"></span></label></div>
+                                        <div><input id="register_mobileapplication" type="checkbox"><label for="register_mobileapplication">Mobile Application<span class="styledelement"></span></label></div>
+                                    </div>
+                                    <div class="buttons">
+                                        <input type="reset" id="register_reset" value="RESET">
+                                        <input type="submit" id="register_submit" value="SUBMIT">
+                                    </div>
+                                    <div class="error"><p>&nbsp;</p></div>
+                                    <div class="contactus">
+                                        or contact us
+                                        <a>012. 528 2857</a>
+                                        <a>012. 376 6611</a>
+                                    </div>
+
+                                </form>
                             </div>
                         </div>
-                        <div class="section_down_btn_container"><a class="section_down_btn"></a></div>
+
+                        
                     </div>
                     
                     <div class="section_page" style="display:none;"></div>
@@ -371,14 +515,27 @@
         <script src="js/jquery.mousewheel.min.js"></script>
         <script src="js/bxslider/jquery.bxslider.js"></script>
         <script src="js/fancybox/jquery.fancybox.js?v=2.1.5"></script>
-        
-		<script src="js/main.js?t=113"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+
         <!-- Google tracking  -->
 		<script>
-			var _gaq=[['_setAccount','UA-42485850-1'],['_trackPageview', '/home']];
+            function getUrlQueryByName(name) {
+                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                    results = regex.exec(location.search);
+                return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+            }
+            isgoapp = getUrlQueryByName('go') == '1';
+            
+            var _baseurl = isgoapp ? '/home/#/go' : '/home';
+            
+			var _gaq=[['_setAccount','UA-42485850-1'],['_trackPageview', _baseurl]];
 			(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
 			g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
 			s.parentNode.insertBefore(g,s)}(document,'script'));
 		</script>
+
+		<script src="js/main.js?v=118"></script>
+
 	</body>
 </html>
