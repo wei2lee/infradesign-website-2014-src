@@ -1,3 +1,5 @@
+var app = null;
+
 function AppController() {
     this.header = {
         height : 53  
@@ -7,6 +9,7 @@ function AppController() {
     };
     this.controllers = {};
     this.init = function(){
+        this.initHeader();
         $.each(this.controllers, function(i,controller){
             controller.init();
         });
@@ -15,20 +18,44 @@ function AppController() {
         
     };
     
+    this.initHeader = function() {
+        $("#mainContainer nav ul").slideUp(0);
+        $("#mainContainer nav .navbtn").click(function(evt) {
+            var hidden = $("#mainContainer nav ul").is(":hidden");
+            if (hidden) {
+                $("#mainContainer nav ul").slideDown(0);
+            } else {
+                $("#mainContainer nav ul").slideUp(0);
+            }
+        });
+        $("#mainContainer nav a").click(function(evt) {
+            $("#mainContainer nav ul").slideUp(0);
+        });
+    }
+    
+    this.controllers.home = new HomeController();
+    this.controllers.about = new AboutController();
+    this.controllers.platform = new PlatformController();
+    this.controllers.crew = new CrewController();
+    this.controllers.folios = new FoliosController();
+    this.controllers.contact = new ContactController();
+    
     return this;   
 }
-app = new AppController();
 
 function Controller() {
     return this;   
 }
 Controller.prototype = {
+    isFullPage : false,
     url : '',
     suburls : '',
     sel : '',
     subsels : null,
     $sel : null,
     isRoot : false,
+    controllers : [],
+    visible : false,
     testURL : function(lastevt, evt){        
         //console.log((typeof evt.pathNames) + ',length=' + evt.pathNames.length + ', [' + evt.pathNames + '],' + this.isRoot + ', ' +  (evt.pathNames[0] == '') + ',' + (evt.pathNames[0] == '/') );
         if(evt.pathNames.length == 0){
@@ -57,8 +84,10 @@ Controller.prototype = {
     onInitialized : function() {
         
     },
-    show : function(a) {
-        if(this.$sel.is(':visible'))return;
+    show : function(a) { 
+        if(this.visible)return;
+        
+        this.visible = true;
         $(window).on('resize', this, this._onResize);
         this.onShow(a);
         this.$sel.show();
@@ -66,13 +95,15 @@ Controller.prototype = {
         $(window).trigger('resize');
     },
     hide : function(a) {
-        if(!this.$sel.is(':visible'))return;   
+        if(!this.visible)return;   
+        
+        this.visible = false;
         $(window).off('resize', this._onResize);
         this.onHide(a);
         this.$sel.hide();
         this.onHidden(a);
     },
-    onShow : function(a){
+    onShow : function(a){ 
     },
     onShown : function(a){
     },
@@ -82,8 +113,6 @@ Controller.prototype = {
     },
     onResize : function(evt){
     },
-    
-    
     _onResize : function(evt){
         evt.data.onResize(evt);   
     }
@@ -115,43 +144,51 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
     init : function() {
         var _this = this;
         Controller.prototype.init.call(this);
-        this.$sliderContents = this.$sel.find('.sliderContent');
+        
+        this.$sliderContents = this.$sel.find('>.slider>li>.sliderContent');
+        
+        
         this.sliderOption.onSlideBefore = function($slideElement, oldIndex, newIndex){
-            _this.$sliderContents.eq(newIndex).scrollTop(1);
+            _this.$sliderContents.eq(newIndex).scrollTop(0);
         };
         this.sliderOption.onSlideAfter = function($slideElement, oldIndex, newIndex){
             $.address.value('/' + _this.url + '/' + _this.suburls[newIndex]);
         };
-        this.$slider = this.$sel.find('.slider').bxSlider(this.sliderOption);
+        this.$slider = this.$sel.find('>.slider').bxSlider(this.sliderOption);
+        this.hammer = new Hammer(this.$sel[0], {});
     },
-    onShow : function(a) {
+    onShow : function(a) { 
         var _this = this;
-        this.hammer = new Hammer(this.$sel.find('.sliderContainer').addBack('.sliderContainer')[0], {});
         this.hammer.on('swipeleft swiperight', function(evt){
             if(evt.type == 'swipeleft') _this.$slider.goToNextSlide();
             else _this.$slider.goToPrevSlide();
         });
         $(document).on('keydown', this, this._onKeyDown);
-        
-        this.$sliderContents.stop(true).animate({scrollTop:1},500);
     },
     onHide : function(a) {
         this.hammer.off('swipeleft swiperight');
         $(document).off('keydown', this._onKeyDown);
-        this.$sliderContents.scrollTop(1);
+        this.$sliderContents.scrollTop(0);
+        this.$slider.goToSlide(0);   
+        
+        //fix bxslider wouldnt udpate to proper state 
+        //if the slider is hidden before the transition is ended
+        this.$slider.slider.working = false;
+        this.$slider.unbind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd');
     },
     onHidden : function(a) {
-        this.$slider.goToSlide(0);   
+        //
     },
-    onKeyDown : function(evt){
+    onKeyDown : function(evt){ 
         if(evt.keyCode == 37) this.$slider.goToPrevSlide()
         else if(evt.keyCode == 39) this.$slider.goToNextSlide()
     },
-    onResize : function(evt){
+    onResize : function(evt){ 
         var ww = $(window).width();
         var wh = $(window).height();
-        this.$sliderContents.css({width:ww, height:wh - app.header.height, 'margin-top':app.header.height}); 
-        this.$sel.find('.bx-wrapper, .bx-viewport').css({height:wh}); 
+        if(this.isFullPage) this.$sliderContents.css({width:ww, height:wh, 'margin-top':0}); 
+        else this.$sliderContents.css({width:ww, height:wh - app.header.height, 'margin-top':app.header.height}); 
+        this.$sel.find('>.bx-wrapper, >.bx-wrapper>.bx-viewport').css({height:wh}); 
         this.$slider.redrawSlider();  
     },
     
@@ -163,10 +200,254 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
 function HomeController() {
     this.sel = '#home';
     this.url = 'home';
-    this.suburls = ['banner', 'prosales', 'saleskit', 'virtual-tour', 'ar'];
+    this.subsels = ['#banner', '#prosales', '#saleskit', '#virtual-tour', '#augmented-reality'];
+    this.suburls = ['banner', 'prosales', 'saleskit', 'virtual-tour', 'augmented-reality'];
+    this.controllers.banner = new BannerController();
+    this.controllers.prosales = new ProsalesController();
+    this.controllers.saleskit = new SaleskitController();
+    this.controllers.vr = new VRController();
+    this.controllers.ar = new ARController();
     return this;   
 }
-HomeController.prototype = $.extend(Object.create(SliderController.prototype), {});
+HomeController.prototype = $.extend(Object.create(SliderController.prototype), {
+    isFullPage : true,
+    init : function() {
+        SliderController.prototype.init.call(this);
+        for(k in this.controllers){
+            this.controllers[k].init();  
+        };
+    },
+    show : function() { 
+        SliderController.prototype.show.call(this);  
+        for(k in this.controllers){
+            this.controllers[k].show();  
+        };
+    },
+    
+    onShow : function() {
+        SliderController.prototype.onShow.call(this);
+    },
+    
+    onHide : function() {
+        SliderController.prototype.onHide.call(this);
+    },
+    
+    onResize : function(evt) {
+        var ww = $(window).width();
+        var wh = $(window).height();
+        for(k in this.controllers){
+            var controller = this.controllers[k];
+            if(controller.isFullPage) controller.$sel.css({width:ww, height:wh, 'margin-top':0}); 
+            else controller.$sel.css({width:ww, height:wh - app.header.height, 'margin-top':app.header.height}); 
+        }
+        this.$sel.find('>.bx-wrapper, >.bx-wrapper>.bx-viewport').css({height:wh}); 
+        this.$slider.redrawSlider();  
+    }
+    
+});
+
+////Child Controllers inside HomeController
+function BannerController() {
+    this.sel = '#home #banner';
+}
+BannerController.prototype = $.extend(Object.create(SliderController.prototype), {
+    isFullPage : true,
+    sliderOption : {
+        mode: 'horizontal',
+        controls: false,
+        pager: true,
+        touchEnabled: false,
+        infiniteLoop: false,
+        startSlide: 0,
+        auto:false,
+        speed:750,
+        pause:5500
+    },
+    init : function() { 
+        var _this = this;
+        Controller.prototype.init.call(this);
+        this.$sliderContents = this.$sel.find('.slider>li>.sliderContent');
+        this.sliderOption.onSlideBefore = function($slideElement, oldIndex, newIndex){
+            if(newIndex == 0){
+                $('footer').find("#fb-btn, #tw-btn").removeClass("bright");   
+            }else{
+                $('footer').find("#fb-btn, #tw-btn").addClass("bright");
+            }
+        };       
+                       
+        this.$slider = this.$sel.find('.slider').bxSlider(this.sliderOption);
+        
+        this.$sel.find('[data-slidercontent]').click(function(){
+            var i = app.controllers.home.subsels.indexOf($(this).attr('data-slidercontent'));
+            if(i>=0){
+                app.controllers.home.$slider.goToSlide(i);   
+            }
+        });
+    },
+    onShow : function(a) { 
+        var _this = this;
+        this.$slider.startAuto();
+    },
+    onHide : function(a) {
+        this.$sliderContents.scrollTop(0);
+        this.$slider.goToSlide(0);   
+        this.$slider.stopAuto();
+        //fix bxslider wouldnt udpate to proper state 
+        //if the slider is hidden before the transition is ended
+        this.$slider.slider.working = false;
+        this.$slider.unbind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd');
+    },
+    onHidden : function(a) {
+        //
+    },
+    onResize : function(evt){ 
+        var ww = $(window).width();
+        var wh = $(window).height();
+        this.$sliderContents.css({width:ww, height:wh}); 
+        this.$sel.find('>.bx-wrapper, >.bx-wrapper>.bx-viewport').css({height:wh}); 
+        this.$slider.redrawSlider();  
+    },
+});
+
+function ProsalesController() {
+    this.sel = '#home #prosales';
+}
+ProsalesController.prototype = $.extend(Object.create(Controller.prototype), {});
+
+function SaleskitController() {
+    this.sel = '#home #saleskit';
+}
+SaleskitController.prototype = $.extend(Object.create(Controller.prototype), {});
+
+function VRController() {
+    this.sel = '#home #virtual-tour';
+}
+VRController.prototype = $.extend(Object.create(Controller.prototype), {
+    
+    showcase_panorama : null,
+    showcase_tour : null,
+    panoramaShowcaseTime : -1,
+    panoramaShowcaseTimeline : null,
+    
+    startShowcase360tour : function(){
+        var datasrc = this.showcase_tour.attr('data-src');
+        this.showcase_tour.find('iframe').attr('src', datasrc);
+    },
+    stopShowcase360tour : function(){
+        this.showcase_tour.find('iframe').attr('src', '');
+    },
+    
+    startShowcasePanoramaSlideShow : function(){
+        this.setPanoramaShowcaseTime(0);
+        new Image().src = this.showcase_panorama.attr('data-src-1');
+        this.showcase_panorama.css({'background-size':(1735/1024*100)+'%'});
+        this.showcase_panorama.css({'background-position': '0% 50%' });
+        this.showcase_panorama.hide();
+        this.animateShowcasePanoramaSlideShow();
+    },
+    stopShowcasePanoramaSlideShow : function(){
+        this.showcase_panorama.stop(true);
+        this.panoramaShowcaseTimeline.kill();
+    },
+    
+    setPanoramaShowcaseTime : function(i,a) {
+        var _this = this;
+        
+        if(i == 'evening') i = 0;
+        else if(i == 'night') i = 1;
+        if(this.panoramaShowcaseTime == i)return;
+        this.panoramaShowcaseTime = i; 
+        
+        if(i == -1){
+            return;   
+        }
+        
+        this.$sel.find('.change-time-btn-group a').removeClass('selected');
+        this.$sel.find('.change-time-btn-group a[data='+['evening','night'][i]+']').addClass('selected');
+        
+        var datasrcs = [this.showcase_panorama.attr('data-src-0'), this.showcase_panorama.attr('data-src-1')];
+        if(!a){
+            if(i == 0){
+                this.showcase_panorama.css({'background-image':'url('+datasrcs[0]+')'});
+            }else if(i == 1){
+                this.showcase_panorama.css({'background-image':'url('+datasrcs[1]+')'});
+            }
+        }else{
+            var tl = new TimelineMax({paused:true});
+            tl.append(TweenMax.to(this.showcase_panorama, 0.3, {alpha:0}));
+            tl.append(TweenMax.delayedCall(0,function(){
+                if(i == 0){
+                    _this.showcase_panorama.css({'background-image':'url('+datasrcs[0]+')'});
+                }else if(i == 1){
+                    _this.showcase_panorama.css({'background-image':'url('+datasrcs[1]+')'});
+                }
+            }));
+            tl.append(TweenMax.to(this.showcase_panorama, 0.3, {alpha:1}));
+            tl.play();
+        }
+    },
+
+    animateShowcasePanoramaSlideShow : function() {
+        var _this = this;
+        this.showcase_panorama.stop(true).fadeIn();
+        var anim = this.panoramaShowcaseTimeline = new TimelineMax({paused:true});
+        var o = {
+            x:0, 
+            onUpdate:function(){
+                _this.showcase_panorama.css({'background-position':o.x+'% 50%'});
+            }
+        }
+        anim.append(TweenMax.fromTo(o, 12, {x:0}, {x:100, ease:Quad.easeInOut, onUpdate:o.onUpdate},2));
+        anim.append(TweenMax.fromTo(o, 12, {x:100}, {x:0, ease:Quad.easeInOut, onUpdate:o.onUpdate},2));
+        anim.append(TweenMax.delayedCall(0, function(){
+            anim.restart(); 
+        }),2);
+        
+        anim.restart(); 
+        return;
+    },
+    
+    init : function() {
+        var _this = this;
+        Controller.prototype.init.call(this);
+        this.showcase_panorama = this.$sel.find("#showcase_panorama_view");
+        this.showcase_tour = this.$sel.find("#showcase_360_view");
+        this.showcase_tour.find("iframe").bind("mousewheel", function(){ return false; });
+        this.$sel.find('.change-time-btn-group a').on('click', this, function(evt){
+            var data = $(this).attr('data');
+            evt.data.setPanoramaShowcaseTime(data,true);
+        });
+    },
+    
+    
+    onShow : function() { 
+        Controller.prototype.onShow.call(this); 
+        this.startShowcasePanoramaSlideShow();
+        this.startShowcase360tour();
+    },
+    
+    onHide : function() {
+        Controller.prototype.onHide.call(this);
+        this.stopShowcasePanoramaSlideShow();
+        this.stopShowcase360tour();
+    },
+    
+    onResize : function() {
+        Controller.prototype.onResize.call(this);
+    }
+});
+
+
+function ARController() {
+    this.sel = '#home #augmented-reality';
+}
+ARController.prototype = $.extend(Object.create(Controller.prototype), {});
+
+
+
+////END -- Child Controller inside HomeController
+
+
 
 function AboutController() {
     this.sel = '#about';
@@ -175,6 +456,7 @@ function AboutController() {
     this.suburls = ['what-define-us', 'what-we-do', 'how-we-work'];
     return this;   
 }
+
 AboutController.prototype = $.extend(Object.create(SliderController.prototype), {});
 
 function PlatformController() {
@@ -298,7 +580,7 @@ FoliosController.prototype = $.extend(Object.create(SliderController.prototype),
             this.preload.objs = [];
         }
     },
-    preloadFoliosImage : function() { console.log('preloadFoliosImage');
+    preloadFoliosImage : function() { 
         
         this.preload.state = 1;
         this.preload.total = this.$sel.find(".folios_page>div").length;
@@ -314,7 +596,7 @@ FoliosController.prototype = $.extend(Object.create(SliderController.prototype),
             var obj = { 'ele':$(this), 'img': new Image() };
             obj.img.onload = function() { 
                 _this.preload.loaded++;
-                console.log('preloadFoliosImage@img.onload, loaded='+_this.preload.loaded + ',' + _this.preload.total);
+                
                 if (_this.preload.loaded == _this.preload.total && _this.preload.state == 1) {
                     _this.preload.state = 2;
                     _this.onPreloadedFoliosImage();
@@ -326,7 +608,7 @@ FoliosController.prototype = $.extend(Object.create(SliderController.prototype),
         });
     },
 
-    onPreloadedFoliosImage : function() { console.log('onPreloadedFoliosImage');
+    onPreloadedFoliosImage : function() { 
         var _this = this;
         $.each(this.preload.objs, function(i, obj) {
             var grayScaleData = Filters.filterImage(Filters.grayscale, obj.img);
@@ -342,7 +624,7 @@ FoliosController.prototype = $.extend(Object.create(SliderController.prototype),
         if(this.preload.startAnimOnPreloaded) this.startFoliosAnimation();
     },
     
-    stopFoliosAnimation : function() { console.log('stopFoliosAnimation');
+    stopFoliosAnimation : function() { 
         if(this.foliosanim1delay){
             this.foliosanim1delay.kill();
             this.foliosanim1.kill();
@@ -360,7 +642,7 @@ FoliosController.prototype = $.extend(Object.create(SliderController.prototype),
         $("#folios_page2").unbind('mouseenter mouseleave mouseover mouseout');
     },
     
-    startFoliosAnimation : function() { console.log('startFoliosAnimation');
+    startFoliosAnimation : function() { 
         var _this = this;
         var pagedelay = 2;
         var pagedelay2 = 1.5;
@@ -656,8 +938,7 @@ ContactController.prototype = $.extend(Object.create(SliderController.prototype)
     }
 });
 
-
-
+app = new AppController();
 $(document).ready(function(){
     $("body").on("show", ".modal", function () { console.log('modal show');
         $(this).css({
@@ -671,37 +952,21 @@ $(document).ready(function(){
     bouncefix.add('sliderContent');
     bouncefix.add('mainScrollContent');
     
-    $("#mainContainer nav ul").slideUp(0);
-    $("#mainContainer nav .navbtn").click(function(evt) {
-        var hidden = $("#mainContainer nav ul").is(":hidden");
-        if (hidden) {
-            $("#mainContainer nav ul").slideDown(0);
-        } else {
-            $("#mainContainer nav ul").slideUp(0);
-        }
-    });
-    $("#mainContainer nav a").click(function(evt) {
-        $("#mainContainer nav ul").slideUp(0);
-    });
-    
-    app.controllers.home = new HomeController();
-    app.controllers.about = new AboutController();
-    app.controllers.platform = new PlatformController();
-    app.controllers.crew = new CrewController();
-    app.controllers.folios = new FoliosController();
-    app.controllers.contact = new ContactController();
     app.init();
     
     var lastProcessedEvent = null;
     $.address.init(function(event) {
         var prevvalue = lastProcessedEvent ? lastProcessedEvent.value : "";
-        console.log('address.init@' + prevvalue + ' > '+event.value);
+        
+        var match = '';
         $.each(app.controllers, function(name, controller) {
             if (controller.processURL(lastProcessedEvent, event)) {
+                match = controller.sel;
                 lastProcessedEvent = event;
                 return false;
             }
         });
+        console.log('address.init@' + prevvalue + ' > '+event.value + ', match:'+match);
         $('a').each(function() {
             var alink = $(this).attr('href') || "";
             if (alink.indexOf('#') == 0) {
@@ -711,7 +976,7 @@ $(document).ready(function(){
         });
     }).bind('change', function(event) {
         var prevvalue = lastProcessedEvent ? lastProcessedEvent.value : "";
-        console.log('address.change@' + prevvalue + ' > '+event.value);
+        
         if (lastProcessedEvent && lastProcessedEvent.value == event.value) return;
 
         $('a').each(function() {
@@ -722,13 +987,16 @@ $(document).ready(function(){
             }
         });
         var processed = false;
+        var match = '';
         $.each(app.controllers, function(name, controller) {
             if (controller.processURL(lastProcessedEvent, event)) {
                 lastProcessedEvent = event;
                 processed = true;
+                match = controller.sel;
                 return false;
             }
         });
+        console.log('address.change@' + prevvalue + ' > '+event.value);
     });
     
     

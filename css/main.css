@@ -193,10 +193,10 @@ body.home #header {position:fixed; }
 #section_prosales .section_page p.title { width: 100%; }
 #section_prosales .section_listing1 { z-index:1; }
 #section_prosales #prosales-content-2 { z-index:0; position:relative; margin-top:-11%; }
-#section_prosales #prosales-content-2 .scale-content { background:url(../img/go_crm_devices.png) 83% 62% no-repeat; background-size:50%; }
+#section_prosales #prosales-content-2 .scale-content { background:url(../img/go_crm_devices.png) 89% 63% no-repeat; background-size:46%; }
 #section_prosales .section_content_extra #crm_anywhere { width:63%; margin:75% auto 0 auto; text-align:left; color:#000; font-size:1.2em; line-height:1.2em;}
 #section_prosales .section_content_extra #crm_anywhere #crm_everything1 { width:90%; margin:1em 5% 0 5%;}
-#section_prosales .section_content_extra #crm_anywhere #crm_everything2 { width:58%; margin:1em 37% 0 5%; }
+#section_prosales .section_content_extra #crm_anywhere #crm_everything2 { width:67%; margin:1em 37% 0 5%; }
 #section_prosales .section_content_extra #crm_anywhere ul { width:58%; margin:1em 37% 0 5%; font-size:1.2em; line-height:1.2em; }
 #section_prosales .section_content_extra #crm_charts { width:66%; margin:0 auto; }
 

@@ -1,27 +1,35 @@
 <?php
 	require_once("inc/class.phpmailer.php");
-	
-	$name = $_POST["name"];
-	$company = $_POST["company"];
-	$contact = $_POST["contact"];
-	$email = $_POST["email"];
-	$date = $_POST["date"];
-	$budget = $_POST["budget"];
-	$message = $_POST["message"];
+    function boolProperties2String($o){
+        $ret = "";
+        foreach($o as $key => $value){
+            if($value){
+                if($ret == "") $ret .= $key;
+                else $ret .= ", " . $key;
+            }
+        }
+        return $ret;
+    }
+    $body = "";
+    $email = "mail.infradesign.com.my"
+    $name = "infradesign.com.my Admin";
+    foreach ($_POST as $key => $value) {
+        $displayName = "";
+        $displayValue = "";
 
-    $
+        $displayName = $key;   
+        if($key == "interest"){
+            $displayValue = boolProperties2String($value);
+        }else{
+            $displayValue = $value; 
+        }
+        $displayName = ucfirst($displayName);
+        $body .= "<b>$displayName:</b> $displayValue<br/><br/>";
+    }
 
 	
 	$sender = ($email != "" ? $email : "info@infradesign.com.my");
-	$subject = "Contact Info";
-	$body  = "<b>CONTACT INFO</b><br/><br/>";
-	$body .= "<b>Name:</b> {$name}<br/><br/>";
-	$body .= "<b>Company:</b> {$company}<br/><br/>";
-	$body .= "<b>Contact:</b> {$contact}<br/><br/>";
-	$body .= "<b>Email:</b> <a href='mailto:{$email}'>{$email}</a><br/><br/>";
-	$body .= "<b>Start date:</b> {$date}<br/><br/>";
-	$body .= "<b>Budget:</b> {$budget}<br/><br/>";
-	$body .= "<b>Message:</b> {$message}<br/>";
+	$subject = "Registration";
 	
 	$mailer = new PHPMailer();
 	$mailer->IsSMTP();
@@ -35,7 +43,6 @@
 	$mailer->SetFrom($sender, $name);
 	$mailer->AddReplyTo($sender, $name);
 	$mailer->AddAddress("christina@infradesign.com.my", "Christina Leong");
-	$mailer->AddAddress("sebastian@infradesign.com.my", "Sebastian Chong");
 	$mailer->Subject = $subject;
 	$mailer->MsgHTML($body);
 	

@@ -101,6 +101,7 @@
 		var slider = {};
 		// set a reference to our slider element
 		var el = this;
+		el.slider = slider;
 		plugin.el = this;
 
 		/**
@@ -1201,7 +1202,10 @@
 				if ("undefined" !== typeof(position)) {
 					var value = slider.settings.mode == 'horizontal' ? -(position.left - moveBy) : -position.top;
 					// plugin values to be animated
-					setPositionProperty(value, 'slide', slider.settings.speed);
+					if(direction == 'reset')
+						setPositionProperty(value, 'reset', 0);
+					else
+						setPositionProperty(value, 'slide', slider.settings.speed);
 				}
 			}
 		}

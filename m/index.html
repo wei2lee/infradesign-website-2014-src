@@ -37,8 +37,34 @@
                 <div class="sliderContainer mainContent" id="home">
                     <ul class="slider">
                         <li>                            
-                            <div id="banner" class="sliderContent">
-                                3 Go Icons and Home Page slider
+                            <div id="banner" class="sliderContent sliderContainer">
+                                <ul class="slider">
+                                    <li>
+                                        <div class="sliderContent" id="home-banner-0">
+                                            <ul>
+                                                <li>
+                                                    <a data-slidercontent="#prosales"><img src="../img/go_home_btn_prosales.png" width="100%" height="auto"></a>
+                                                </li>
+                                                <li>
+                                                    <a data-slidercontent="#saleskit"><img src="../img/go_home_btn_propertygoapp.png" width="100%" height="auto"></a>
+                                                </li>
+                                                <li>
+                                                    <a data-slidercontent="#virtual-tour"><img src="../img/go_home_btn_360.png" width="100%" height="auto"></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="sliderContent" id="home-banner-1">
+                                            <p>
+                                            IT'S NOT<br>
+                                            ABOUT IDEAS.<br>
+                                            IT'S ABOUT MAKING<br>
+                                            IDEAS HAPPEN.
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                         </li>
                         <li>
@@ -49,7 +75,7 @@
                                         <p class='bigtitle'>EASIER, FASTER &amp; SMOOTHER</p>
                                         <p class='msg'>ProSales allows your sales person to use a tablet to manage client information and place booking. Managers can also track the team's sales activities with dynamic reports and within a few minutes manage to print 
 all the documents you need</p>
-                                        <a class='demo' href='javascript:void(0)' alt='demo'><img src='images/prosales_demo@2x.png'></a>
+                                        <a class='demo scroll-to-register' href='javascript:void(0)' alt='demo'><img src='images/prosales_demo@2x.png'></a>
                                     </div>
                                 </div>
                                 <div class="scale-container video-container" >
@@ -155,7 +181,7 @@ all the documents you need</p>
                                         <p class='bigtitle'>SMART MOBILITY SOLUTIONS</p>
                                         <p class='msg'>Mobile Sales Kit is an enterprise grade application that brings your sales and marketing materials anywhere with you. Ensuring that you always have the latest documents available</p>
                                         
-                                        <a class='demo' href='javascript:void(0)' alt='demo'><img src='images/saleskit_register_now@2x.png'>
+                                        <a class='demo scroll-to-register' href='javascript:void(0)' alt='demo'><img src='images/saleskit_register_now@2x.png'>
                                             <div>REGISTER NOW!</div>
                                         </a>
                                     </div>
@@ -203,20 +229,72 @@ all the documents you need</p>
                                         <p class='bigtitle'>A COMPREHENSIVE DIGITAL SUITE</p>
                                         <p class='msg'>360° Virtual Tour is a smart solution for your customers who will be able to experience a 360 degree interior view of any property with just one touch</p>
                                         
-                                        <a class='demo' href='javascript:void(0)' alt='demo'><img src='images/vr_register_now@2x.png'>
+                                        <a class='demo scroll-to-register' href='javascript:void(0)' alt='demo'><img src='images/vr_register_now@2x.png'>
                                             <div>REGISTER NOW!</div>
                                         </a>
                                     </div>
                                 </div>
                                 
-                                <div>
-                                
+                                <div class="showcase" id="showcase_360">
+                                    <p class='title'>360° VIRTUAL REALITY TOUR</p>
+                                    <div class="scale-container" data-src="../panorama/html/panorama/TYPE A HTML5/TYPE A.html" id="showcase_360_view">
+                                        <img src="../img/go_size1024x480.png" width="100%" height="auto">
+                                        <div class='scale-content'>
+                                            <iframe width="100%" height="100%"></iframe>
+                                        </div>
+                                    </div>
+                                    <div class='showcase-desc'>
+                                        <p>360˚ Virtual Tour is a smart solution for your customers who will be able to experience a 360 degree interior view of any property with just one touch. This is a time and money savvy application to let your customers explore the property of their choice on your ipad or smart phone without the need of having an actual show house. </p>
+                                    </div>
+                                </div>
+                                <div class="showcase" id="showcase_panorama">
+                                    <p class='title'>PANORAMA AERIAL VIEW</p>
+                                    <div class='scale-container' data-src-0="../img/go_360_showcase_panorama_evening.jpg" data-src-1="../img/go_360_showcase_panorama_night.jpg" id="showcase_panorama_view">
+                                        <img src="../img/go_size1024x410.png" width="100%" height="auto">
+                                        <div class='scale-content'>
+                                        </div>
+                                    </div>
+                                    <div class='change-time-btn-group'>
+                                        <a data='evening' href='javascript:void(0)'>EVENING VIEW</a>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<a data='night' href='javascript:void(0)'>NIGHT VIEW</a>
+                                    </div>
+                                    <div class='showcase-desc'>
+                                        <p>Capture dazzling panoramas from an elevated height. By using a balloon and camera rig, we have managed to launch this fixture into new heights so our clients can present the exact views from their high-rise properties. </p>
+                                        <div class='clearfix'></div>
+                                    </div>
                                 </div>
                             </div>
                         </li>
                         <li>
-                            <div id="ar" class="sliderContent">
-                                Go Content ar
+                            <div id="augmented-reality" class="sliderContent">
+                                <div class="scale-container" id='ar-content-1'>
+                                    <img src='images/vr_bg_01_box.png'>
+                                    <div class="scale-content">
+                                        <p class='bigtitle'>REALITY MADE INTERACTIVE</p>
+                                        <p class='msg'>Create interactive print experiences with an Augmented Reality view of your products.</p>
+                                        
+                                        <a class='demo scroll-to-register' href='javascript:void(0)' alt='demo'><img src='images/ar_register_now@2x.png'>
+                                            <div>REGISTER NOW!</div>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div id='ar-content-2'>
+                                    <p class='title'>SMART WAY,  IT CAN MAKE ....</p>
+                                    <ul class='msglist-3'>
+                                        <li>Video</li>
+                                        <li>Slide Photo</li>
+                                        <li>Virtual 3D</li>
+                                        <li>360 Virtual Tour</li>
+                                    </ul>
+                                </div>
+                                
+                                <div id='ar-content-3'>
+                                    <p class='title'>PUSH YOUR BUSINESS TO THE NEXT LEVEL</p>
+                                    <p class='msg'>Introducing a new dimension of a live, direct or indirect, view of a physical, real-world environment whose elements are augmented by computer-generated sensory input such as sound, video and graphics. A fascinating technology that manipulates real world data and overlays it with computer-generated wizardry, means exciting possibilities for you to explore and use to capture customer interests.  </p>
+                                </div>
+                                <div class='img-container paddingContainer'>
+                                    <img src='../img/go_ar_pagebg2.png'>
+                                </div>
                             </div>
                         </li>
                     </ul>

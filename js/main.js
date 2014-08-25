@@ -802,8 +802,9 @@ function initHome() {
         var sectionContainer = $(this).parents('.section_content_container'); 
         var top = sectionContainer.find('.inline-register').position().top;
         var time = 750;
-        
-        console.log('scroll top='+top+',time='+time);
+        var speed = 3300 / 750 * 0.9;
+        //console.log('scroll top='+top+',time='+time);
+        time = top / speed;
         sectionContainer.stop(true).animate({scrollTop:top}, time);
     });
 
@@ -1142,6 +1143,35 @@ function initHome() {
                 reason = "Please tick at least one interest.";   
                 throw reason;
             }
+            $("#container").css("cursor", "wait");
+            busy = true;
+
+            
+            
+            $.ajax(
+            {
+                type: "POST",
+                url: "api_register.php",
+                data:user,
+                success: function(response)
+                {
+                    console.log("api_register.php response="+response);
+                    busy = false;
+                    $("#container").css("cursor", "auto");
+                    resetForm(true);
+                    form.find(".error p").html("Enquiry has been sent.");
+                    form.find(".error p").stop().hide(0).fadeIn(150);
+                },
+                error: function(xhr, optns, err)
+                {
+                    busy = false;
+                    $("#container").css("cursor", "auto");
+                    form.find(".error p").html("Error: " + (err || "Cannot connect to server!"));
+                    form.find(".error p").stop().hide(0).fadeIn(150);
+                }
+            });
+            
+            
         } catch(err){
             form.find(".error p").delay(200).html(reason).show();
             return;
