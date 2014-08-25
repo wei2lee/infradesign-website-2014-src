@@ -221,7 +221,14 @@ HomeController.prototype = $.extend(Object.create(SliderController.prototype), {
         SliderController.prototype.show.call(this);  
         for(k in this.controllers){
             this.controllers[k].show();  
-        };
+        }
+    },
+    
+    hide : function() {
+        for(k in this.controllers){
+            this.controllers[k].hide();  
+        }
+        SliderController.prototype.hide.call(this);  
     },
     
     onShow : function() {
