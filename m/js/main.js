@@ -355,6 +355,7 @@ VRController.prototype = $.extend(Object.create(Controller.prototype), {
     stopShowcasePanoramaSlideShow : function(){
         this.showcase_panorama.stop(true);
         this.panoramaShowcaseTimeline.kill();
+        this.showcase_panorama.attr('src','');
     },
     
     setPanoramaShowcaseTime : function(i,a) {
@@ -483,6 +484,36 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
                 _this.$slider.goToSlide(i);   
             }
         });
+    },
+    
+    onResize : function() {
+        SliderController.prototype.onResize.call(this);
+        var videoparent = this.$sel.find('video').parent();
+        var pw = videoparent.width();
+        var ph = videoparent.height();
+        this.$sel.find('#ic-video').css({'width':pw+'px', 'height':ph+'px'});
+    },
+    
+    onShow : function() {
+        SliderController.prototype.onShow.call(this);
+        /*
+        this.$sel.find('#ic-video source').each(function(){
+            var src = $(this).attr('data-src');
+            $(this).attr('src',src); 
+        });//*/
+        
+        //var src = this.$sel.find('iframe').attr('data-src');
+        //this.$sel.find('iframe').attr('src', src);
+    },
+    
+    onHide : function() {
+        SliderController.prototype.onHide.call(this);
+        /*
+        this.$sel.find('#ic-video source').each(function(){
+            $(this).attr('src',''); 
+        });//*/
+        
+        //this.$sel.find('iframe').attr('src', '');
     }
 });
 

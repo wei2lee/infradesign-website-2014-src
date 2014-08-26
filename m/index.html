@@ -10,7 +10,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="js/vendor/modernizr.custom.79390.js"></script>
         <link rel="stylesheet" href="../js/bxslider/jquery.bxslider.css">
-        <link rel="stylesheet" href="../js/fancybox/jquery.fancybox.css?v=2.1.5" media="screen" />
         <link rel="stylesheet" href="js/vendor/bootstrapvalidator/bootstrapValidator.min.css">
         <link rel="stylesheet/less" type="text/css" href="css/main.less">
         <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js"></script>
@@ -70,7 +69,7 @@
                         <li>
                             <div id="prosales" class="sliderContent">
                                 <div class="scale-container go-top-content">
-                                    <img src='images/prosales_bg_01_box.png'>
+                                    <canvas width=320 height=393></canvas>
                                     <div class="scale-content">
                                         <p class='bigtitle'>EASIER, FASTER &amp; SMOOTHER</p>
                                         <p class='msg'>ProSales allows your sales person to use a tablet to manage client information and place booking. Managers can also track the team's sales activities with dynamic reports and within a few minutes manage to print 
@@ -79,7 +78,7 @@ all the documents you need</p>
                                     </div>
                                 </div>
                                 <div class="scale-container video-container" >
-                                    <img src='images/prosales-video-box.png'>
+                                    <canvas width=320 height=180></canvas>
                                     <div class='scale-content'>
                                         <a class='btn-play-video' href='javascript:void(0)'><img src='images/btn_play@2x.png'></a>
                                     </div>
@@ -137,7 +136,7 @@ all the documents you need</p>
                                 <div class='paddingContainer'>
                                     <form class='more-info form-horizontal'>
                                         <p></p>
-                                        <div class='form-group'><label class='control-label' for='mi-name'>Name</label><div><input type='text' class='form-control' id='mi-name' name='mi-name'></div></div>
+                                         <div class='form-group'><label class='control-label' for='mi-name'>Name</label><div><input type='text' class='form-control' id='mi-name' name='mi-name'></div></div>
                                         <div class='form-group'><label class='control-label' for='mi-email'>Email</label><div><input type='text' class='form-control' id='mi-email' name='mi-email'></div></div>
                                         <div class='form-group'><label class='control-label' for='mi-contact'>Contact</label><div><input type='text' class='form-control' id='mi-contact' name='mi-contact'></div></div>
                                         <div class='form-group'><label class='control-label' for='mi-comapany'>Company</label><div><input type='text' class='form-control' id='mi-comapany' name='mi-comapany'></div></div>
@@ -176,7 +175,7 @@ all the documents you need</p>
                         <li>
                             <div id="saleskit" class="sliderContent">
                                 <div class="scale-container" id='saleskit-content-1'>
-                                    <img src='images/saleskit_bg_01_box.png'>
+                                    <canvas width=320 height=218></canvas>
                                     <div class="scale-content">
                                         <p class='bigtitle'>SMART MOBILITY SOLUTIONS</p>
                                         <p class='msg'>Mobile Sales Kit is an enterprise grade application that brings your sales and marketing materials anywhere with you. Ensuring that you always have the latest documents available</p>
@@ -224,7 +223,7 @@ all the documents you need</p>
                         <li>
                             <div id="virtual-tour" class="sliderContent">
                                 <div class="scale-container" id='vr-content-1'>
-                                    <img src='images/vr_bg_01_box.png'>
+                                    <canvas width=320 height=218></canvas>
                                     <div class="scale-content">
                                         <p class='bigtitle'>A COMPREHENSIVE DIGITAL SUITE</p>
                                         <p class='msg'>360° Virtual Tour is a smart solution for your customers who will be able to experience a 360 degree interior view of any property with just one touch</p>
@@ -238,7 +237,7 @@ all the documents you need</p>
                                 <div class="showcase" id="showcase_360">
                                     <p class='title'>360° VIRTUAL REALITY TOUR</p>
                                     <div class="scale-container" data-src="../panorama/html/panorama/TYPE A HTML5/TYPE A.html" id="showcase_360_view">
-                                        <img src="../img/go_size1024x480.png" width="100%" height="auto">
+                                        <canvas width=1024 height=480></canvas>
                                         <div class='scale-content'>
                                             <iframe width="100%" height="100%"></iframe>
                                         </div>
@@ -250,7 +249,7 @@ all the documents you need</p>
                                 <div class="showcase" id="showcase_panorama">
                                     <p class='title'>PANORAMA AERIAL VIEW</p>
                                     <div class='scale-container' data-src-0="../img/go_360_showcase_panorama_evening.jpg" data-src-1="../img/go_360_showcase_panorama_night.jpg" id="showcase_panorama_view">
-                                        <img src="../img/go_size1024x410.png" width="100%" height="auto">
+                                        <canvas width=1024 height=410></canvas>
                                         <div class='scale-content'>
                                         </div>
                                     </div>
@@ -267,7 +266,7 @@ all the documents you need</p>
                         <li>
                             <div id="augmented-reality" class="sliderContent">
                                 <div class="scale-container" id='ar-content-1'>
-                                    <img src='images/vr_bg_01_box.png'>
+                                    <canvas width=320 height=218></canvas>
                                     <div class="scale-content">
                                         <p class='bigtitle'>REALITY MADE INTERACTIVE</p>
                                         <p class='msg'>Create interactive print experiences with an Augmented Reality view of your products.</p>
@@ -408,8 +407,25 @@ all the documents you need</p>
                                     <img src="images/platform_cg.jpg" width="100%" height="auto">
                                     <p class="title">Computer Graphic / CG</p>
                                     <p class="msg">Creative Design excellence lifts the visual presentation of our ideas and our clients requirements to a whole new level of vibrancy. Our stunning graphics will help every business find its voice and image whilst gaining an advantage in the highly competitive world of brand recognition. </p>
-                                    <img src="images/platform_vrt01.jpg" width="100%" height="auto">
-                                    <img src="images/platform_vrt02.jpg" width="100%" height="auto">
+                                    
+                                    
+                                    <div class='scale-container'>
+                                        <canvas width="624" height="352"></canvas>
+                                        <div class='scale-content'>
+                                            <video id='ic-video' controls poster='images/platform_video_poster.png'>
+                                                <source src="../videos/swiss_garden.mp4" type="video/mp4">
+                                                <source src="../videos/swiss_garden.webm" type="video/webm">
+                                            </video>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class='scale-container' id='ic-content-2'>
+                                        <canvas widht='288' height='170'></canvas>
+                                        <div class='scale-content'>
+                                            <iframe data-src='../360/melaka_show.html' width='100%' height='100%'></iframe>
+                                        </div>
+                                    </div>
+                                    
                                     <p class="title">Virtual Reality Tour / VRT</p>
                                     <p class="msg">360˚ Virtual Tour is a smart solution for your customers who will be able to experience a 360 degree interior view of any property with just one touch. This is a time and money savvy application to let your customers explore the property of their choice on your ipad or smart phone without the need of having an actual show house. </p>
                                     <img src="images/platform_pav01.jpg" width="100%" height="auto">
@@ -650,10 +666,8 @@ all the documents you need</p>
     <script src="js/vendor/jquery-1.8.2.min.js"></script>
     <script src="js/vendor/jquery.address-1.5.min.js"></script>
     <script src="js/vendor/hammerjs/hammer.min.js"></script>
-    <script src="js/vendor/jquery.hammer.js"></script>
     <script src="js/vendor/bootstrap.js"></script>
     <script src="../js/bxslider/jquery.bxslider.js"></script>
-    <script src="../js/fancybox/jquery.fancybox.js?v=2.1.5"></script>
     <script src="js/vendor/bootbox.min.js"></script>
     <script src="js/vendor/bootstrapvalidator/bootstrapValidator.min.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>

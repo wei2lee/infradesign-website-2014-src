@@ -122,19 +122,31 @@ html, body, ul, li { padding:0; margin:0; }
 
 .scale-container {
     position:relative;
-    > img { 
+    > img:first-child, >canvas:first-child { 
+        top:0;
+        left:0;
         position:relative;
         z-index:0;
         width:100%;
         max-width:100%;
         height:auto;
+        border:none; 
     }
     > .scale-content {
         position:absolute;
+        left:0;
         top:0;
         z-index:1;
         width:100%;
         height:100%;
+        
+        > video:first-child {
+            width:100%; max-width:100%; height:100%;   
+        }
+        
+        > iframe {
+            border:none; width:100%; height:100%; max-width:100%;   
+        }
     }
 }
 
@@ -393,12 +405,12 @@ p { margin:0em 0em 0.5em 0em; }
         }
     }
     .bigtitle-2 { font-size:1.9em; }
-    .demo img { .center-block; }
+    .demo img { margin:0 auto 0 auto; max-width:100%; width:100%; height:auto; }
     
     .sliderContent { display:none; }
     
     .scale-content { .paddingContainer-v-top-h; width:100%; margin:0 auto 0 0%; 
-        .demo { width:33.75%; display:block; margin:3% 0% 0 auto; 
+        .demo { width:27.75%; display:block; margin:3% 0% 0 auto; 
             div { color:red; .text-center; }
         }
     }
@@ -446,7 +458,6 @@ p { margin:0em 0em 0.5em 0em; }
     }
     #saleskit {
         #saleskit-content-1 { background:url(../images/saleskit_bg_01@2x.jpg) left top no-repeat; background-size:cover; 
-            .scale-content { width:90%; }
         }
         #saleskit-content-2 { 
             p.msg {.text-left; } 
@@ -502,6 +513,9 @@ p { margin:0em 0em 0.5em 0em; }
     }
     #platform-web-development { 
         div img { .center-img-adjust-width; }
+    }
+    #platform-integrated-communication {
+        #ic-content-2 { margin-top:1em; }
     }
 }
 #folios {

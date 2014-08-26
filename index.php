@@ -15,7 +15,7 @@ if($detect->isMobile() || $detect->isTablet()) {
 	<head>
 		<title>Welcome to Infra Design</title>
 		
-        <meta charset="utf-8">
+        <meta charset="utf-8"><meta name="viewport" content="width=1024">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta http-equiv="cleartype" content="on">
 		<meta name="description" content="Infra Design, Digital Marketing Agency, Advertising, Mobile Solutions, making ideas happen">
