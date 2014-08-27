@@ -55,6 +55,7 @@ Controller.prototype = {
     $sel : null,
     isRoot : false,
     controllers : [],
+    controllerkeys : [],
     visible : false,
     testURL : function(lastevt, evt){        
         //console.log((typeof evt.pathNames) + ',length=' + evt.pathNames.length + ', [' + evt.pathNames + '],' + this.isRoot + ', ' +  (evt.pathNames[0] == '') + ',' + (evt.pathNames[0] == '/') );
@@ -115,6 +116,18 @@ Controller.prototype = {
     },
     _onResize : function(evt){
         evt.data.onResize(evt);   
+    },
+    onSlideBefore : function(oldIndex,newIndex){
+    },
+    onSlideAfter : function(oldIndex,newIndex){
+    },
+    onWillSlideToSelf : function(){
+    },
+    onDidSlideToSelf : function(){
+    },
+    onWillSlideFromSelf : function(){
+    },
+    onDidSlideFromSelf : function(){
     }
 };
 
@@ -150,13 +163,60 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
         
         this.sliderOption.onSlideBefore = function($slideElement, oldIndex, newIndex){
             _this.$sliderContents.eq(newIndex).scrollTop(0);
+            _this.onSlideBefore(oldIndex, newIndex);
+            
+            var c; 
+            var k;
+            
+            k = _this.controllerkeys[oldIndex];
+            if(k){
+                c = _this.controllers[k];     
+                if(c){
+                    c.onWillSlideFromSelf();  
+                }
+            }
+            k = _this.controllerkeys[newIndex];
+            if(k){
+                c = _this.controllers[k];     
+                if(c){
+                    c.onWillSlideToSelf();  
+                }
+            }
         };
         this.sliderOption.onSlideAfter = function($slideElement, oldIndex, newIndex){
             $.address.value('/' + _this.url + '/' + _this.suburls[newIndex]);
+            _this.onSlideAfter(oldIndex, newIndex);
+            
+            var c; 
+            var k;
+            
+            k = _this.controllerkeys[oldIndex];
+            if(k){
+                c = _this.controllers[k];     
+                if(c){
+                    c.onDidSlideFromSelf();  
+                }
+            }
+            k = _this.controllerkeys[newIndex];
+            if(k){
+                c = _this.controllers[k];     
+                if(c){
+                    c.onDidSlideToSelf();  
+                }
+            }
         };
         this.$slider = this.$sel.find('>.slider').bxSlider(this.sliderOption);
         this.hammer = new Hammer(this.$sel[0], {});
     },
+    
+    onSlideBefore : function(oldIndex, newIndex) {
+        
+    },
+    
+    onSlideAfter : function(oldIndex, newIndex) {
+        
+    },
+    
     onShow : function(a) { 
         var _this = this;
         this.hammer.on('swipeleft swiperight', function(evt){
@@ -202,6 +262,7 @@ function HomeController() {
     this.url = 'home';
     this.subsels = ['#banner', '#prosales', '#saleskit', '#virtual-tour', '#augmented-reality'];
     this.suburls = ['banner', 'prosales', 'saleskit', 'virtual-tour', 'augmented-reality'];
+    this.controllerkeys = ['banner', 'prosales', 'saleskit', 'vr', 'ar'];
     this.controllers.banner = new BannerController();
     this.controllers.prosales = new ProsalesController();
     this.controllers.saleskit = new SaleskitController();
@@ -264,7 +325,7 @@ BannerController.prototype = $.extend(Object.create(SliderController.prototype),
         controls: false,
         pager: true,
         touchEnabled: false,
-        infiniteLoop: false,
+        infiniteLoop: true,
         startSlide: 0,
         auto:false,
         speed:750,
@@ -319,7 +380,58 @@ BannerController.prototype = $.extend(Object.create(SliderController.prototype),
 function ProsalesController() {
     this.sel = '#home #prosales';
 }
-ProsalesController.prototype = $.extend(Object.create(Controller.prototype), {});
+ProsalesController.prototype = $.extend(Object.create(Controller.prototype), {
+    $video : null,
+    videoSrc : '',
+    
+    init : function() {
+        var _this = this;
+        Controller.prototype.init.call(this);
+        this.$video = this.$sel.find('video');
+        var video = this.$video.get(0);
+        video.onloadedmetadata = function() {
+            this.onloadedmetadata = null;   
+            _this.videoSrc = this.currentSrc;
+        }
+        /*
+        this.$video.click(function(){
+            if(video.paused)video.play(); 
+            else video.pause();
+        });//*/
+    },
+    
+    onWillSlideFromSelf : function() { console.log('willslidefromself');
+        //this.$video.get(0).src = '';
+    },
+    onWillSlideToSelf : function() { console.log('willslidetoself');
+        if(this.videoSrc){
+            //this.$video.get(0).src = this.videoSrc;   
+        }
+    },
+    onShow : function() {
+        Controller.prototype.onShow.call(this);
+        if(this.videoSrc){
+            //this.$video.get(0).src = this.videoSrc;   
+        }
+    },
+    onHide : function() {
+        Controller.prototype.onHide.call(this);
+        //this.$video.get(0).src = '';
+        try{
+            this.$video.get(0).currentTime = 0;
+        }catch(ex){
+            console.log(ex);
+        }
+        this.$video.get(0).pause();
+    },
+    onResize : function() {
+        Controller.prototype.onResize.call(this);
+        var parent = this.$video.parent();
+        var pw = parent.width();
+        var ph = parent.height();
+        this.$video.css({'width':pw+'px', 'height':ph+'px'});
+    }
+});
 
 function SaleskitController() {
     this.sel = '#home #saleskit';
@@ -475,6 +587,27 @@ function PlatformController() {
     return this;   
 }
 PlatformController.prototype = $.extend(Object.create(SliderController.prototype), {
+    videoSrc : '',
+    $video : null,
+    iframeSrc : '',
+    $iframe : null,
+    
+    imageGalleryOption : {
+        mode: 'horizontal',
+        controls: false,
+        pager: true,
+        touchEnabled: false,
+        infiniteLoop: true,
+        startSlide: 0,
+        auto:false,
+        speed:750,
+        pause:5500,
+        autoDirection:'next'
+    },
+    $pav : null,
+    $cg : null,
+    
+    
     init : function() {
         var _this = this;
         SliderController.prototype.init.call(this);
@@ -484,36 +617,92 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
                 _this.$slider.goToSlide(i);   
             }
         });
+
+
+        this.$video = this.$sel.find('#ic-video');
+        var video = this.$video.get(0);
+        video.onloadedmetadata = function() {
+            this.onloaodedmetadata = null;
+            _this.videoSrc = this.currentSrc;
+        };
+        /*
+        video.click(function(){
+            if(video.paused)video.play(); 
+            else video.pause();
+        });//*/
+        
+        this.$iframe = this.$sel.find('iframe');
+        this.iframeSrc = this.$iframe.attr('data-src');
+        
+        this.$pav = this.$sel.find('#pav-image-gallery').bxSlider($.extend(this.imageGalleryOption, {}));
+        this.$cg = this.$sel.find('#cg-image-gallery').bxSlider($.extend(this.imageGalleryOption, {}));
+    },
+    
+    onSlideAfter : function(oldIndex,newIndex) {
+        SliderController.prototype.onSlideAfter.call(this,oldIndex,newIndex);
+        var $igs = [this.$pav, this.$cg];
+        if(newIndex==3){
+            for(k in $igs){
+                var $ig = $igs[k];    
+                $ig.startAuto();
+            }  
+        }else if(oldIndex==3){
+            for(k in $igs){
+                var $ig = $igs[k];    
+                $ig.stopAuto();
+                $ig.goToSlide(0);
+            }  
+            this.$video.get(0).pause();
+        }
     },
     
     onResize : function() {
         SliderController.prototype.onResize.call(this);
-        var videoparent = this.$sel.find('video').parent();
-        var pw = videoparent.width();
-        var ph = videoparent.height();
-        this.$sel.find('#ic-video').css({'width':pw+'px', 'height':ph+'px'});
+        var parent = this.$video.parent();
+        var pw = parent.width();
+        var ph = parent.height();
+        this.$video.css({'width':pw+'px', 'height':ph+'px'});
+        
+        var $igs = [this.$pav, this.$cg];
+        for(k in $igs){
+            var $ig = $igs[k];    
+            parent = $ig.parent().parent().parent();
+            pw = parent.width();
+            ph = parent.height();
+            $ig.find('>div').css({width:pw+'px', height:ph+'px'});
+            $ig.redrawSlider();
+        }
     },
     
     onShow : function() {
         SliderController.prototype.onShow.call(this);
-        /*
-        this.$sel.find('#ic-video source').each(function(){
-            var src = $(this).attr('data-src');
-            $(this).attr('src',src); 
-        });//*/
-        
-        //var src = this.$sel.find('iframe').attr('data-src');
-        //this.$sel.find('iframe').attr('src', src);
+        if(this.videoSrc){
+            //this.$video.get(0).src = this.videoSrc;
+        }
+        this.$iframe.attr('src', this.iframeSrc);
     },
     
     onHide : function() {
         SliderController.prototype.onHide.call(this);
-        /*
-        this.$sel.find('#ic-video source').each(function(){
-            $(this).attr('src',''); 
-        });//*/
+        this.$iframe.attr('src', '');
+        //this.$video.get(0).src = '';
+        this.$video.get(0).pause();
+        try{
+            this.$video.get(0).currentTime = 0;
+        }catch(ex){
+            console.log(ex);
+        }
         
-        //this.$sel.find('iframe').attr('src', '');
+        var $igs = [this.$pav, this.$cg];
+        for(k in $igs){
+            var $ig = $igs[k];
+            $ig.stopAuto();
+            $ig.goToSlide(0);
+            //fix bxslider wouldnt udpate to proper state 
+            //if the slider is hidden before the transition is ended
+            $ig.slider.working = false;
+            $ig.unbind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd');
+        }
     }
 });
 

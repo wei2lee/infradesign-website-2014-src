@@ -147,8 +147,13 @@ html, body, ul, li { padding:0; margin:0; }
         > iframe {
             border:none; width:100%; height:100%; max-width:100%;   
         }
+        
+        overflow:auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
+
+
 
 .center-img-full-width {
     .center-block;   
@@ -277,6 +282,9 @@ p { margin:0em 0em 0.5em 0em; }
         }
         .clearfix();
     }
+    .bx-wrapper .bx-pager.bx-default-pager a:hover, .bx-wrapper .bx-pager.bx-default-pager a.active { background: #fff; }
+    .bx-wrapper .bx-pager.bx-default-pager a { background:rgba(255,255,255,0.5); }
+    
     #home {
         color:black;
         background-color:white;
@@ -311,6 +319,12 @@ p { margin:0em 0em 0.5em 0em; }
         }
         .img-container {
             img { .center-block; width:100%; height:auto; }
+        }
+        
+        .image-gallery {
+            >div {
+                   
+            }
         }
         
         
@@ -441,12 +455,11 @@ p { margin:0em 0em 0.5em 0em; }
             }
         }
         
-        .video-container {
+        #prosales-content-1 {
             margin-top:1.6em;
             background-color:#aaa;
-            .btn-play-video { margin-top:23%; width:37%; display:block; .center-block; 
-                img { .center-block; }
-            } 
+            .scale-content { padding:0; overflow:hidden; }
+            
         }
         #prosales-content-2 {
             .msglist {  color:#483B6B; 
@@ -471,7 +484,7 @@ p { margin:0em 0em 0.5em 0em; }
         .change-time-btn-group { #mainContainer .title; .text-center; padding-top:0.5em; color:@font-color; }
         .showcase {
             .scale-content { padding:0; }
-            iframe { border:none; width:100%; height:100%; max-width:100%; }
+            iframe { border:none; width:100%; height:100%;  }
              .paddingContainer-v-top; 
             .title { .text-center; }
             .showcase-desc { .paddingContainer; padding-top:1em; }

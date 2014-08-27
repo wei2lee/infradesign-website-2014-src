@@ -7,7 +7,8 @@
         <meta name="description" content="Infra Design, Digital Marketing Agency, Advertising, Mobile Solutions, making ideas happen">
         <meta name="keywords" content="Infra Design, Digital Marketing Agency, Advertising, Mobile Solutions, making ideas happen">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
+        <meta name="viewport" content="width=768">
         <script src="js/vendor/modernizr.custom.79390.js"></script>
         <link rel="stylesheet" href="../js/bxslider/jquery.bxslider.css">
         <link rel="stylesheet" href="js/vendor/bootstrapvalidator/bootstrapValidator.min.css">
@@ -77,10 +78,12 @@ all the documents you need</p>
                                         <a class='demo scroll-to-register' href='javascript:void(0)' alt='demo'><img src='images/prosales_demo@2x.png'></a>
                                     </div>
                                 </div>
-                                <div class="scale-container video-container" >
+                                <div class="scale-container" id='prosales-content-1'>
                                     <canvas width=320 height=180></canvas>
                                     <div class='scale-content'>
-                                        <a class='btn-play-video' href='javascript:void(0)'><img src='images/btn_play@2x.png'></a>
+                                        <video id='prosales-video' controls poster='images/prosales_video_poster@2x.png'>
+                                            <source src="../videos/ProSales_Introduction_rev1.mp4" type="video/mp4">
+                                        </video>
                                     </div>
                                 </div>
                                 
@@ -404,7 +407,19 @@ all the documents you need</p>
                                         <p class="msg">a platform for interactions</p>
                                         <p class="bigtitle">INTEGRATED COMMUNICATION</p>
                                     </div>
-                                    <img src="images/platform_cg.jpg" width="100%" height="auto">
+                                    
+                                    <div class='scale-container'>
+                                        <canvas width='285' height='161'></canvas>
+                                        <div class='scale-content'>
+                                            <div class='image-gallery' id='cg-image-gallery'>
+                                                <div style='background:url(../img/cg_01.jpg) center center; background-size:cover;'></div>
+                                                <div style='background:url(../img/cg_02.jpg) center center; background-size:cover;'></div>
+                                                <div style='background:url(../img/cg_03.jpg) center center; background-size:cover;'></div>
+                                                <div style='background:url(../img/cg_04.jpg) center center; background-size:cover;'></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
                                     <p class="title">Computer Graphic / CG</p>
                                     <p class="msg">Creative Design excellence lifts the visual presentation of our ideas and our clients requirements to a whole new level of vibrancy. Our stunning graphics will help every business find its voice and image whilst gaining an advantage in the highly competitive world of brand recognition. </p>
                                     
@@ -422,13 +437,24 @@ all the documents you need</p>
                                     <div class='scale-container' id='ic-content-2'>
                                         <canvas widht='288' height='170'></canvas>
                                         <div class='scale-content'>
-                                            <iframe data-src='../360/melaka_show.html' width='100%' height='100%'></iframe>
+                                            <iframe data-src='../360/melaka_show.html'></iframe>
                                         </div>
                                     </div>
                                     
                                     <p class="title">Virtual Reality Tour / VRT</p>
                                     <p class="msg">360˚ Virtual Tour is a smart solution for your customers who will be able to experience a 360 degree interior view of any property with just one touch. This is a time and money savvy application to let your customers explore the property of their choice on your ipad or smart phone without the need of having an actual show house. </p>
-                                    <img src="images/platform_pav01.jpg" width="100%" height="auto">
+                                    
+                                    <div class='scale-container'>
+                                        <canvas width='285' height='161'></canvas>
+                                        <div class='scale-content'>
+                                            <div class='image-gallery' id='pav-image-gallery'>
+                                                <div style='background:url(../img/pav_01.jpg) center center; background-size:cover;'></div>
+                                                <div style='background:url(../img/pav_02.jpg) center center; background-size:cover;'></div>
+                                                <div style='background:url(../img/pav_03.jpg) center center; background-size:cover;'></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
                                     <p class="title">Panorama Area View / PAV</p>
                                     <p class="msg">Capture dazzling panoramas from an elevated height. By using a balloon and camera rig, we have managed to launch this fixture into new heights so our clients can present the exact views from their high-rise properties.  </p>
                                 </div>
