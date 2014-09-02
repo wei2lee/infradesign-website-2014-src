@@ -6358,7 +6358,6 @@ li {
   top: 0;
   left: 0;
   position: relative;
-  z-index: 0;
   width: 100%;
   max-width: 100%;
   height: auto;
@@ -6368,7 +6367,6 @@ li {
   position: absolute;
   left: 0;
   top: 0;
-  z-index: 1;
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -6447,7 +6445,7 @@ p {
   position: relative;
 }
 #mainContainer {
-  background: #6a5542 url(../images/main_bg_full.jpg) center center no-repeat;
+  background: #f4f3f1 url(../images/main_bg_full.jpg) center center no-repeat;
   background-size: cover;
   color: #695542;
   font-family: 'av', sans-serif;
@@ -6928,6 +6926,203 @@ p {
 #mainContainer #home form.more-info > .form-group > .controls > div > label input:checked + span.style-element {
   background-position: 100%;
 }
+#mainContainer #home form.more-info > .form-group > .controls > div > label span.checkbox-text {
+  line-height: 30px;
+}
+@media (min-width: 481px) {
+  #mainContainer #home form.more-info > .form-group > .controls > div > label span.checkbox-text {
+    line-height: 40px;
+  }
+}
+@media (min-width: 768px) {
+  #mainContainer #home form.more-info > .form-group > .controls > div > label span.checkbox-text {
+    line-height: 48px;
+  }
+}
+.inline-register {
+  -moz-transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+  transform: scale(1.5);
+  -o-transform-origin: 50% 0%;
+  -webkit-transform-origin: 50% 0%;
+  -moz-transform-origin: 50% 0%;
+  -ms-transform-origin: 50% 0%;
+  transform-origin: 50% 0%;
+}
+#popup_content_register {
+  font-size: 14px;
+  width: 500px;
+  padding: 25px 15px;
+  color: #695542;
+  margin: 0 auto;
+}
+#popup_content_register > h4 {
+  margin: 0 0 0 112px;
+  text-align: left;
+  width: 320px;
+}
+#popup_content_register .textfields > label,
+#popup_content_register label[check-boxes-label] {
+  text-align: right;
+  width: 105px;
+  display: inline-block;
+}
+#popup_content_register input[type="text"] {
+  background: url(../../img/go_ui_textfield.png);
+  background-position: center center;
+  background-repeat: no-repeat;
+  border: none;
+  width: 336px;
+  height: 33px;
+  padding: 0px 27px 0px 14px;
+  box-sizing: border-box;
+  margin: 4px 0 0 0;
+}
+#popup_content_register input[type="text"]:focus {
+  outline: none;
+}
+#popup_content_register label[check-boxes-label] {
+  float: left;
+  margin: 10px 0 0 0;
+}
+#popup_content_register .checkboxes {
+  text-align: left;
+  width: 350px;
+  float: left;
+  padding: 0 0 0 6px;
+  box-sizing: border-box;
+  margin: 10px 0 0 0;
+}
+#popup_content_register .checkboxes input[type="checkbox"] {
+  display: none;
+}
+#popup_content_register .checkboxes input[type="checkbox"] + label span.styledelement {
+  float: left;
+  margin-right: 4px;
+  display: inline-block;
+  width: 30px;
+  height: 33px;
+  background: url(../../img/go_ui_checkbox.png) 0px 0px no-repeat;
+  vertical-align: middle;
+  cursor: pointer;
+  position: relative;
+  top: -2px;
+}
+#popup_content_register .checkboxes input[type="checkbox"]:checked + label span.styledelement {
+  background-position: -30px 0px;
+}
+#popup_content_register .checkboxes > div {
+  width: 185px;
+  height: 33px;
+  clear: both;
+  display: inline-block;
+}
+#popup_content_register .checkboxes > div:nth-child(2n) {
+  width: 150px;
+}
+#popup_content_register .checkboxes label {
+  float: left;
+  text-align: left;
+  width: 100%;
+  line-height: 33px;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#popup_content_register label[register_prosalesdemoversion-check-box] div {
+  line-height: 12px;
+  display: inline-block;
+  padding-top: 5px;
+  font-size: 12px;
+}
+#popup_content_register label[register_prosalesdemoversion-check-box] #validfor30days {
+  font-size: 9px;
+}
+#popup_content_register .buttons {
+  clear: both;
+  margin: 0 0 0 100px;
+  width: 350px;
+  font-size: 18px;
+}
+#popup_content_register .buttons input:hover {
+  text-decoration: underline;
+}
+#popup_content_register .buttons input[type="reset"] {
+  background: none;
+  height: 24px;
+  margin: 0 10px 0 0;
+  border: none;
+}
+#popup_content_register .buttons input[type="submit"] {
+  background: transparent center center no-repeat;
+  background-size: contain;
+  width: 84px;
+  height: 24px;
+  border: none;
+  float: right;
+  margin-right: 18px;
+}
+#popup_content_register .error p {
+  margin: 0 0 0 105px;
+  color: red;
+}
+#popup_content_register .contactus {
+  font-size: 18px;
+  line-height: 35px;
+  margin: 0 auto;
+  width: 100%;
+  text-align: center;
+}
+#popup_content_register .contactus a {
+  font-size: 30px;
+  line-height: 35px;
+  color: #00C0C2;
+  margin: 0;
+  text-align: center;
+  display: block;
+}
+#popup_content_thank {
+  color: #695542;
+  width: 640px;
+  height: 370px;
+  background: url(../../img/go_popup_thank.png) center center no-repeat;
+  background-position: 100% 100%;
+  overflow: hidden;
+}
+#popup_content_thank > div {
+  width: 380px;
+  margin: 105px 0 0 50px;
+  padding: 45px 0 0 0;
+}
+#popup_content_thank > div > * {
+  width: 280px;
+  margin: 0 auto;
+}
+#popup_content_thank h1 {
+  font-size: 39px;
+  margin: 0;
+  text-align: center;
+  margin: 0 auto;
+  line-height: 39px;
+}
+#popup_content_thank p {
+  font-size: 18px;
+  line-height: 20px;
+  margin: 0;
+  text-align: center;
+  margin: 0 auto;
+}
+#popup_content_thank > div > p {
+  margin: 8px auto 0 auto;
+}
+#popup_content_thank a {
+  text-decoration: underline;
+}
 /**/
 /* mainContainer content layout */
 #home .iconlist {
@@ -7151,6 +7346,19 @@ p {
 #home #virtual-tour .showcase .showcase-desc {
   padding: 1.6em 1em 1em 1em;
   padding-top: 1em;
+}
+#home #virtual-tour .showcase-panorama-view-animation {
+  -moz-animation: toend 12s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite alternate;
+  -webkit-animation: toend 12s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite alternate;
+  -o-animation: toend 12s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite alternate;
+  animation: toend 12s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite alternate;
+}
+#home #virtual-tour .showcase-panorama-view-animation lesshat-selector {
+  -lh-property: 0; } 
+@-webkit-keyframes toend{ 0%{ background-position:0% 50% } 100%{ background-position:100% 50% }}
+@-moz-keyframes toend{ 0%{ background-position:0% 50% } 100%{ background-position:100% 50% }}
+@-o-keyframes toend{ 0%{ background-position:0% 50% } 100%{ background-position:100% 50% }}
+@keyframes toend{ 0%{ background-position:0% 50% } 100%{ background-position:100% 50% };
 }
 #home #augmented-reality #ar-content-1 {
   background: url(../images/ar_bg_01@2x.jpg) left top no-repeat;
