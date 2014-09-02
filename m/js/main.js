@@ -1,3 +1,18 @@
+function isEmailAddress(email)
+{
+	var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+	return regex.test(email);
+}
+
+
+/* Validate phone number */
+
+function isPhoneNumber(numb)
+{
+	var intRegex = /[0-9 -()+]+$/;
+	return (numb.length >= 9 && intRegex.test(numb));
+}
+
 var app = null;
 
 function AppController() {
@@ -58,7 +73,6 @@ Controller.prototype = {
     controllerkeys : [],
     visible : false,
     testURL : function(lastevt, evt){        
-        //console.log((typeof evt.pathNames) + ',length=' + evt.pathNames.length + ', [' + evt.pathNames + '],' + this.isRoot + ', ' +  (evt.pathNames[0] == '') + ',' + (evt.pathNames[0] == '/') );
         if(evt.pathNames.length == 0){
             return this.isRoot;   
         }else{
@@ -206,7 +220,7 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
             }
         };
         this.$slider = this.$sel.find('>.slider').bxSlider(this.sliderOption);
-        this.hammer = new Hammer(this.$sel[0], {});
+        this.hammer = new Hammer(this.$sel[0], {}); 
     },
     
     onSlideBefore : function(oldIndex, newIndex) {
@@ -258,20 +272,223 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
 });
 
 function HomeController() {
+    var _this = this;
     this.sel = '#home';
     this.url = 'home';
-    this.subsels = ['#banner', '#prosales', '#saleskit', '#virtual-tour', '#augmented-reality'];
-    this.suburls = ['banner', 'prosales', 'saleskit', 'virtual-tour', 'augmented-reality'];
-    this.controllerkeys = ['banner', 'prosales', 'saleskit', 'vr', 'ar'];
-    this.controllers.banner = new BannerController();
-    this.controllers.prosales = new ProsalesController();
-    this.controllers.saleskit = new SaleskitController();
-    this.controllers.vr = new VRController();
-    this.controllers.ar = new ARController();
+    this.controllermaps = [
+        {name:'banner', controller:new BannerController(), subsel:'#banner', suburl:'banner'}, 
+        {name:'prosales', controller:new ProsalesController(), subsel:'#prosales', suburl:'prosales'}, 
+        {name:'saleskit', controller:new SaleskitController(), subsel:'#saleskit', suburl:'saleskit'}, 
+        {name:'vr', controller:new VRController(), subsel:'#virtual-tour', suburl:'virtual-tour'}, 
+        {name:'ar', controller:new ARController(), subsel:'#augmented-reality', suburl:'augmented-reality'}
+    ];
+    this.subsels = [];
+    this.suburls = [];
+    this.controllerkeys = [];
+    this.controllers = [];
+    for(k in this.controllermaps){
+        var v = this.controllermaps[k];
+        this.subsels.push(v.subsel);
+        this.suburls.push(v.suburl);
+        this.controllerkeys.push(v.name);
+        this.controllers[v.name] = v.controller;
+    }
+
+
+    this.registerHtml = $("#popup_register").wrap('<div>').parent().html();
+    this.popupThankHtml = $("#popup_content_thank").show().wrap('<div>').parent().html();
+    $("#popup_content_register").remove();
+    $("#popup_content_thank").remove();
+    $.each(this.controllermaps, function(i,map){
+        if(map.name == 'banner')return;
+        map.controller.$register = $(_this.registerHtml).show();        
+        var prefix = map.suburl + '_';
+        map.controller.$register.attr('data-input-id-prefix', prefix);
+        map.controller.$register.data('data-input-id-prefix', prefix);
+        map.controller.$register.find('label[for]').each(function(){
+             $(this).attr('for', prefix + $(this).attr('for')) ;
+        });
+        map.controller.$register.find('input[id]').each(function(){
+             $(this).attr('id', prefix + $(this).attr('id')) ;
+        });
+        $(map.subsel).find('.register-container').append(map.controller.$register);
+        map.controller.$register.find('input[type=submit]').on('click', _this, _this.onRegisterSubmit);
+        map.controller.$register.find('input[type=reset]').on('click', _this, _this.onRegisterReset);
+    });
+    $(this.sel).find('a.scroll-to-register').click(function(){
+        var $sliderContent = $(this).parents('.sliderContent'); 
+        var top = $sliderContent.find('form').position().top;
+        var time = 750;
+        var speed = 3300 / 750 * 0.9;
+        //console.log('scroll top='+top+',time='+time);
+        time = top / speed;
+        $sliderContent.stop(true).animate({scrollTop:top}, time);
+    });
     return this;   
 }
 HomeController.prototype = $.extend(Object.create(SliderController.prototype), {
     isFullPage : true,
+    onRegisterSubmit : function(evt){
+        var _this = evt.data;
+        var form = $(this).parents('form');
+        if(form.data('submitting')){
+            console.log('submitting!');
+            return;
+        }
+        form.data('submitting', false);
+        
+        var id = $(this).attr('id');
+        var prefix = '';
+        var regex = /(.+?_).+/;
+        var m = id.match(regex)
+        if(m.length>0) prefix = m[1];   
+        else console.log('form error');
+        form.find(".error p").html("&nbsp;");
+        
+        var reason = "";
+        var user = {};
+        user.name = $("#"+prefix+"register_name").val().trim();
+        user.email = $("#"+prefix+"register_email").val().trim();
+        user.contact = $("#"+prefix+"register_contact").val().trim();
+        user.company = $("#"+prefix+"register_company").val().trim();
+        user.businessType = $("#"+prefix+"register_businesstype").val().trim();
+        user.interest = {};
+        user.interest.prosalesdemoversion = $("#"+prefix+"register_prosalesdemoversion").is(':checked');
+        user.interest.ar = $("#"+prefix+"register_ar").is(':checked');
+        user.interest.crm = $("#"+prefix+"register_crm").is(':checked');
+        user.interest.virtualtour = $("#"+prefix+"register_virtualtour").is(':checked');
+        user.interest.mobileapplication = $("#"+prefix+"register_mobileapplication").is(':checked');
+        
+        try {
+            if(user.name == ""){
+                $("#"+prefix+"register_name").focus();
+                reason = "Error : Please enter your name.";   
+                throw reason;
+            }
+            if(user.email == ""){
+                $("#"+prefix+"register_name").focus();
+                reason = "Error : Please enter your email.";   
+                throw reason;
+            }
+            if(!isEmailAddress(user.email)){
+                $("#"+prefix+"register_email").focus();
+                reason = "Error : Please enter correct format email.";   
+                throw reason;
+            }
+            if(user.contact == ""){
+                $("#"+prefix+"register_contact").focus();
+                reason = "Error : Please enter your contact.";   
+                throw reason;
+            }
+            if(!isPhoneNumber(user.contact)){
+                $("#"+prefix+"register_contact").focus();
+                reason = "Error : Please enter correct format contact."; 
+                throw reason;
+            }
+            if(user.company == ""){
+                $("#"+prefix+"register_company").focus();
+                reason = "Error : Please enter your company.";   
+                throw reason;
+            }
+
+            var anyInterest = false;
+            for(var key in user.interest){
+                if(user.interest[key] == true){
+                    anyInterest = true;
+                    break;   
+                }
+            }
+            if(!anyInterest){
+                reason = "Please tick at least one interest.";   
+                throw reason;
+            }
+            $("#container").css("cursor", "wait");
+            
+            
+            form.data('submitting', true);
+            
+            
+            bootbox.dialog({
+                message:"Your registration is processing...",
+                closeButton:false
+            });
+            
+            $.ajax(
+            {
+                type: "POST",
+                url: "../api_register.php",
+                data:user,
+                success: function(response)
+                {
+                    console.log("../api_register.php response="+response);
+                    
+                    $("#container").css("cursor", "auto");
+                    _this.resetForm(form, true);
+                    //form.find(".error p").html("Enquiry has been sent.");
+                    form.find(".error p").stop().hide(0).fadeIn(150);
+                    
+
+                    
+                    form.data('submitting', false);
+                    _this.openThankPopup();
+                },
+                error: function(xhr, optns, err)
+                {
+                    
+                    $("#container").css("cursor", "auto");
+                    //form.find(".error p").html("Error: " + (err || "Cannot connect to server!"));
+                    form.find(".error p").stop().hide(0).fadeIn(150);
+                    
+                    form.data('submitting', false);
+                    _this.openThankPopup();
+                }
+            });
+            
+            
+        } catch(err){
+            form.find(".error p").delay(200).html(reason).show();
+            return;
+        }
+        
+    },
+    resetForm : function($form, flag) {
+        $form.find("input[type=text], input[type=textarea]").val("");
+        $form.find("input[type=checkbox]").attr("checked", false);
+        $form.find(".error p").html("&nbsp;");
+    },
+    
+    onRegisterReset : function() {
+        var form = $(this).parents('form'); 
+        
+        
+        
+        var ele_id = $(this).attr('id');
+        var prefix = '';
+        var regex = /(.+?_).+/;
+        var m = ele_id.match(regex)
+        if(m.length>0) prefix = m[1];   
+        else console.log('form error');   
+        form.find(".error p").html("&nbsp;");
+        $("#"+ prefix +"register_name").focus();
+    },
+    openThankPopup : function(){
+        var _this = this;
+        function close() {
+            bootbox.hideAll();
+            if(_this.popupThankCloseTimeout){
+                clearTimeout(_this.popupThankCloseTimeout);
+                _this.popupThankCloseTimeout = 0;
+            }
+        }
+        bootbox.dialog({
+            message: _this.popupThankHtml,
+            closeButton: true,
+            className: 'my-modal'
+        });
+        $('.my-modal').on('hidden.bs.modal', close);
+        this.popupThankCloseTimeout = setTimeout(close,5000);
+    },
+    
     init : function() {
         SliderController.prototype.init.call(this);
         for(k in this.controllers){
@@ -318,7 +535,7 @@ HomeController.prototype = $.extend(Object.create(SliderController.prototype), {
 function BannerController() {
     this.sel = '#home #banner';
 }
-BannerController.prototype = $.extend(Object.create(SliderController.prototype), {
+BannerController.prototype = $.extend(Object.create(Controller.prototype), {
     isFullPage : true,
     sliderOption : {
         mode: 'horizontal',
@@ -351,11 +568,17 @@ BannerController.prototype = $.extend(Object.create(SliderController.prototype),
                 app.controllers.home.$slider.goToSlide(i);   
             }
         });
+        
+        
     },
-    onShow : function(a) { 
-        var _this = this;
+    onDidSlideToSelf : function() {
         this.$slider.startAuto();
     },
+    onWillSlideFromSelf : function() {
+        this.$slider.goToSlide(0);   
+        this.$slider.stopAuto();
+    },
+
     onHide : function(a) {
         this.$sliderContents.scrollTop(0);
         this.$slider.goToSlide(0);   
@@ -400,29 +623,21 @@ ProsalesController.prototype = $.extend(Object.create(Controller.prototype), {
         });//*/
     },
     
-    onWillSlideFromSelf : function() { console.log('willslidefromself');
-        //this.$video.get(0).src = '';
+    onWillSlideFromSelf : function() { 
+        try{ this.$video.get(0).pause(); }
+        catch(ex){ console.log(ex); }        
     },
-    onWillSlideToSelf : function() { console.log('willslidetoself');
-        if(this.videoSrc){
-            //this.$video.get(0).src = this.videoSrc;   
-        }
+    onWillSlideToSelf : function() {
     },
     onShow : function() {
         Controller.prototype.onShow.call(this);
-        if(this.videoSrc){
-            //this.$video.get(0).src = this.videoSrc;   
-        }
     },
     onHide : function() {
         Controller.prototype.onHide.call(this);
-        //this.$video.get(0).src = '';
-        try{
-            this.$video.get(0).currentTime = 0;
-        }catch(ex){
-            console.log(ex);
-        }
-        this.$video.get(0).pause();
+        try{ this.$video.get(0).currentTime = 0; }
+        catch(ex){ console.log(ex); }
+        try{ this.$video.get(0).pause(); }
+        catch(ex){ console.log(ex); }
     },
     onResize : function() {
         Controller.prototype.onResize.call(this);
@@ -461,13 +676,16 @@ VRController.prototype = $.extend(Object.create(Controller.prototype), {
         new Image().src = this.showcase_panorama.attr('data-src-1');
         this.showcase_panorama.css({'background-size':(1735/1024*100)+'%'});
         this.showcase_panorama.css({'background-position': '0% 50%' });
-        this.showcase_panorama.hide();
+        //this.showcase_panorama.hide();
         this.animateShowcasePanoramaSlideShow();
     },
     stopShowcasePanoramaSlideShow : function(){
         this.showcase_panorama.stop(true);
-        this.panoramaShowcaseTimeline.kill();
+        if(this.panoramaShowcaseTimeline)
+            this.panoramaShowcaseTimeline.kill();
         this.showcase_panorama.attr('src','');
+        
+        this.showcase_panorama.removeClass('showcase-panorama-view-animation');
     },
     
     setPanoramaShowcaseTime : function(i,a) {
@@ -510,20 +728,7 @@ VRController.prototype = $.extend(Object.create(Controller.prototype), {
     animateShowcasePanoramaSlideShow : function() {
         var _this = this;
         this.showcase_panorama.stop(true).fadeIn();
-        var anim = this.panoramaShowcaseTimeline = new TimelineMax({paused:true});
-        var o = {
-            x:0, 
-            onUpdate:function(){
-                _this.showcase_panorama.css({'background-position':o.x+'% 50%'});
-            }
-        }
-        anim.append(TweenMax.fromTo(o, 12, {x:0}, {x:100, ease:Quad.easeInOut, onUpdate:o.onUpdate},2));
-        anim.append(TweenMax.fromTo(o, 12, {x:100}, {x:0, ease:Quad.easeInOut, onUpdate:o.onUpdate},2));
-        anim.append(TweenMax.delayedCall(0, function(){
-            anim.restart(); 
-        }),2);
-        
-        anim.restart(); 
+        this.showcase_panorama.addClass('showcase-panorama-view-animation');
         return;
     },
     
@@ -538,12 +743,21 @@ VRController.prototype = $.extend(Object.create(Controller.prototype), {
             evt.data.setPanoramaShowcaseTime(data,true);
         });
     },
-    
+    onWillSlideToSelf : function(){
+    },
+    onDidSlideToSelf : function(){
+        this.startShowcasePanoramaSlideShow();
+        this.startShowcase360tour();
+    },
+    onWillSlideFromSelf : function(){
+        this.stopShowcasePanoramaSlideShow();
+        this.stopShowcase360tour();
+    },
+    onDidSlideFromSelf : function(){
+    },
     
     onShow : function() { 
         Controller.prototype.onShow.call(this); 
-        this.startShowcasePanoramaSlideShow();
-        this.startShowcase360tour();
     },
     
     onHide : function() {
@@ -646,13 +860,19 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
                 var $ig = $igs[k];    
                 $ig.startAuto();
             }  
-        }else if(oldIndex==3){
+        }
+    },
+    onSlideBefore : function(oldIndex,newIndex) {
+        SliderController.prototype.onSlideBefore.call(this,oldIndex,newIndex);
+        var $igs = [this.$pav, this.$cg];
+        if(oldIndex==3){
             for(k in $igs){
                 var $ig = $igs[k];    
                 $ig.stopAuto();
                 $ig.goToSlide(0);
             }  
-            this.$video.get(0).pause();
+            try{ this.$video.get(0).pause(); }
+            catch(ex) { console.log(ex); }
         }
     },
     
@@ -661,7 +881,7 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
         var parent = this.$video.parent();
         var pw = parent.width();
         var ph = parent.height();
-        this.$video.css({'width':pw+'px', 'height':ph+'px'});
+        //this.$video.css({'width':pw+'px', 'height':ph+'px'});
         
         var $igs = [this.$pav, this.$cg];
         for(k in $igs){
@@ -1167,14 +1387,6 @@ ContactController.prototype = $.extend(Object.create(SliderController.prototype)
 
 app = new AppController();
 $(document).ready(function(){
-    $("body").on("show", ".modal", function () { console.log('modal show');
-        $(this).css({
-            'top': '50%',
-            'margin-top': function () {
-                return -($(this).height() / 2);
-            }
-        });
-    });
 
     bouncefix.add('sliderContent');
     bouncefix.add('mainScrollContent');
@@ -1186,35 +1398,33 @@ $(document).ready(function(){
         var prevvalue = lastProcessedEvent ? lastProcessedEvent.value : "";
         
         var match = '';
+        var matchedcontroller = null;
         $.each(app.controllers, function(name, controller) {
             if (controller.processURL(lastProcessedEvent, event)) {
                 match = controller.sel;
+                matchedcontroller = controller;
                 lastProcessedEvent = event;
                 return false;
             }
         });
         console.log('address.init@' + prevvalue + ' > '+event.value + ', match:'+match);
-        $('a').each(function() {
-            var alink = $(this).attr('href') || "";
-            if (alink.indexOf('#') == 0) {
-                alink = '/' + alink.substring(1);
-                $(this).toggleClass('selected', alink == event.value);
-            }
-        });
+        if(matchedcontroller){
+            $('a').each(function() {
+                var alink = $(this).attr('href') || "";
+                if (alink.indexOf('#') == 0) {
+                    alink = '/' + alink.substring(1);
+                    $(this).toggleClass('selected', matchedcontroller.testURL(alink));
+                }
+            });
+        }
     }).bind('change', function(event) {
         var prevvalue = lastProcessedEvent ? lastProcessedEvent.value : "";
         
         if (lastProcessedEvent && lastProcessedEvent.value == event.value) return;
-
-        $('a').each(function() {
-            var alink = $(this).attr('href') || "";
-            if (alink.indexOf('#') == 0) {
-                alink = '/' + alink.substring(1);
-                $(this).toggleClass('selected', alink == event.value);
-            }
-        });
+        
         var processed = false;
         var match = '';
+        var matchedcontroller = null;
         $.each(app.controllers, function(name, controller) {
             if (controller.processURL(lastProcessedEvent, event)) {
                 lastProcessedEvent = event;
@@ -1224,7 +1434,14 @@ $(document).ready(function(){
             }
         });
         console.log('address.change@' + prevvalue + ' > '+event.value);
+        if(matchedcontroller){
+            $('a').each(function() {
+                var alink = $(this).attr('href') || "";
+                if (alink.indexOf('#') == 0) {
+                    alink = '/' + alink.substring(1);
+                    $(this).toggleClass('selected', matchedcontroller.testURL(alink));
+                }
+            });
+        }
     });
-    
-    
 });

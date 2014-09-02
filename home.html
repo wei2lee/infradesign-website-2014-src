@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -518,17 +519,7 @@
 
         <!-- Google tracking  -->
 		<script>
-            function getUrlQueryByName(name) {
-                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                    results = regex.exec(location.search);
-                return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-            }
-            isgoapp = getUrlQueryByName('go') == '1';
-            
-            var _baseurl = isgoapp ? '/home/#/go' : '/home';
-            
-			var _gaq=[['_setAccount','UA-42485850-1'],['_trackPageview', _baseurl]];
+			var _gaq=[['_setAccount','UA-42485850-1'],['_trackPageview', '/home']];
 			(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
 			g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
 			s.parentNode.insertBefore(g,s)}(document,'script'));

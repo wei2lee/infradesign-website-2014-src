@@ -25,14 +25,13 @@
 	$mailer->SMTPDebug = 2;
 	$mailer->SMTPAuth = true;
 	$mailer->Host = "mail.infradesign.com.my";
-	$mailer->Port = 25;
+	$mailer->Port = 587;
 	$mailer->Username = "site@infradesign.com.my";
-	$mailer->Password = "m6z--K5[bU?W";
-	$mailer->CharSet = "UTF-8";
+    $mailer->Username = "infr3963";
+    $mailer->Password = "Nvk#j7sa2a";
 	$mailer->SetFrom($sender, $name);
 	$mailer->AddReplyTo($sender, $name);
 	$mailer->AddAddress("christina@infradesign.com.my", "Christina Leong");
-	$mailer->AddAddress("sebastian@infradesign.com.my", "Sebastian Chong");
 	$mailer->Subject = $subject;
 	$mailer->MsgHTML($body);
 	

@@ -3,7 +3,8 @@
     function boolProperties2String($o){
         $ret = "";
         foreach($o as $key => $value){
-            if($value){
+            echo "$key : $value\n";
+            if($value == "true"){
                 if($ret == "") $ret .= $key;
                 else $ret .= ", " . $key;
             }
@@ -11,8 +12,8 @@
         return $ret;
     }
     $body = "";
-    $email = "mail.infradesign.com.my"
-    $name = "infradesign.com.my Admin";
+    $email = "mail.infradesign.com.my";
+    $name = "infradesign.com.my Registration";
     foreach ($_POST as $key => $value) {
         $displayName = "";
         $displayValue = "";
@@ -28,7 +29,7 @@
     }
 
 	
-	$sender = ($email != "" ? $email : "info@infradesign.com.my");
+	$sender = "info@infradesign.com.my";
 	$subject = "Registration";
 	
 	$mailer = new PHPMailer();
@@ -36,13 +37,17 @@
 	$mailer->SMTPDebug = 2;
 	$mailer->SMTPAuth = true;
 	$mailer->Host = "mail.infradesign.com.my";
-	$mailer->Port = 25;
-	$mailer->Username = "site@infradesign.com.my";
-	$mailer->Password = "m6z--K5[bU?W";
+    $mailer->Port = 587;
+	//$mailer->Port = 25;
+	//$mailer->Username = "site@infradesign.com.my";
+	//$mailer->Password = "m6z--K5[bU?W";
+    $mailer->Username = "infr3963";
+    $mailer->Password = "Nvk#j7sa2a";
 	$mailer->CharSet = "UTF-8";
 	$mailer->SetFrom($sender, $name);
-	$mailer->AddReplyTo($sender, $name);
+	//$mailer->AddReplyTo($sender, $name);
 	$mailer->AddAddress("christina@infradesign.com.my", "Christina Leong");
+    //$mailer->AddAddress("wei2lee86@gmail.com", "Jacky Lee");
 	$mailer->Subject = $subject;
 	$mailer->MsgHTML($body);
 	
