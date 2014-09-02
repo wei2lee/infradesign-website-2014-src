@@ -51,10 +51,65 @@
 		<!-- end of #container -->
     	
 		<script src="../js/jquery-1.9.1.min.js"></script>
-		<script src="../js/main.js"></script>
+        <script src="js/vendor/jquery.html5Loader/jquery.html5Loader.min.js"></script>
 		<script>
+            var ua = navigator.userAgent;
+            var ios = ua.match(/iP/i);
+            var android = ua.match(/Android/i);
+            var ie = ua.match(/MSIE/i);
+            var timeoutID = 0;
+            // Initialize Intro page
+            function resizeHandler(evt)
+            {
+                landscape = ($(window).width() > $(window).height() ? true : false);
+
+                if(timeoutID != null)
+                {
+                    clearTimeout(timeoutID);
+                    timeoutID = null;
+                }
+                if(evt != null) timeoutID = setTimeout("resizeHandler()", 100);
+
+                var ww = Math.max($(window).width(), 1024);
+                var wh = Math.max($(window).height(), 600);
+                var ch = wh - 135;
+
+                if($("body").hasClass("intro"))
+                {
+                    var dh = Math.max((wh - $("#container").height() - 40) >> 1, 0);
+                    $("#container").css("margin-top", dh);
+                }
+            }
+            
+            if (ios) $(window).bind("orientationchange", resizeHandler);
+            if (android) window.scrollTo(0, 1);
+            $(window).bind("resize", resizeHandler);
+            
+            $(window).trigger('resize');
+            setTimeout(function(){
+                $(window).trigger('resize');
+            },100);
+            
 			document.getElementById("sound").play();
 			(new swiffy.Stage(document.getElementById("content"), swiffyobject)).start();
+            $.html5Loader({
+                  filesToLoad:        'js/files.json', // this could be a JSON or simply a javascript object
+                  onBeforeLoad:       function () {
+                    $("#enter-btn").attr('href', 'javascript:void(0)');
+                    $("#enter-btn").fadeIn(150);
+                  },
+                  onComplete:         function () {
+                        $('#enter-btn').fadeOut(750, function(){
+                            $("#enter-btn").html("[ENTER WEBSITE]");
+                            $("#enter-btn").attr('href', 'home.html');
+                            $("#enter-btn").fadeIn(750);
+                        });
+                  },
+                  onElementLoaded:    function ( obj, elm) { },
+                  onUpdate:           function ( percentage ) { 
+                    $('#enter-btn').html(percentage + '%');
+                  }
+            });
         </script>
         
         <!-- Google tracking  -->

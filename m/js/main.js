@@ -34,6 +34,7 @@ function AppController() {
     };
     
     this.initHeader = function() {
+        $("#mainContainer nav ul").show();
         $("#mainContainer nav ul").slideUp(0);
         $("#mainContainer nav .navbtn").click(function(evt) {
             var hidden = $("#mainContainer nav ul").is(":hidden");
