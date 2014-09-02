@@ -126,6 +126,7 @@ html, body, ul, li { padding:0; margin:0; }
 //test in Android 4.2 Galaxy Tab 10, z-index will cause lag
 //
 .scale-container {
+    background-color:transparent;
     position:relative;
     > img:first-child, >canvas:first-child { 
         top:0;
@@ -145,16 +146,32 @@ html, body, ul, li { padding:0; margin:0; }
         width:100%;
         height:100%;
         
-        > video:first-child {
-            width:100%; max-width:100%; height:100%;   
-        }
-        
         > iframe {
             border:none; width:100%; height:100%; max-width:100%;   
         }
         
         overflow:auto;
         -webkit-overflow-scrolling: touch;
+    }
+}
+.video-container {
+    &.overlayed {
+        background-color:black;   
+        > .scale-content {
+            video {
+                visibility: hidden;   
+            }
+        }
+    }
+    background-color:transparent;
+    .transition(background-color 0.2s ease-out);
+    > .scale-content {
+        overflow:hidden;   
+        > video {
+            visibility: visible;
+            width:100%; max-width:100%; height:100%; 
+            -webkit-transform-style: preserve-3d;   
+        }
     }
 }
 
@@ -198,7 +215,8 @@ p { margin:0em 0em 0.5em 0em; }
         .media-font-size();
         .media-css(height,30px,40px,48px);
     }
-    #header { width:100%; height:@header-height;  background-color:@header-color; z-index:10; position:fixed; top:0; 
+    .overlay { width:100%; height:100%; z-index:8; position:absolute; top:0; background-color:rgba(0,0,0,0.5); display:none; pointer-events:visible; }
+    #header { width:100%; height:@header-height;  background-color:@header-color; z-index:10; position:absolute; top:0; 
         #header_2002 { background:url(../images/header_2002@2x.png) center center no-repeat; margin-left:15px; display:inline-block; width:180px; height:@header-height; background-size:contain;}
         nav { pointer-events: visible; cursor:pointer; width:65px; height:42px; position:absolute; right:13px; top:11px;
             .disable-text-selection;
@@ -254,7 +272,7 @@ p { margin:0em 0em 0.5em 0em; }
         &:hover { color:@font-color; }
         &:link { color:@font-color; }
     }
-    #footer { width:100%; height:@footer-height;  z-index:10; position:fixed; bottom:0; display:none; }
+    #footer { width:100%; height:@footer-height;  z-index:10; position:absolute; bottom:0; display:none; }
     .mainContent { z-index:5; position:relative; display:none;
          .bx-wrapper { margin:0;
             > .bx-viewport { margin: 0; border: 0; left: 0; background-color: transparent; box-shadow: none;

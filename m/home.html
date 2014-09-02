@@ -12,9 +12,9 @@
         <!--<script src="js/vendor/modernizr.custom.79390.js"></script>-->
         <link rel="stylesheet" href="../js/bxslider/jquery.bxslider.css">
         <link rel="stylesheet" href="js/vendor/bootstrapvalidator/bootstrapValidator.min.css">
-        <link rel="stylesheet" href="css/main.min.css">
-        <!--<link rel="stylesheet/less" type="text/css" href="css/main.less">-->
-        <!--<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js"></script>-->
+        <!--<link rel="stylesheet" href="css/main.min.css">-->
+        <link rel="stylesheet/less" type="text/css" href="css/main.less">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js"></script>
     </head>
     <body>
         <!--tempalte-->
@@ -64,21 +64,6 @@
         </div>
         <!--mainContainer-->
         <div id="mainContainer">
-            <div id="header">
-                <a id="header_2002"></a>
-                <nav>
-                    <div class="navbtn"></div>
-                    <ul style='display:none;'>
-                        <li><a href="#about"><div>our roots</div><div>&nbsp;</div></a></li>
-                        <li><a href="#platform"><div>our platform</div><div>&nbsp;</div></a></li>
-                        <li><a href="#folios"><div>our folios</div><div>&nbsp;</div></a></li>
-                        <li><a href="#crew"><div>our crew</div><div>&nbsp;</div></a></li>
-                        <li><a href="#contact"><div>our conact</div><div>&nbsp;</div></a></li>
-                        <li><a href="#home" class="nav-goapp-link"><div>GO APP</div><div>&nbsp;</div></a></li>
-                    </ul>
-                </nav>
-            </div>
-            <div id="footer"></div>
             <div id="mainContainer">
                 <!-- #content home-->
                 <div class="sliderContainer mainContent" id="home">
@@ -126,10 +111,10 @@ all the documents you need</p>
                                     </div>
                                 </div>
                                 
-                                <div class="scale-container" id='prosales-content-1'>
+                                <div class="scale-container video-container" id='prosales-content-1'>
                                     <canvas width=320 height=180></canvas>
                                     <div class='scale-content'>
-                                        <video id='prosales-video' controls poster='images/prosales_video_poster@2x.png'>
+                                        <video id='prosales-video' controls poster='images/prosales_video_poster@2x.png'  style='-webkit-transform-style: preserve-3d;'>
                                             <source src="../videos/ProSales_Introduction_rev1.mp4" type="video/mp4">
                                         </video>
                                     </div>
@@ -442,10 +427,10 @@ all the documents you need</p>
                                     <p class="msg">Creative Design excellence lifts the visual presentation of our ideas and our clients requirements to a whole new level of vibrancy. Our stunning graphics will help every business find its voice and image whilst gaining an advantage in the highly competitive world of brand recognition. </p>
                                     
                                     
-                                    <div class='scale-container'>
+                                    <div class='scale-container video-container'>
                                         <canvas width="624" height="352"></canvas>
                                         <div class='scale-content'>
-                                            <video id='ic-video' controls poster='images/platform_video_poster.png'>
+                                            <video id='ic-video' controls poster='images/platform_video_poster.png' style='-webkit-transform-style: preserve-3d;'>
                                                 <source src="../videos/swiss_garden.mp4" type="video/mp4">
                                                 <source src="../videos/swiss_garden.webm" type="video/webm">
                                             </video>
@@ -704,6 +689,22 @@ all the documents you need</p>
                     </ul>
                 </div>
                 <!-- end contents-->
+                <div class='overlay'></div>
+                <div id="header">
+                    <a id="header_2002"></a>
+                    <nav>
+                        <div class="navbtn"></div>
+                        <ul style='display:none;'>
+                            <li><a href="#about"><div>our roots</div><div>&nbsp;</div></a></li>
+                            <li><a href="#platform"><div>our platform</div><div>&nbsp;</div></a></li>
+                            <li><a href="#folios"><div>our folios</div><div>&nbsp;</div></a></li>
+                            <li><a href="#crew"><div>our crew</div><div>&nbsp;</div></a></li>
+                            <li><a href="#contact"><div>our conact</div><div>&nbsp;</div></a></li>
+                            <li><a href="#home" class="nav-goapp-link"><div>GO APP</div><div>&nbsp;</div></a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div id="footer"></div>
             </div>
         </div>
     </body>

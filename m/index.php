@@ -32,7 +32,7 @@
             
             <div id="content"></div>
             <div id="buttons">
-            	<a id="enter-btn" href="home.html" target="_self">[ENTER WEBSITE]</a>
+            	<a id="enter-btn" href="home.html" target="_self" style='display:none;'>[ENTER WEBSITE]</a>
             </div>
             
             <audio id="sound" loop>

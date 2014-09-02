@@ -36,16 +36,27 @@ function AppController() {
     this.initHeader = function() {
         $("#mainContainer nav ul").show();
         $("#mainContainer nav ul").slideUp(0);
+        this.navVisible = false;
+        
         $("#mainContainer nav .navbtn").click(function(evt) {
             var hidden = $("#mainContainer nav ul").is(":hidden");
             if (hidden) {
-                $("#mainContainer nav ul").slideDown(0);
+                $('.overlay').stop(true).fadeIn(200);
+                $("#mainContainer nav ul").slideDown(200);
+                $('.video-container').addClass('overlayed');
+                this.navVisible = true;
             } else {
-                $("#mainContainer nav ul").slideUp(0);
+                $('.overlay').stop(true).fadeOut(200);
+                $("#mainContainer nav ul").slideUp(200);
+                $('.video-container').removeClass('overlayed');
+                this.navVisible = false;
             }
         });
         $("#mainContainer nav a").click(function(evt) {
-            $("#mainContainer nav ul").slideUp(0);
+            $("#mainContainer nav ul").slideUp(200);
+            $('.overlay').stop(true).fadeOut(200);
+            $('.video-container').removeClass('overlayed');
+            this.navVisible = false;
         });
     }
     
@@ -73,11 +84,17 @@ Controller.prototype = {
     controllers : [],
     controllerkeys : [],
     visible : false,
-    testURL : function(lastevt, evt){        
-        if(evt.pathNames.length == 0){
-            return this.isRoot;   
+    testURL : function(lastevt, evt){      
+        if(typeof lastevt == 'string') {
+            var url = lastevt;
+            if(url == '' || url == '/') return this.isRoot;
+            else return url.indexOf(this.url) == 1; 
         }else{
-            return evt.pathNames[0] == this.url;   
+            if(evt.pathNames.length == 0){
+                return this.isRoot;   
+            }else{
+                return evt.pathNames[0] == this.url;   
+            }
         }
     },
     processURL : function(lastevt, evt){
@@ -106,7 +123,8 @@ Controller.prototype = {
         this.visible = true;
         $(window).on('resize', this, this._onResize);
         this.onShow(a);
-        this.$sel.show();
+        //this.$sel.show();
+        this.$sel.fadeIn(400);
         this.onShown(a);
         $(window).trigger('resize');
     },
@@ -116,7 +134,8 @@ Controller.prototype = {
         this.visible = false;
         $(window).off('resize', this._onResize);
         this.onHide(a);
-        this.$sel.hide();
+        //this.$sel.hide();
+        this.$sel.fadeOut(400);
         this.onHidden(a);
     },
     onShow : function(a){ 
@@ -882,7 +901,7 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
         var parent = this.$video.parent();
         var pw = parent.width();
         var ph = parent.height();
-        //this.$video.css({'width':pw+'px', 'height':ph+'px'});
+        this.$video.css({'width':pw+'px', 'height':ph+'px'});
         
         var $igs = [this.$pav, this.$cg];
         for(k in $igs){
@@ -1431,6 +1450,7 @@ $(document).ready(function(){
                 lastProcessedEvent = event;
                 processed = true;
                 match = controller.sel;
+                matchedcontroller = controller;
                 return false;
             }
         });
