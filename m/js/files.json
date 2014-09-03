@@ -123,6 +123,7 @@
 {"type":"SCRIPT", "size":484, "stopExecution":true, "source":"js/vendor/bootstrapvalidator/bootstrapValidator.min.css"},
 {"type":"SCRIPT", "size":83417, "stopExecution":true, "source":"js/vendor/bootstrapvalidator/bootstrapValidator.min.js"},
 {"type":"SCRIPT", "size":2134, "stopExecution":true, "source":"js/vendor/bouncefix.min.js"},
+{"type":"SCRIPT", "size":2134, "stopExecution":true, "source":"js/vendor/bouncefix.js"},
 {"type":"SCRIPT", "size":50723, "stopExecution":true, "source":"../js/bxslider/jquery.bxslider.js"}
 
 ]}

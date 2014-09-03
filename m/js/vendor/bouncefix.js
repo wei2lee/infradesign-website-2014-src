@@ -118,7 +118,9 @@ utils = function () {
   // Search nodes to find target el. Return if exists
   //
   utils.getTargetedEl = function (el, className) {
+      
     while (true) {
+        console.log(el.classList);
       // We found it, exit
       if (el.classList.contains(className)) {
         break;
@@ -196,7 +198,7 @@ fix = function (DOMEvent, utils) {
     // Get target
     var el = utils.getTargetedEl(evt.target, this.className);
     // If el scrollable
-    $("#log").html("el="+(el==true) + ",scrollable="+utils.isScrollable(el));
+    //console.log("target="+evt.target.classList+",el="+(el!=null) + ",scrollable="+(el?utils.isScrollable(el):null));
     if (el && utils.isScrollable(el)) {
       return utils.scrollToEnd(el);
     }

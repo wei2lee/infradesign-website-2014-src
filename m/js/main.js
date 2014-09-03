@@ -16,6 +16,8 @@ function isPhoneNumber(numb)
 var app = null;
 
 function AppController() {
+    var _this = this;
+    
     this.header = {
         height : 53  
     };
@@ -32,31 +34,59 @@ function AppController() {
     this.onInitialized = function() {
         
     };
+    this.$header = $('#header');
+    this.$overlay = $('#overlay').fadeOut(0);
+    this.$navbtn = $("#mainContainer nav .navbtn");
+    this.$navcontent = $("#mainContainer nav ul");
+    this.$navlinks = $("#mainContainer nav a");
+    this.navVisible = false;
     
     this.initHeader = function() {
-        $("#mainContainer nav ul").show();
-        $("#mainContainer nav ul").slideUp(0);
-        this.navVisible = false;
         
-        $("#mainContainer nav .navbtn").click(function(evt) {
-            var hidden = $("#mainContainer nav ul").is(":hidden");
-            if (hidden) {
-                $('.overlay').stop(true).fadeIn(200);
-                $("#mainContainer nav ul").slideDown(200);
-                $('.video-container').addClass('overlayed');
-                this.navVisible = true;
-            } else {
-                $('.overlay').stop(true).fadeOut(200);
-                $("#mainContainer nav ul").slideUp(200);
-                $('.video-container').removeClass('overlayed');
-                this.navVisible = false;
+        
+        this.header.height = window.screen.width > 480 ? 53 : 106;
+        this.$overlay.click(function(evt){
+            var hidden = _this.$navcontent.is(":hidden");
+            if (!hidden) {
+                _this.$navbtn.trigger('click');
+                evt.preventDefault();
+            }else{
+                return false;   
             }
         });
-        $("#mainContainer nav a").click(function(evt) {
-            $("#mainContainer nav ul").slideUp(200);
-            $('.overlay').stop(true).fadeOut(200);
-            $('.video-container').removeClass('overlayed');
-            this.navVisible = false;
+        this.$overlay.on('touchmove', function(evt){
+            var hidden = _this.$navcontent.is(":hidden");
+            if (!hidden) {
+                evt.preventDefault();
+            }else{
+                return false;   
+            }
+        });
+        
+        this.$navcontent.show();
+        this.$navcontent.slideUp(0);
+        this.navVisible = false;
+        
+        this.$navbtn.click(function(evt) {
+            var hidden = _this.$navcontent.is(":hidden");
+            if (hidden) {
+                _this.$overlay.stop(true).fadeIn(400);
+                $('.video-container').addClass('overlayed');
+                _this.$navcontent.slideDown(200);
+                _this.navVisible = true;
+            } else {
+                _this.$overlay.stop(true).fadeOut(400);
+                $('.video-container').removeClass('overlayed');
+                _this.$navcontent.slideUp(200);
+                _this.navVisible = false;
+            }
+        });
+        this.$navlinks.click(function(evt) {
+            _this.$navbtn.trigger('click');
+        });
+        
+        this.$header.on('touchmove', function(evt){
+            evt.preventDefault();
         });
     }
     
@@ -118,25 +148,33 @@ Controller.prototype = {
         
     },
     show : function(a) { 
+        var _this = this;
         if(this.visible)return;
         
         this.visible = true;
         $(window).on('resize', this, this._onResize);
         this.onShow(a);
-        //this.$sel.show();
-        this.$sel.fadeIn(400);
-        this.onShown(a);
+        this.$sel.show();
+        //this.$sel.fadeIn(400, function(){
+            _this.onShown(a);
+            
+        //});
         $(window).trigger('resize');
     },
     hide : function(a) {
+        var _this = this;
         if(!this.visible)return;   
         
         this.visible = false;
-        $(window).off('resize', this._onResize);
+        
         this.onHide(a);
-        //this.$sel.hide();
-        this.$sel.fadeOut(400);
-        this.onHidden(a);
+        this.$sel.hide();
+        //this.$sel.fadeOut(400, function(){
+            _this.onHidden(a);
+            //$(window).trigger('resize');
+            $(window).off('resize', _this._onResize);
+        //});
+        
     },
     onShow : function(a){ 
     },
@@ -184,7 +222,7 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
     processURL : function(lastevt, evt) {
         var ret = Controller.prototype.processURL.call(this, lastevt, evt);  
         if(!ret)return false;
-        var i = evt.pathNames.length < 2 ? 0 : this.suburls.indexOf(evt.pathNames[1]);
+        var i = evt.pathNames.length <= 1 ? 0 : this.suburls.indexOf(evt.pathNames[1]);
         this.$slider.goToSlide(i);
         return true;
     },
@@ -196,7 +234,7 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
         
         
         this.sliderOption.onSlideBefore = function($slideElement, oldIndex, newIndex){
-            _this.$sliderContents.eq(newIndex).scrollTop(0);
+            _this.$sliderContents.eq(newIndex).scrollTop(1);
             _this.onSlideBefore(oldIndex, newIndex);
             
             var c; 
@@ -262,7 +300,7 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
     onHide : function(a) {
         this.hammer.off('swipeleft swiperight');
         $(document).off('keydown', this._onKeyDown);
-        this.$sliderContents.scrollTop(0);
+        this.$sliderContents.scrollTop(1);
         this.$slider.goToSlide(0);   
         
         //fix bxslider wouldnt udpate to proper state 
@@ -591,16 +629,21 @@ BannerController.prototype = $.extend(Object.create(Controller.prototype), {
         
         
     },
-    onDidSlideToSelf : function() {
+    onDidSlideToSelf : function() { console.log('BannerController.onDidSlideToSelf@'+this.sel);
         this.$slider.startAuto();
     },
     onWillSlideFromSelf : function() {
         this.$slider.goToSlide(0);   
         this.$slider.stopAuto();
     },
+    
+    onShown : function(a) {
+        Controller.prototype.onShown.call(this);
+        this.$slider.startAuto();
+    },
 
     onHide : function(a) {
-        this.$sliderContents.scrollTop(0);
+        this.$sliderContents.scrollTop(1);
         this.$slider.goToSlide(0);   
         this.$slider.stopAuto();
         //fix bxslider wouldnt udpate to proper state 
@@ -610,6 +653,10 @@ BannerController.prototype = $.extend(Object.create(Controller.prototype), {
     },
     onHidden : function(a) {
         //
+        //fix bxslider wouldnt udpate to proper state 
+        //if the slider is hidden before the transition is ended
+        this.$slider.slider.working = false;
+        this.$slider.unbind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd');
     },
     onResize : function(evt){ 
         var ww = $(window).width();
@@ -619,6 +666,11 @@ BannerController.prototype = $.extend(Object.create(Controller.prototype), {
         this.$slider.redrawSlider();  
     },
 });
+
+function ProsalesController2() {
+    this.sel = '#home #prosales';
+}
+ProsalesController2.prototype = $.extend(Object.create(Controller.prototype), {});
 
 function ProsalesController() {
     this.sel = '#home #prosales';
@@ -632,19 +684,31 @@ ProsalesController.prototype = $.extend(Object.create(Controller.prototype), {
         Controller.prototype.init.call(this);
         this.$video = this.$sel.find('video');
         var video = this.$video.get(0);
-        video.onloadedmetadata = function() {
-            this.onloadedmetadata = null;   
-            _this.videoSrc = this.currentSrc;
+        if(video){
+            video.onloadedmetadata = function() {
+                this.onloadedmetadata = null;   
+                _this.videoSrc = this.currentSrc;
+            }
         }
-        /*
+        
         this.$video.click(function(){
-            if(video.paused)video.play(); 
-            else video.pause();
+            if(video.paused)_this.playVideo();
+            else _this.pauseVideo();    
         });//*/
     },
     
+    pauseVideo : function() {
+        this.$video.get(0).pause();
+        //this.$video.prop("controls",false); 
+    },
+    
+    playVideo : function() {
+        this.$video.get(0).play();
+        //this.$video.prop("controls",true); 
+    },
+    
     onWillSlideFromSelf : function() { 
-        try{ this.$video.get(0).pause(); }
+        try{ this.pauseVideo(); }
         catch(ex){ console.log(ex); }        
     },
     onWillSlideToSelf : function() {
@@ -652,11 +716,15 @@ ProsalesController.prototype = $.extend(Object.create(Controller.prototype), {
     onShow : function() {
         Controller.prototype.onShow.call(this);
     },
+    onShown : function() {
+        Controller.prototype.onShown.call(this);
+        this.$video = this.$sel.find('video');
+    },
     onHide : function() {
         Controller.prototype.onHide.call(this);
         try{ this.$video.get(0).currentTime = 0; }
         catch(ex){ console.log(ex); }
-        try{ this.$video.get(0).pause(); }
+        try{ this.pauseVideo(); }
         catch(ex){ console.log(ex); }
     },
     onResize : function() {
@@ -813,6 +881,15 @@ function AboutController() {
 
 AboutController.prototype = $.extend(Object.create(SliderController.prototype), {});
 
+function PlatformController2() {
+    this.sel = '#platform';
+    this.url = 'platform';
+    this.suburls = ['entry', 'branding', 'web-development', 'integrated-communication'];
+    this.subsels = ['#platform-entry', '#platform-branding', '#platform-web-development', '#platform-integrated-communication'];
+    return this;   
+}
+PlatformController2.prototype = $.extend(Object.create(SliderController.prototype), {});
+
 function PlatformController() {
     this.sel = '#platform';
     this.url = 'platform';
@@ -854,16 +931,14 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
 
 
         this.$video = this.$sel.find('#ic-video');
+        if(video){
         var video = this.$video.get(0);
-        video.onloadedmetadata = function() {
-            this.onloaodedmetadata = null;
-            _this.videoSrc = this.currentSrc;
-        };
-        /*
-        video.click(function(){
-            if(video.paused)video.play(); 
-            else video.pause();
-        });//*/
+            video.onloadedmetadata = function() {
+                this.onloaodedmetadata = null;
+                _this.videoSrc = this.currentSrc;
+            };
+        }
+
         
         this.$iframe = this.$sel.find('iframe');
         this.iframeSrc = this.$iframe.attr('data-src');
@@ -896,7 +971,7 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
         }
     },
     
-    onResize : function() {
+    onResize : function() { console.log('PlatformController.onResize@' + this.sel);
         SliderController.prototype.onResize.call(this);
         var parent = this.$video.parent();
         var pw = parent.width();
@@ -914,25 +989,26 @@ PlatformController.prototype = $.extend(Object.create(SliderController.prototype
         }
     },
     
-    onShow : function() {
+    onShow : function() { console.log('PlatformController.onShow@' + this.sel);
         SliderController.prototype.onShow.call(this);
-        if(this.videoSrc){
-            //this.$video.get(0).src = this.videoSrc;
-        }
         this.$iframe.attr('src', this.iframeSrc);
+    },
+    
+    onShown : function() { console.log('PlatformController.onShown@' + this.sel);
+        SliderController.prototype.onShown.call(this);
+        this.$video = this.$sel.find('#ic-video');
     },
     
     onHide : function() {
         SliderController.prototype.onHide.call(this);
         this.$iframe.attr('src', '');
-        //this.$video.get(0).src = '';
-        this.$video.get(0).pause();
+        try{
+            this.$video.get(0).pause();
+        }catch(ex){ console.log(ex); }
         try{
             this.$video.get(0).currentTime = 0;
-        }catch(ex){
-            console.log(ex);
-        }
-        
+        }catch(ex){ console.log(ex); }
+        console.log('PlatformController.onHide@2 ' + this.sel); 
         var $igs = [this.$pav, this.$cg];
         for(k in $igs){
             var $ig = $igs[k];
@@ -955,6 +1031,7 @@ function CrewController() {
 }
 CrewController.prototype = $.extend(Object.create(SliderController.prototype), {
     init : function() {
+        var _this = this;
         SliderController.prototype.init.call(this);
         var highlightCrewIndex = -1;
         var $crew = $('#crew1,#crew2,#crew3,#crew4,#crew5,#crew6');
@@ -965,14 +1042,17 @@ CrewController.prototype = $.extend(Object.create(SliderController.prototype), {
                     setHighlightCrew(-1);
                 });
             } else {
-                $(this).click(function() {
+                $(this).click(function(evt) {
+                    evt.stopPropagation();
                     var index = parseInt($(this).attr('id').substring(4));
                     var top = $(this).position().top;
                     setHighlightCrew(index - 1);
                     //$('#crew').stop(true).animate({scrollTop:top},500);
                 });
             }
+            
         });
+        
 
         function setHighlightCrew(index, a) {
             highlightCrewIndex = index;
@@ -992,6 +1072,11 @@ CrewController.prototype = $.extend(Object.create(SliderController.prototype), {
                 }
             });
         }
+        
+        this.$sel.click(function(){
+           setHighlightCrew(-1, true);
+           
+        });
     },
     onResize : function(evt) {
         SliderController.prototype.onResize.call(this);
@@ -1294,9 +1379,35 @@ function ContactController() {
     return this;   
 }
 ContactController.prototype = $.extend(Object.create(SliderController.prototype), {
+    mapLoaded : false,
+    initMap : function() {
+        if(!this.mapLoaded){
+            google.maps.event.addDomListener(window, "load", function()
+            {
+                var point = new google.maps.LatLng(3.085462, 101.692951);
+                var settings = { center:point, zoom:15, mapTypeId:google.maps.MapTypeId.ROADMAP };
+                var map = new google.maps.Map(document.getElementById("contact-map"), settings);
+                var marker = new google.maps.Marker( { position:point, map:map, title:"Infra Design" } );
+                var info = new google.maps.InfoWindow( { content:"<b>Infra Design</b><br>a-3-5, kuchai exchange,<br>no 43, jalan kuchai maju 13,<br>58200 kuala lumpur." } );
+                google.maps.event.addListener(marker, "click", function()
+                {
+                    info.open(map, marker);
+                });
+                info.open(map, marker);
+            });
+            this.mapLoaded=true;
+        }
+    },
+    onShown : function() {
+        SliderController.prototype.onShown.call(this);
+        this.initMap();
+    },
     init : function() {
         SliderController.prototype.init.call(this);
         var _this = this;
+        
+        
+        
         var fields = {};
         $('#contact form')
             .bootstrapValidator({
@@ -1409,7 +1520,6 @@ app = new AppController();
 $(document).ready(function(){
 
     bouncefix.add('sliderContent');
-    bouncefix.add('mainScrollContent');
     
     app.init();
     
