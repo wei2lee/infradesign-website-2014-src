@@ -256,7 +256,7 @@ function onSubmit()
 	$.ajax(
 	{
 		type: "POST",
-		url: "contact.php",
+		url: "resources/api_register.php",
 		data:
 		{
 			name: name, company: company,
@@ -1151,7 +1151,7 @@ function initHome() {
             $.ajax(
             {
                 type: "POST",
-                url: "api_register.php",
+                url: "resources/api_register.php",
                 data:user,
                 success: function(response)
                 {

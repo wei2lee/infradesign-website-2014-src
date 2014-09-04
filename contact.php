@@ -1,5 +1,5 @@
-﻿<?php
-	require_once("inc/class.phpmailer.php");
+<?php
+	require_once("lib/class.phpmailer.php");
 	
 	$name = $_POST["name"];
 	$company = $_POST["company"];

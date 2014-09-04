@@ -13,6 +13,31 @@ function isPhoneNumber(numb)
 	return (numb.length >= 9 && intRegex.test(numb));
 }
 
+function loadMapScript() {
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&' + 'callback=initializeMap';
+    document.body.appendChild(script);
+}
+
+function onMapLoaded() {
+    google.maps.event.addDomListener(window, "load", function()
+    {
+        var point = new google.maps.LatLng(3.085462, 101.692951);
+        var settings = { center:point, zoom:15, mapTypeId:google.maps.MapTypeId.ROADMAP };
+        var map = new google.maps.Map(document.getElementById("contact-map"), settings);
+        var marker = new google.maps.Marker( { position:point, map:map, title:"Infra Design" } );
+        var info = new google.maps.InfoWindow( { content:"<b>Infra Design</b><br>a-3-5, kuchai exchange,<br>no 43, jalan kuchai maju 13,<br>58200 kuala lumpur." } );
+        google.maps.event.addListener(marker, "click", function()
+        {
+            info.open(map, marker);
+        });
+        info.open(map, marker);
+    });
+    this.mapLoaded=true;
+}
+
+var _gaq = _gaq || [];
 var app = null;
 
 function AppController() {
@@ -34,12 +59,24 @@ function AppController() {
     this.onInitialized = function() {
         
     };
+    
+    this.initTracking = function() { 
+        _gaq=[['_setAccount','UA-42485850-1']];
+        (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g,s)}(document,'script'));   
+    }
+    this.initTracking();
+    
+    
     this.$header = $('#header');
     this.$overlay = $('#overlay').fadeOut(0);
     this.$navbtn = $("#mainContainer nav .navbtn");
     this.$navcontent = $("#mainContainer nav ul");
     this.$navlinks = $("#mainContainer nav a");
     this.navVisible = false;
+    
+    
     
     this.initHeader = function() {
         
@@ -331,6 +368,7 @@ SliderController.prototype = $.extend(Object.create(Controller.prototype), {
 
 function HomeController() {
     var _this = this;
+    this.isRoot = true;
     this.sel = '#home';
     this.url = 'home';
     this.controllermaps = [
@@ -474,7 +512,7 @@ HomeController.prototype = $.extend(Object.create(SliderController.prototype), {
             $.ajax(
             {
                 type: "POST",
-                url: "../api_register.php",
+                url: "../resources/api_register.php",
                 data:user,
                 success: function(response)
                 {
@@ -874,7 +912,7 @@ ARController.prototype = $.extend(Object.create(Controller.prototype), {});
 function AboutController() {
     this.sel = '#about';
     this.url = 'about';
-    this.isRoot = true;
+    this.isRoot = false;
     this.suburls = ['what-define-us', 'what-we-do', 'how-we-work'];
     return this;   
 }
@@ -1382,20 +1420,7 @@ ContactController.prototype = $.extend(Object.create(SliderController.prototype)
     mapLoaded : false,
     initMap : function() {
         if(!this.mapLoaded){
-            google.maps.event.addDomListener(window, "load", function()
-            {
-                var point = new google.maps.LatLng(3.085462, 101.692951);
-                var settings = { center:point, zoom:15, mapTypeId:google.maps.MapTypeId.ROADMAP };
-                var map = new google.maps.Map(document.getElementById("contact-map"), settings);
-                var marker = new google.maps.Marker( { position:point, map:map, title:"Infra Design" } );
-                var info = new google.maps.InfoWindow( { content:"<b>Infra Design</b><br>a-3-5, kuchai exchange,<br>no 43, jalan kuchai maju 13,<br>58200 kuala lumpur." } );
-                google.maps.event.addListener(marker, "click", function()
-                {
-                    info.open(map, marker);
-                });
-                info.open(map, marker);
-            });
-            this.mapLoaded=true;
+            loadMapScript();
         }
     },
     onShown : function() {
@@ -1405,9 +1430,6 @@ ContactController.prototype = $.extend(Object.create(SliderController.prototype)
     init : function() {
         SliderController.prototype.init.call(this);
         var _this = this;
-        
-        
-        
         var fields = {};
         $('#contact form')
             .bootstrapValidator({
@@ -1461,7 +1483,7 @@ ContactController.prototype = $.extend(Object.create(SliderController.prototype)
                 $.ajax(
                 {
                     type: "POST",
-                    url: "../contact.php",
+                    url: "../resources/api_register.php",
                     data:data,
                     success: function(response)
                     {
@@ -1534,6 +1556,9 @@ $(document).ready(function(){
                 match = controller.sel;
                 matchedcontroller = controller;
                 lastProcessedEvent = event;
+
+                _gaq.push(['_trackPageview', '/m' + event.value]);
+                
                 return false;
             }
         });
@@ -1561,6 +1586,9 @@ $(document).ready(function(){
                 processed = true;
                 match = controller.sel;
                 matchedcontroller = controller;
+
+                _gaq.push(['_trackPageview', '/m' + event.value]);
+                
                 return false;
             }
         });

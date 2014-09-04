@@ -1,5 +1,5 @@
 <?php 
-require_once 'inc/Mobile_Detect.php';
+require_once 'resources/lib/Mobile_Detect.php';
 $detect = new Mobile_Detect();
 if($detect->isMobile() || $detect->isTablet()) { header('Location: http://infradesign.com.my/m/index.php'); }
 ?>

@@ -92,6 +92,8 @@
             
 			document.getElementById("sound").play();
 			(new swiffy.Stage(document.getElementById("content"), swiffyobject)).start();
+            
+            
             $.html5Loader({
                   filesToLoad:        'js/files.json', // this could be a JSON or simply a javascript object
                   onBeforeLoad:       function () {
