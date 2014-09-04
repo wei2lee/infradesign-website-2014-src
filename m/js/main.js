@@ -448,12 +448,12 @@ HomeController.prototype = $.extend(Object.create(SliderController.prototype), {
         user.contact = $("#"+prefix+"register_contact").val().trim();
         user.company = $("#"+prefix+"register_company").val().trim();
         user.businessType = $("#"+prefix+"register_businesstype").val().trim();
-        user.interest = {};
-        user.interest.prosalesdemoversion = $("#"+prefix+"register_prosalesdemoversion").is(':checked');
-        user.interest.ar = $("#"+prefix+"register_ar").is(':checked');
-        user.interest.crm = $("#"+prefix+"register_crm").is(':checked');
-        user.interest.virtualtour = $("#"+prefix+"register_virtualtour").is(':checked');
-        user.interest.mobileapplication = $("#"+prefix+"register_mobileapplication").is(':checked');
+        user.interested = {};
+        user.interested.prosalesdemoversion = $("#"+prefix+"register_prosalesdemoversion").is(':checked');
+        user.interested.ar = $("#"+prefix+"register_ar").is(':checked');
+        user.interested.crm = $("#"+prefix+"register_crm").is(':checked');
+        user.interested.virtualtour = $("#"+prefix+"register_virtualtour").is(':checked');
+        user.interested.mobileapplication = $("#"+prefix+"register_mobileapplication").is(':checked');
         
         try {
             if(user.name == ""){
@@ -488,8 +488,8 @@ HomeController.prototype = $.extend(Object.create(SliderController.prototype), {
             }
 
             var anyInterest = false;
-            for(var key in user.interest){
-                if(user.interest[key] == true){
+            for(var key in user.interested){
+                if(user.interested[key] == true){
                     anyInterest = true;
                     break;   
                 }

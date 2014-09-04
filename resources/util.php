@@ -1,5 +1,5 @@
 <?php
-include_once "lib/class.phpmailer.php"
+include_once "lib/class.phpmailer.php";
 function getResponseJSONString($error_exist, $error_no, $error_msg, $data) {
     $ret = array();
     $ret['error_exsit'] = $error_exist;
@@ -12,7 +12,6 @@ function getResponseJSONString($error_exist, $error_no, $error_msg, $data) {
 function boolProperties2String($o){
     $ret = "";
     foreach($o as $key => $value){
-        echo "$key : $value\n";
         if($value == "true"){
             if($ret == "") $ret .= $key;
             else $ret .= ", " . $key;
@@ -30,8 +29,8 @@ function getEscapeObjectProperties($o){
 }
 
 class Form {
-    public readFields = array("id","name","email","contact","company","businessType","interested","startDate","message","budget","createdAt","updatedAt");
-    public editFields = array("name","email","contact","company","businessType","interested","startDate","message","budget");
+    public $readFields = array("id","name","email","contact","company","businessType","interested","startDate","message","budget","createdAt","updatedAt");
+    public $editFields = array("name","email","contact","company","businessType","interested","startDate","message","budget");
     public $config;
     public $fields = array(
         'name'=>null, 'email'=>null, 'contact'=>null, 'company'=>null, 
@@ -77,7 +76,7 @@ class Form {
         getEscapeObjectProperties($user);
         $q2 = "";
         foreach($user as $key => $value) {
-            if(!in_array($key, $this->editFields) continue;
+            if(!in_array($key, $this->editFields)) continue;
             if($q2 === "") $q2 .= $key . " = " . $value;
             else $q2 .= " , " . $key . " = " . $value;
         }
@@ -94,13 +93,13 @@ class Form {
         getEscapeObjectProperties($user);
         $q2 = "";
         foreach($user as $key => $value) {
-            if(!in_array($key, $this->fields) continue;
+            if(!in_array($key, $this->fields)) continue;
             if($q2 === "") $q2 .= $key;
             else $q2 .= " , " . $key;
         }
         $q3 = "";
         foreach($user as $key => $value) {
-            if(!in_array($key, $this->fields) continue;
+            if(!in_array($key, $this->fields)) continue;
             if($q3 === "") $q3 .= ($value === null ? 'NULL' : "'" . $value . "'");
             else $q3 .= " , " . ($value === null ? 'NULL' : "'" . $value . "'");
         }

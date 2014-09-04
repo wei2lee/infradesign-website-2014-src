@@ -261,7 +261,7 @@ function onSubmit()
 		{
 			name: name, company: company,
 			contact: contact, email: email,
-			date: date, budget: budget, message: message
+			startDate: date, budget: budget, message: message
 		},
 		success: function(response)
 		{
@@ -906,10 +906,13 @@ function initHome() {
     $sel = $('#section_prosales');
     $sel.find("a.demoversion").click(function(){
     });
-    $sel.find('#prosales_video').click(function(){
-       $(this)[0].play();
-       $(this).off('click'); 
-    });
+    
+    $sel.find('#prosales_video').parent().click(function(){
+        var $video = $('#section_prosales').find('video');
+        var video = $video.get(0);
+        video.play();
+        $(this).off('click'); 
+    });//*/
     
     
     
@@ -1092,13 +1095,13 @@ function initHome() {
         user.email = $("#"+prefix+"register_email").val().trim();
         user.contact = $("#"+prefix+"register_contact").val().trim();
         user.company = $("#"+prefix+"register_company").val().trim();
-        user.businesstype = $("#"+prefix+"register_businesstype").val().trim();
-        user.interest = {};
-        user.interest.prosalesdemoversion = $("#"+prefix+"register_prosalesdemoversion").is(':checked');
-        user.interest.ar = $("#"+prefix+"register_ar").is(':checked');
-        user.interest.crm = $("#"+prefix+"register_crm").is(':checked');
-        user.interest.virtualtour = $("#"+prefix+"register_virtualtour").is(':checked');
-        user.interest.mobileapplication = $("#"+prefix+"register_mobileapplication").is(':checked');
+        user.businessType = $("#"+prefix+"register_businesstype").val().trim();
+        user.interested = {};
+        user.interested.prosalesdemoversion = $("#"+prefix+"register_prosalesdemoversion").is(':checked');
+        user.interested.ar = $("#"+prefix+"register_ar").is(':checked');
+        user.interested.crm = $("#"+prefix+"register_crm").is(':checked');
+        user.interested.virtualtour = $("#"+prefix+"register_virtualtour").is(':checked');
+        user.interested.mobileapplication = $("#"+prefix+"register_mobileapplication").is(':checked');
         
         try {
             if(user.name == ""){
@@ -1133,8 +1136,8 @@ function initHome() {
             }
 
             var anyInterest = false;
-            for(var key in user.interest){
-                if(user.interest[key] == true){
+            for(var key in user.interested){
+                if(user.interested[key] == true){
                     anyInterest = true;
                     break;   
                 }
