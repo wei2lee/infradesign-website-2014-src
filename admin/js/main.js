@@ -1,4 +1,5 @@
 
+
 $(function() {
     if($('.login-form').length) {
         
@@ -70,41 +71,80 @@ $(function() {
         
     }
 
-    if($('#user-data-table').length) {
-        var columns = [
-            { "data": "name"},
-            { "data": "email" },
-            { "data": "contact" },
-            { "data": "company" },
-            { "data": "businessType" },
-            { "data": "interested" },
-            { "data": "message" },
-            { "data": "startDate", type: 'date' },
-            { "data": "createdAt", type: 'date' },
-            { "data": "updatedAt", type: 'date' },
-        ];
-        var columnDefs = [
-            {
-                render : function(data,type,row) { return data === null ? '' : data; },
-                targets : columns.map(function(v,i) { return i; })
-            }
-        ];
-        var $userDataTable = $('#user-data-table');
+    
+    var sel = '#user-data-table';
+    var $functions = $('#user-crud .data-table-function-group');
+    var columns = [
+        { "data": "name"},
+        { "data": "email" },
+        { "data": "contact" },
+        { "data": "company" },
+        { "data": "businessType" },
+        { "data": "interested" },
+        { "data": "message" },
+        { "data": "startDate", type: 'date' },
+        { "data": "createdAt", type: 'date' },
+        { "data": "updatedAt", type: 'date' },
+    ];    
+    var columnDefs = [
+        {
+            render : function(data,type,row) { return data === null ? '' : data; },
+            targets : columns.map(function(v,i) { return i; })
+        }
+    ];
+    var $dataTable;
+    var source = '../resources/api_admin.php?action=read&target=user';
+    if($(sel).length) {
+        var $sel = $(sel);
         $.each(columns, function(i, col){
-            $userDataTable.find('thead tr').append('<th>'+col.data+'</td>');
-            $userDataTable.find('tfoot tr').append('<th>'+col.data+'</td>');
+            $sel.find('thead tr').append('<th>'+col.data+'</td>');
+            $sel.find('tfoot tr').append('<th>'+col.data+'</td>');
         });
-        var userDataTable = $('#user-data-table').dataTable({
-            ajax:'../resources/api_admin.php?action=read&target=user',
+        $dataTable = $sel.dataTable({
+            ajax:source,
             columns: columns,
             columnDefs: columnDefs
-            //responsive: true
         });
-        var tableTools = new $.fn.dataTable.TableTools( $userDataTable, {
-            fnPreRowSelect : function(evt, node) {
-                console.log('prerowselect');
-            },
+        var data = {dataTable:$dataTable, functions:$functions, api:$dataTable.DataTable()};
         
-        } );
+        $dataTable.on('click', 'tr', function () {
+            $(this).toggleClass('selected');
+            updateButtons(data);
+        });
+        
+        $functions.find('.refresh-btn').on('click', data, function(evt){
+            evt.data.api.ajax.reload();
+            updateButtons(data);
+        });
+        $functions.find('.select-all-btn').on('click', data, function(evt){
+            evt.data.dataTable.find('tr').addClass('selected');
+            updateButtons(data);
+        });
+        $functions.find('.remove-btn').on('click', data, function(evt){
+            evt.data.api.rows('.selected').remove().draw(false);
+            updateButtons(data);
+        });
+        
+        function updateButtons(data) {
+            var $api = data.api;
+            var numSelectedRow = $api.rows('.selected')[0].length;
+            var numRow = $api.rows()[0].length;
+            console.log('selected : ' + numSelectedRow + '/' + numRow);
+            /*
+            if(numRow == 0){
+                $functions.find('.select-all-btn').removeClass('toggle-1 toggle-2');
+            }else{
+                if(numSelectedRow == numRow){
+                    $functions.find('.select-all-btn').removeClass('toggle-1').addClass('toggle-2');   
+                }else{
+                    $functions.find('.select-all-btn').addClass('toggle-1').removeClass('toggle-2');   
+                }
+            }//*/
+            $functions.find('.remove-btn').prop('disabled', numSelectedRow == 0);
+            $functions.find('.mail-btn').prop('disabled', numSelectedRow == 0);
+            $functions.find('.edit-btn').prop('disabled', numSelectedRow == 0);
+        }
+        
+        updateButtons(data);
     }
 });
