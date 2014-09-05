@@ -1,39 +1,69 @@
 <?php
 include_once "config.php";
 include_once "util.php";
-$action = $_GET['action'] || 'login';
+
+function checkMySQLError() {
+    if (mysqli_connect_errno()) {
+        echo getResponseJSONString(1, 0, "Failed to connect to MySQL: " . mysqli_connect_error(), '');
+        die();
+    }
+}
+
 session_start();
 $con=mysqli_connect($config['db']['host'],$config['db']['user'],$config['db']['pass'],$config['db']['db']);
-if (mysqli_connect_errno()) {
-    echo getResponseJSONString('1', '0', "Failed to connect to MySQL: " . mysqli_connect_error());
-    die();
-}
+checkMySQLError();
 $form = new Form();
-if($action == 'read') {
-    $q = $form->getReadQuery();
+
+$action = isset($_GET['action']) ? $_GET['action'] : '';
+$target = isset($_GET['target']) ? $_GET['target'] : '';
+
+if($action == 'login') {
+    $user = $_POST['user'];
+    $q = $form->getLoginQuery($user);
     $res = mysqli_query($con, $q);
-    $data = array();
-    while($r = mysql_fetch_assoc($res)){
-        $data[] = $r;        
+    checkMySQLError();
+    $r = mysqli_fetch_row($res);
+    if($r[0] == 0){
+        echo getResponseJSONString(1, 0, 'No user is matched with password', '');
+    }else{
+        $_SESSION['authName'] = $user['authName'];
+        $_SESSION['authPassword'] = $user['authPassword'];
+        echo getResponseJSONString(0, 0, '', '');
     }
-    echo getResponseJSONString('0','','',$data);
-}else if($action == 'update'){
-    $users = $_POST['users'];
-    foreach($user as $i => $user) {
-        $q = $form->getEditQuery($user);   
-        $res = mysqli_query($con, $q);
-    }
-}else if($action == 'delete'){
-    $users = $_POST['users'];
-    foreach($user as $i => $user) {
-        $q = $form->getDeleteQuery($user);   
-        $res = mysqli_query($con, $q);
-    }
-}else if($action == 'new'){
-    $users = $_POST['users'];
-    foreach($user as $i => $user) {
-        $q = $form->getNewQuery($user);   
-        $res = mysqli_query($con, $q);
+}else{
+    if($target == 'user') {
+        if($action == 'read') {
+            $q = $form->getReadQuery();
+            $res = mysqli_query($con, $q);
+            checkMySQLError();
+            $data = array();
+            while($r = mysqli_fetch_assoc($res)){
+                $data[] = $r;        
+            }
+            echo getResponseJSONString(0, 0,'',$data);
+        }else if($action == 'update'){
+            $users = $_POST['users'];
+            foreach($user as $i => $user) {
+                $q = $form->getEditQuery($user);   
+                $res = mysqli_query($con, $q);
+                checkMySQLError();
+            }
+        }else if($action == 'delete'){
+            $users = $_POST['users'];
+            foreach($user as $i => $user) {
+                $q = $form->getDeleteQuery($user);   
+                $res = mysqli_query($con, $q);
+                checkMySQLError();
+            }
+        }else if($action == 'new'){
+            $users = $_POST['users'];
+            foreach($user as $i => $user) {
+                $q = $form->getNewQuery($user);   
+                $res = mysqli_query($con, $q);
+                checkMySQLError();
+            }
+        }
     }
 }
+
 ?>

@@ -2,7 +2,7 @@
 include_once "lib/class.phpmailer.php";
 function getResponseJSONString($error_exist, $error_no, $error_msg, $data) {
     $ret = array();
-    $ret['error_exsit'] = $error_exist;
+    $ret['error_exist'] = $error_exist;
     $ret['error_no'] = $error_no;
     $ret['error_msg'] = $error_msg;
     $ret['data'] = $data;
@@ -56,9 +56,9 @@ class Form {
     }
     public function getLoginQuery($user) {
         getEscapeObjectProperties($user);
-        $authName = $user['authName'] || '';
-        $authPassword = $user['$authPassword'] || '';
-        $q = "SELECT count(*) FROM $table WHERE client = 'client' AND authName = '$authName' AND authPassword = '$authPassword'";
+        $authName = $user['authName'];
+        $authPassword = $user['authPassword'];
+        $q = "SELECT count(*) FROM {$this->table} WHERE role = 'admin' AND authName = '$authName' AND authPassword = '$authPassword'";
         return $q;
     }
     
@@ -68,7 +68,7 @@ class Form {
             if($q2 === "") $q2 .= $value;
             else $q2 .= "," . $value;
         }
-        $q = "SELECT $q2 FROM $table";
+        $q = "SELECT $q2 FROM {$this->table} WHERE role = 'client'";  
         return $q;
     }
     
@@ -80,12 +80,12 @@ class Form {
             if($q2 === "") $q2 .= $key . " = " . $value;
             else $q2 .= " , " . $key . " = " . $value;
         }
-        $q = "UPDATE $table SET " . $q2 . "WHERE id = " . $user['id'];
+        $q = "UPDATE {$this->table} SET $q2 WHERE id = ${user['id']}";
         return $q;
     }
     public function getDeleteQuery($user) {
         getEscapeObjectProperties($user);
-        $q = "DELETE FROM $table WHERE id = " . $user['id'];   
+        $q = "DELETE FROM {$this->table} WHERE id = ${user['id']}";   
         return $q;
     }
                

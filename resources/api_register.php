@@ -4,7 +4,7 @@ include_once "util.php";
 
 $con=mysqli_connect($config['db']['host'],$config['db']['user'],$config['db']['pass'],$config['db']['db']);
 if (mysqli_connect_errno()) {
-    echo getResponseJSONString('1', '0', "Failed to connect to MySQL: " . mysqli_connect_error(), '');
+    echo getResponseJSONString(1, 0, "Failed to connect to MySQL: " . mysqli_connect_error(), '');
     die();
 }
 
@@ -15,7 +15,7 @@ $form->set($_POST);
 $query = $form->getInsertQuery();
 mysqli_query($con,$query);
 if (mysqli_errno($con)) {
-    echo getResponseJSONString('1', '0', "Failed to insert to MySQL: " . mysqli_error($con), '');
+    echo getResponseJSONString(1, 0, "Failed to insert to MySQL: " . mysqli_error($con), '');
     die();
 }
 
@@ -25,8 +25,8 @@ $query =
 " WHERE id = " . $id;
 mysqli_query($con,$query);
 if (mysqli_errno($con)) {
-    echo getResponseJSONString('1', '0', "Failed to update createdAt, updatedAt to MySQL:($query) " . mysqli_error($con), '');
+    echo getResponseJSONString(1, 0, "Failed to update createdAt, updatedAt to MySQL:($query) " . mysqli_error($con), '');
     die();
 }
-echo getResponseJSONString('0', '', '');
+echo getResponseJSONString(0, 0, '', '');
 ?>
