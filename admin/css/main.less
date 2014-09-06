@@ -1,18 +1,13 @@
 @import url('../../m/css/lesshat.less');
 
-#user-data-table {
-
-}
-
 .data-table-function-group { 
     &.top { padding-bottom:15px; }
     .btn { min-width:80px; 
         .glyphicon { display:none; }
     }
 }
-
 table.dataTable tbody tr{
-    &.selected, &.active { background-color:#b0bed9;
+    &.selected, &.active { 
         td { background-color:transparent; }
     }
 }
@@ -22,4 +17,12 @@ table.dataTable tbody tr{
 }
 .toggle-1 {
     .toggle-item-2 { display:none; }   
+}
+
+body { font-size: 140%; }
+div.DTTT { margin-bottom: 0.5em; float: right; }
+div.dataTables_wrapper { clear: both; }
+
+.btn {
+    //&.disabled { cursor:not-allowed; }
 }
