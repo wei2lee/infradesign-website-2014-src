@@ -1,9 +1,14 @@
 @import url('../../m/css/lesshat.less');
+@import url('../../m/css/vendor/bootstrap/bootstrap.less');
 
 .data-table-function-group { 
     &.top { padding-bottom:15px; }
     .btn { min-width:80px; 
         .glyphicon { display:none; }
+        margin-top:2px;
+        margin-bottom:2px;
+        margin-right:2px;
+        &:last-child { margin-right:0px; }
     }
 }
 table.dataTable tbody tr{
@@ -21,6 +26,23 @@ table.dataTable tbody tr{
 
 div.DTTT { margin-bottom: 0.5em; float: right; }
 div.dataTables_wrapper { clear: both; }
+
+
+.crud-form {
+    .crud-form-buttons {
+        &.modal-footer { margin-bottom:0px; padding-bottom:0px; }
+        .btn-group {
+            //.make-xs-column(6, 10px);
+            .btn { min-width:120px; max-width:100%; width:100%; margin-top:2px; marign-bottom:2px; }   
+        }
+    }
+    .input-group-btn {
+        button {
+            min-width:60px; 
+        }
+    }
+}
+
 
 .disable-text-selection {
     -webkit-touch-callout: none;

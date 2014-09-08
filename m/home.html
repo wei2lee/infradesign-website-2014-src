@@ -13,9 +13,9 @@
         <!--<script src="js/vendor/modernizr.custom.79390.js"></script>-->
         <link rel="stylesheet" href="../js/bxslider/jquery.bxslider.css">
         <link rel="stylesheet" href="js/vendor/bootstrapvalidator/bootstrapValidator.min.css">
-        <link rel="stylesheet" href="css/main.min.css">
-        <!--<link rel="stylesheet/less" type="text/css" href="css/main.less">-->
-        <!--<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js"></script>-->
+        <!--<link rel="stylesheet" href="css/main.min.css">-->
+        <link rel="stylesheet/less" type="text/css" href="css/main.less">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.3/less.min.js"></script>
     </head>
     <body>
         <!--tempalte-->
@@ -106,7 +106,7 @@
                                     <canvas width=320 height=393></canvas>
                                     <div class="scale-content">
                                         <p class='bigtitle'>EASIER, FASTER &amp; SMOOTHER</p>
-                                        <p class='msg'>ProSales allows your sales person to use a tablet to manage client information and place booking. Managers can also track the team's sales activities with dynamic reports and within a few minutes manage to print 
+                                        <p class='msg' id='prosales-content-1-msg'>ProSales allows your sales person to use a tablet to manage client information and place booking. Managers can also track the team's sales activities with dynamic reports and within a few minutes manage to print 
 all the documents you need</p>
                                         <a class='demo scroll-to-register' href='javascript:void(0)' alt='demo'><img src='images/prosales_demo@2x.png'></a>
                                     </div>
@@ -737,6 +737,7 @@ all the documents you need</p>
         </div>
     </body>
     <script src="js/vendor/jquery-1.8.2.min.js"></script>
+    <!--<script src="//code.jquery.com/jquery-2.1.1.min.js"></script>-->
     <script src="js/vendor/jquery.address-1.5.min.js"></script>
     <script src="js/vendor/hammerjs/hammer.min.js"></script>
     <script src="js/vendor/bootstrap.min.js"></script>
@@ -748,6 +749,9 @@ all the documents you need</p>
     <script src="js/u.js"></script>
     <script src="js/main.js"></script>
     <script>
+        //var $ele = $('#prosales-content-1-msg');
+        //var $w = $(window);
+        //alert('prosales-content-1-msg.fontsize='+$ele.css('font-size') + ',w='+$ele.css('width') + '/' + $ele.width() + ',window.width=' + $w.width());
         //  console.log("clientWidht="+clientWidht);
         console.log("window.innerWidth="+window.innerWidth);
         console.log("document.documentElement.clientWidht="+document.documentElement.clientWidth);

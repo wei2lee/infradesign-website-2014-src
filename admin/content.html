@@ -14,6 +14,9 @@
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap Validator -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.1/css/bootstrapValidator.min.css" rel="stylesheet" />
+    
     <!-- MetisMenu CSS -->
     <link href="css/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
 
@@ -23,6 +26,7 @@
     <link href="//cdn.datatables.net/tabletools/2.2.3/css/dataTables.tableTools.css" rel="stylesheet">
     <link href="//cdn.datatables.net/responsive/1.0.1/css/dataTables.responsive.css" rel="stylesheet">
     <link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">
+    <link href="//cdn.datatables.net/colvis/1.1.1/css/dataTables.colVis.css" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link href="css/sb-admin-2.css" rel="stylesheet">
@@ -111,10 +115,8 @@
             <!-- /.row -->
             <div class="row">
 
-                <form data-template class="form-horizontal" id='user-form' style='display:none;'>
+                <form data-template class="form-horizontal crud-form" id='user-form' style='display:none;'>
                     <fieldset>
-                        <!-- Form Name -->
-                        <legend></legend>
                         <!-- Text input-->
                         <div class="form-group">
                             <label class="col-sm-3 control-label" for="user-name">Name</label>  
@@ -126,14 +128,24 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label" for="user-email">Email</label>  
                             <div class="col-sm-7">
-                                <input id="user-email" name="user-email" type="text" placeholder="" class="form-control input-md">
+                                <div class="input-group">
+                                    <input id="user-email" name="user-email" type="email" placeholder="" class="form-control input-md">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default mail-btn" type="button">Mail</button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <!-- Text input-->
                         <div class="form-group">
                             <label class="col-sm-3 control-label" for="user-contact">Contact</label>  
                             <div class="col-sm-7">
-                                <input id="user-contact" name="user-contact" type="text" placeholder="" class="form-control input-md">
+                                <div class="input-group">
+                                    <input id="user-contact" name="user-contact" type="text" placeholder="" class="form-control input-md">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default sms-btn" type="button">SMS</button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <!-- Text input-->
@@ -150,67 +162,69 @@
                                 <input id="user-businessType" name="user-businessType" type="text" placeholder="" class="form-control input-md">
                             </div>
                         </div>
-                        <!-- Textarea -->
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-message">Message</label>
-                            <div class="col-sm-7">                     
-                                <textarea class="form-control" id="user-message" name="user-message"></textarea>
-                            </div>
-                        </div>
                         <!-- Text input-->
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-startDate">Start Date</label>  
+                            <label class="col-sm-3 control-label" for="user-website">Website</label>  
                             <div class="col-sm-7">
-                                <input id="user-startDate" name="user-startDate" type="text" placeholder="" class="form-control input-md">
+                                <div class="input-group">
+                                    <input id="user-website" name="user-website" type="text" placeholder="" class="form-control input-md">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default link-btn" type="button">link</button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <!-- Multiple Checkboxes -->
                         <div class="form-group">
                             <label class="col-sm-3 control-label" for="user-interested">Interested</label>
                             <div class="col-sm-7">
-                                <div class='row'>
-                                    
-                                <div class="checkbox col-sm-6">
-                                    <label for="user-interested-0">
-                                    <input type="checkbox" name="user-interested" id="user-interested-0" value="prosalesdemoversion">
-                                    Prosales
-                                    </label>
-                                </div>
-                                <div class="checkbox col-sm-6">
-                                    <label for="user-interested-1">
-                                    <input type="checkbox" name="user-interested" id="user-interested-1" value="ar">
-                                    AR
-                                    </label>
-                                </div>
-                                <div class="checkbox col-sm-6">
-                                    <label for="user-interested-2">
-                                    <input type="checkbox" name="user-interested" id="user-interested-2" value="crm">
-                                    CRM
-                                    </label>
-                                </div>
-                                <div class="checkbox col-sm-6">
-                                    <label for="user-interested-3">
-                                    <input type="checkbox" name="user-interested" id="user-interested-3" value="virtualtour">
-                                    Virtual Tour
-                                    </label>
-                                </div>
-                                <div class="checkbox col-sm-6">
-                                    <label for="user-interested-4">
-                                    <input type="checkbox" name="user-interested" id="user-interested-4" value="mobileapplicatoin">
-                                    Mobile App
-                                    </label>
-                                </div>
-                                
+                                <div class='row' id='user-interested'>
+                                    <div class="checkbox col-sm-6">
+                                        <label for="user-interested-0">
+                                        <input type="checkbox" name="user-interested" id="user-interested-0" value="prosalesdemoversion">
+                                        Prosales
+                                        </label>
+                                    </div>
+                                    <div class="checkbox col-sm-6">
+                                        <label for="user-interested-1">
+                                        <input type="checkbox" name="user-interested" id="user-interested-1" value="ar">
+                                        AR
+                                        </label>
+                                    </div>
+                                    <div class="checkbox col-sm-6">
+                                        <label for="user-interested-2">
+                                        <input type="checkbox" name="user-interested" id="user-interested-2" value="crm">
+                                        CRM
+                                        </label>
+                                    </div>
+                                    <div class="checkbox col-sm-6">
+                                        <label for="user-interested-3">
+                                        <input type="checkbox" name="user-interested" id="user-interested-3" value="virtualtour">
+                                        Virtual Tour
+                                        </label>
+                                    </div>
+                                    <div class="checkbox col-sm-6">
+                                        <label for="user-interested-4">
+                                        <input type="checkbox" name="user-interested" id="user-interested-4" value="mobileapplicatoin">
+                                        Mobile App
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <!-- Button (Double) -->
-                        <div class='divider'></div>
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-undo"></label>
-                            <div class="col-sm-7">
-                                <button id="user-undo" name="user-undo" class="btn btn-default">Undo</button>
-                                <button id="user-commit" name="user-commit" class="btn btn-default">Save</button>
+                        <hr>
+                        <div class="form-group crud-form-buttons">
+                            <!--<label class="col-sm-3 control-label" for="user-undo"></label>-->
+                            <div class="col-sm-12">
+                                <div class='row'>
+                                    <div class='col-xs-6 btn-group'>
+                                        <button id="user-undo" name="undo" class="btn btn-default">Undo</button>
+                                    </div>
+                                    <div class='col-xs-6 btn-group'>
+                                        <button id="user-commit" name="commit" class="btn btn-default">Save</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </fieldset>
@@ -224,8 +238,7 @@
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                             <div class="table-responsive">                                
-                                <div class='data-table-function-group top'></div>
-                                <table class="table table-striped table-bordered table-hover">
+                                <table class="table table-striped table-bordered table-hover" width="100%">
                                     <thead>
                                         <tr>
                                             
@@ -237,7 +250,6 @@
                                         </tr>
                                     </tfoot>
                                 </table>
-                                <div class='data-table-function-group'></div>
                             </div>
                             <!-- /.table-responsive -->
                         </div>
@@ -258,20 +270,22 @@
     <script src="js/jquery-1.11.0.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <!--<script src="js/bootstrap.min.js"></script>-->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    
+    <!-- Bootstrap Validator-->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.1/js/bootstrapValidator.min.js"></script>
     
     
     <!-- Metis Menu Plugin JavaScript -->
     <script src="js/plugins/metisMenu/metisMenu.min.js"></script>
 
     <!-- DataTables JavaScript -->
-    <!--<script src="js/plugins/dataTables/jquery.dataTables.js"></script>-->
     <script src="//cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js"></script>
     <script src="//datatables.net/release-datatables/extensions/Plugins/integration/bootstrap/3/dataTables.bootstrap.js"></script>
     <script src="//cdn.datatables.net/tabletools/2.2.3/js/dataTables.tableTools.min.js"></script>
     <script src="//cdn.datatables.net/responsive/1.0.1/js/dataTables.responsive.min.js"></script>
     <script src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
+    <script src="//cdn.datatables.net/colvis/1.1.1/js/dataTables.colVis.min.js"></script>
     <!--bootbox-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.2.0/bootbox.min.js"></script>
     

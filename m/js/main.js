@@ -13,28 +13,39 @@ function isPhoneNumber(numb)
 	return (numb.length >= 9 && intRegex.test(numb));
 }
 
+
+var _loadMapProgress = 0;
+var loadMapProgress = function(i){ 
+    if(i === null || i === undefined) return _loadMapProgress;
+    _loadMapProgress = i; 
+    console.log('_loadMapProgress='+_loadMapProgress);
+    return _loadMapProgress
+};
+
 function loadMapScript() {
+    if(loadMapProgress() != 0)return;
+    loadMapProgress(1);
     var script = document.createElement('script');
     script.type = 'text/javascript';
-    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&' + 'callback=initializeMap';
+    script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&' + 'callback=onMapLoaded';
     document.body.appendChild(script);
 }
 
 function onMapLoaded() {
-    google.maps.event.addDomListener(window, "load", function()
+    if(loadMapProgress() != 1)return;
+    loadMapProgress(2);
+    var point = new google.maps.LatLng(3.085462, 101.692951);
+    var settings = { center:point, zoom:15, mapTypeId:google.maps.MapTypeId.ROADMAP };
+    var map = new google.maps.Map(document.getElementById("contact-map"), settings);
+    var marker = new google.maps.Marker( { position:point, map:map, title:"Infra Design" } );
+    var info = new google.maps.InfoWindow( { content:"<b>Infra Design</b><br>a-3-5, kuchai exchange,<br>no 43, jalan kuchai maju 13,<br>58200 kuala lumpur." } );
+    google.maps.event.addListener(marker, "click", function()
     {
-        var point = new google.maps.LatLng(3.085462, 101.692951);
-        var settings = { center:point, zoom:15, mapTypeId:google.maps.MapTypeId.ROADMAP };
-        var map = new google.maps.Map(document.getElementById("contact-map"), settings);
-        var marker = new google.maps.Marker( { position:point, map:map, title:"Infra Design" } );
-        var info = new google.maps.InfoWindow( { content:"<b>Infra Design</b><br>a-3-5, kuchai exchange,<br>no 43, jalan kuchai maju 13,<br>58200 kuala lumpur." } );
-        google.maps.event.addListener(marker, "click", function()
-        {
-            info.open(map, marker);
-        });
         info.open(map, marker);
     });
-    this.mapLoaded=true;
+    info.open(map, marker);
+
+    loadMapProgress(3);
 }
 
 var _gaq = _gaq || [];
@@ -1417,11 +1428,8 @@ function ContactController() {
     return this;   
 }
 ContactController.prototype = $.extend(Object.create(SliderController.prototype), {
-    mapLoaded : false,
     initMap : function() {
-        if(!this.mapLoaded){
-            loadMapScript();
-        }
+        loadMapScript();
     },
     onShown : function() {
         SliderController.prototype.onShown.call(this);

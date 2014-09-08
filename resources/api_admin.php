@@ -46,7 +46,7 @@ if($action == 'login') {
             echo getResponseJSONString(0, 0,'',$data);
         }else if($action == 'update'){
             $users = $_POST['users'];
-            foreach($user as $i => $user) {
+            foreach($users as $i => $user) {
                 $q = $form->getEditQuery($user);   
                 $res = mysqli_query($con, $q);
                 checkMySQLError();

@@ -135,7 +135,7 @@ body {background:#c4bbb4 url(../img/bg.jpg) center repeat-y;}
 	.intro #container { background:none }
 	.intro #content { height:640px; overflow:hidden }
 	.intro #buttons { width:1024px; height:1px; margin:0 auto; position:relative; overflow:visible }
-	.intro #enter-btn { width:200px; padding:8px 0; font-size:13px; left:412px; top:-40px; position:absolute; display:none }
+	.intro #enter-btn { width:100%; padding:8px 0; font-size:13px; top:-40px; position:relative; display:none }
 
 .home #container { display:block; background:transparent;}
 a {cursor:pointer;}

@@ -4,44 +4,34 @@ if (!String.prototype.trim) {
   };
 }
 
-function FormFieldRenderer() { return this; };
-FormFieldRenderer.prototype = {
-    render:function(raw, $ele){ return null; },
-    get:function(raw, $ele){ return null; }
-};
-function Str2TextFormFieldRenderer() { return this; }
-Str2TextFormFieldRenderer.prototype = $.extend(FormFieldRenderer.prototype, {
-    render:function(raw, $ele){ $ele.val(raw); },
-    get:function(raw, $ele){ return $ele.val().trim(); }
-});
-function Strs2CheckboxesFormFieldRenderer() { return this; }
-Strs2CheckboxesFormFieldRenderer.prototype = $.extend(FormFieldRenderer.prototype, {
-    render:function(raw, $ele){
-        if(raw===null)raw='';
-        var v2 = raw.split[',']; if(!v2) v2 = [];
-        v2 = v2.map(function(s){ return s.trim(); });
-        var $checkboxes = $ele;
-        $checkboxes.find('input[type=checkbox]').each(function(){
-            $(this).prop('checked', v2.indexOf($(this).val())>=0);
-        });
-    },
-    get:function(raw, $ele){
-        var ret = '';
-        var $checkboxes = $ele;
-        $checkboxes.find('input[type=checkbox]').each(function(){
-            if($(this).prop('checked')){
-                ret += (ret==''?'':',') + $(this).val();   
-            }
-        });
-        return ret;
-    }
-});
-
 var formFieldRenderers = {
-    'str2text':new Str2TextFormFieldRenderer(),
-    'strs2checkboxes':new Strs2CheckboxesFormFieldRenderer()
+    str2text:{
+        render:function(raw, $ele){ $ele.val(raw); },
+        get:function(raw, $ele){ return $ele.val().trim(); }
+    },
+    strs2checkboxes:{
+        render:function(raw, $ele){
+            if(raw===null)raw='';
+            var v2 = raw.split(','); 
+            if(!v2) v2 = [];
+            v2 = v2.map(function(s){ return s.trim(); });
+            var $checkboxes = $ele;
+            $checkboxes.find('input[type=checkbox]').each(function(){
+                $(this).prop('checked', v2.indexOf($(this).val())>=0);
+            });
+        },
+        get:function(raw, $ele){
+            var ret = '';
+            var $checkboxes = $ele;
+            $checkboxes.find('input[type=checkbox]').each(function(){
+                if($(this).prop('checked')){
+                    ret += (ret==''?'':',') + $(this).val();   
+                }
+            });
+            return ret;
+        }
+    }
 };
-
 function GetFormFieldRenderer(s){
     if(formFieldRenderers[s]){
         return formFieldRenderers[s];   
@@ -49,6 +39,18 @@ function GetFormFieldRenderer(s){
         return formFieldRenderers['str2text']; 
     }
 }
+var columnRenderers = {
+    link : function(data, type, row) { return '<a href="'+data+'" target="_blank">'+data+'</a>'; },
+    text : function(data, type, row) { return data; }
+}
+function GetColumnRenderer(s){
+    if(columnRenderers[s]){
+        return columnRenderers[s];   
+    }else{
+        return columnRenderers['text'];   
+    }
+}
+
 
 (function( $ ) {
     $.fn.setBTDisabled = function(b) {
@@ -115,11 +117,10 @@ function GetFormFieldRenderer(s){
                 },
                 error: function(xhr, optns, err)
                 {
+                    console.log(xhr.responseText);
                     if(optns == 'parseerror'){
-                        console.log(xhr.responseText);
                         $form.find('.feedback').html('Fail to receive reply from server, please try again later.');
                     }else{
-                        console.log(xhr.responseText);
                         $form.find('.feedback').html('Fail to connect to server, please try again later.');
                     }
                 },
@@ -148,6 +149,7 @@ function GetFormFieldRenderer(s){
         var target = option.target;
         var editForm = option.editorForm;
         var addForm = option.addForm;
+        var actions = option.actions;
 
         if($(editForm).length) {
             editForm.html = $(editForm.tempSel).show().wrap('<div>').parent().html();
@@ -157,8 +159,9 @@ function GetFormFieldRenderer(s){
         }
         var columnDefs = [
             {
-                render : function(data,type,row) { return data === null ? '' : data; },
-                targets : columns.map(function(v,i) { return i; })
+                "searchable": false,
+                "orderable": false,
+                "targets": 0
             }
         ];
         var $dataTable;
@@ -170,18 +173,26 @@ function GetFormFieldRenderer(s){
             $tableSel.find('tfoot tr').append('<th>'+col.data+'</td>');
         });
         $dataTable = $tableSel.dataTable({
-            dom: 'lfrtip',
+            dom: '<"row"<"col-xs-10 data-table-function-group"><"col-xs-2"C<"clear">>>lfrtip',
             serverSide:serverSide,
             processing:processing,
             ajax:ajax,
             columns: columns,
             //columnDefs: columnDefs,
-            drawCallback: drawCallback
+            drawCallback: drawCallback,
+            iDisplayLength: 25,
+            order: [[ 0, 'asc' ]]
         });
         //new $.fn.dataTable.FixedHeader($dataTable);
         var $tableTool = new $.fn.dataTable.TableTools($dataTable, {
             sRowSelect: "os"
         });
+        /*
+        $dataTable.api().on('order.dt search.dt', function () {
+            $dataTable.api().column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                cell.innerHTML = i+1;
+            });
+        }).draw();//*/
 
         buttonhtml = 
         "<div class='row'>" +
@@ -196,13 +207,15 @@ function GetFormFieldRenderer(s){
         "</div>";
         var $functions = $sel.find('.data-table-function-group').append($(buttonhtml));
         var data = {
+            columns:columns,
             dataTable:$dataTable, 
             tableTool:$tableTool, 
             functions:$functions, 
             api:$dataTable.DataTable(), 
             editForm:editForm, 
             addForm:addForm,
-            target:target
+            target:target,
+            actions:actions
         };
         $dataTable.data('data', data);
         $dataTable.on('click', 'tr', function () {
@@ -227,11 +240,15 @@ function GetFormFieldRenderer(s){
             onTableUpdateOrDraw(data);
         });
         $functions.find('.remove-btn').on('click', data, function(evt){
-            evt.data.api.rows('.selected').remove().draw(false);
-            onTableUpdateOrDraw(data);
+            var $api = data.api;
+            var $actions = data.actions;
+            var $tableTool = data.tableTool;
+            //console.log($tableTool.fnGetSelected()[0]);
+            //console.log($api.row($tableTool.fnGetSelected()[0]));
+            //evt.data.api.rows('.selected').remove().draw(false);
+            //onTableUpdateOrDraw(data);
         });
         $functions.find('.add-btn').on('click', data, function(evt){
-            console.log(data);
             var $form = $(data.addForm.html);
             var $dialog = bootbox.dialog({
                 title:'Create New ' + target,
@@ -240,13 +257,17 @@ function GetFormFieldRenderer(s){
                 keyboard: true,
                 
             });
+            $form.find('#'+data.target+'-undo').hide();
             if(data.addForm.init)
                 data.addForm.init(data, $form, $dialog);
         });
         $functions.find('.edit-btn').on('click', data, function(evt){
+            var columns = data.columns;
             var $functions = data.functions;
             var $api = data.api;
             var numSelectedRowInCurrentView = $api.rows('.selected')[0].length;
+            var actions = data.actions;
+            var $dataTable = data.dataTable;
             if(numSelectedRowInCurrentView == 0)return;
             var $form = $(data.editForm.html);
             var $dialog = bootbox.dialog({
@@ -256,17 +277,68 @@ function GetFormFieldRenderer(s){
                 keyboard: true
             });
             var rowdata = $api.row('.selected').data();
-            for(k in rowdata){
+            for(k in data.editForm.columns){
                 var v = rowdata[k];
                 var $ele = $form.find('#'+data.target+'-'+k);
-                var renderer = GetFormFieldRenderer(data.editForm.columns[k]);
-                renderer.render(rowdata[k], $ele);
+                GetFormFieldRenderer(data.editForm.columns[k].render).render(rowdata[k], $ele);
             }
+            
+            var fields = {};
+            for(k in columns){
+                if(columns[k].validators){
+                    fields[k] = { validators : columns[k].validators };
+                }
+            }
+            $form.bootstrapValidator({
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: fields
+            }).on('success.form.bv', function(evt) {
+                evt.preventDefault();
+
+                var $form = $(evt.target);
+                var bv = $form.data('bootstrapValidator');
+
+                $.ajax({
+                    type:'POST',
+                    url:actions.update,
+                    dataType:'json',
+                    data:{ users : [rowdata] },
+                    success: function(response)
+                    {
+                        if(response.error_exist){
+                            $form.find('.feedback').html(response.error_msg);
+                            return;   
+                        }
+                        bootbox.hideAll();
+                    },
+                    error: function(xhr, optns, err)
+                    {
+                        console.log(xhr.responseText);
+                        if(optns == 'parseerror'){
+                            $form.find('.feedback').html('Fail to receive reply from server, please try again later.');
+                        }else{
+                            $form.find('.feedback').html('Fail to connect to server, please try again later.');
+                        }
+                    },
+                    complete: function() { 
+                        $dataTable.fnDraw();
+                    }
+                });
+            }).on('success.field.bv', function(evt,data) {
+                var $form = data.bv.$form;
+                $form.find('.feedback').html('');
+            });
+            
+            
             if(data.editForm.init)
                 data.editForm.init(data, $form, $dialog, $api.row('.selected'));
         });
         function drawCallback(settings){
-            //console.log('drawCallback');
+            console.log('drawCallback');
             if(this.data('data'))
                 onTableUpdateOrDraw(this.data('data'));   
         }

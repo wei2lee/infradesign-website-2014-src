@@ -16,6 +16,13 @@
 		<link rel="stylesheet" href="../css/normalize.css">
 		<link rel="stylesheet" href="../css/main.css">
         
+        <style>
+            @media only screen and (max-device-width : 1024px) {
+                .intro #enter-btn { top:-60px; font-size:33px; }
+            }
+        
+        </style>
+        
 		<script src="../js/modernizr-2.6.2.min.js"></script>
 		<script src="../js/swiffy-runtime.js"></script>
 		<script>
