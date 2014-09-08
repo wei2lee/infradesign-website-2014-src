@@ -286,7 +286,7 @@ function GetColumnRenderer(s){
             var fields = {};
             for(k in columns){
                 if(columns[k].validators){
-                    fields[k] = { validators : columns[k].validators };
+                    fields[data.target+'-'+columns[k].data] = { validators : columns[k].validators };
                 }
             }
             $form.bootstrapValidator({
@@ -295,9 +295,12 @@ function GetColumnRenderer(s){
                     invalid: 'glyphicon glyphicon-remove',
                     validating: 'glyphicon glyphicon-refresh'
                 },
-                fields: fields
+                fields: fields,
+                submitButtons : $form.find('#'+data.target+'-commit')
             }).on('success.form.bv', function(evt) {
                 evt.preventDefault();
+                console.log(evt.type);
+                return;
 
                 var $form = $(evt.target);
                 var bv = $form.data('bootstrapValidator');
