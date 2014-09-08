@@ -30,6 +30,9 @@ if($action == 'login') {
         $_SESSION['authPassword'] = $user['authPassword'];
         echo getResponseJSONString(0, 0, '', '');
     }
+}else if($action == 'logout'){
+    session_destroy();
+    unset($_SESSION['authName']);
 }else{
     if($target == 'user') {
         if($action == 'read') {

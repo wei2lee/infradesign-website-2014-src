@@ -22,6 +22,7 @@
     <link href="//datatables.net/release-datatables/extensions/Plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet">
     <link href="//cdn.datatables.net/tabletools/2.2.3/css/dataTables.tableTools.css" rel="stylesheet">
     <link href="//cdn.datatables.net/responsive/1.0.1/css/dataTables.responsive.css" rel="stylesheet">
+    <link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link href="css/sb-admin-2.css" rel="stylesheet">
@@ -59,6 +60,25 @@
             <!-- /.navbar-header -->
 
             <ul class="nav navbar-top-links navbar-right">
+                                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <!--
+                        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                        </li>
+                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                        </li>
+                        <li class="divider"></li>
+                        -->
+                        <li><a href="javascript:void(0)" class='logout-btn'><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
             </ul>
             <!-- /.navbar-top-links -->
 
@@ -90,15 +110,114 @@
             </div>
             <!-- /.row -->
             <div class="row">
-                <div id='user-table-edit-form' style='display:none;'>
-                    
-                
-                </div>
-                
-                
+
+                <form data-template class="form-horizontal" id='user-form' style='display:none;'>
+                    <fieldset>
+                        <!-- Form Name -->
+                        <legend></legend>
+                        <!-- Text input-->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-name">Name</label>  
+                            <div class="col-sm-7">
+                                <input id="user-name" name="user-name" type="text" placeholder="" class="form-control input-md">
+                            </div>
+                        </div>
+                        <!-- Text input-->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-email">Email</label>  
+                            <div class="col-sm-7">
+                                <input id="user-email" name="user-email" type="text" placeholder="" class="form-control input-md">
+                            </div>
+                        </div>
+                        <!-- Text input-->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-contact">Contact</label>  
+                            <div class="col-sm-7">
+                                <input id="user-contact" name="user-contact" type="text" placeholder="" class="form-control input-md">
+                            </div>
+                        </div>
+                        <!-- Text input-->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-company">Company</label>  
+                            <div class="col-sm-7">
+                                <input id="user-company" name="user-company" type="text" placeholder="" class="form-control input-md">
+                            </div>
+                        </div>
+                        <!-- Text input-->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-businessType">Business Type</label>  
+                            <div class="col-sm-7">
+                                <input id="user-businessType" name="user-businessType" type="text" placeholder="" class="form-control input-md">
+                            </div>
+                        </div>
+                        <!-- Textarea -->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-message">Message</label>
+                            <div class="col-sm-7">                     
+                                <textarea class="form-control" id="user-message" name="user-message"></textarea>
+                            </div>
+                        </div>
+                        <!-- Text input-->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-startDate">Start Date</label>  
+                            <div class="col-sm-7">
+                                <input id="user-startDate" name="user-startDate" type="text" placeholder="" class="form-control input-md">
+                            </div>
+                        </div>
+                        <!-- Multiple Checkboxes -->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-interested">Interested</label>
+                            <div class="col-sm-7">
+                                <div class='row'>
+                                    
+                                <div class="checkbox col-sm-6">
+                                    <label for="user-interested-0">
+                                    <input type="checkbox" name="user-interested" id="user-interested-0" value="prosalesdemoversion">
+                                    Prosales
+                                    </label>
+                                </div>
+                                <div class="checkbox col-sm-6">
+                                    <label for="user-interested-1">
+                                    <input type="checkbox" name="user-interested" id="user-interested-1" value="ar">
+                                    AR
+                                    </label>
+                                </div>
+                                <div class="checkbox col-sm-6">
+                                    <label for="user-interested-2">
+                                    <input type="checkbox" name="user-interested" id="user-interested-2" value="crm">
+                                    CRM
+                                    </label>
+                                </div>
+                                <div class="checkbox col-sm-6">
+                                    <label for="user-interested-3">
+                                    <input type="checkbox" name="user-interested" id="user-interested-3" value="virtualtour">
+                                    Virtual Tour
+                                    </label>
+                                </div>
+                                <div class="checkbox col-sm-6">
+                                    <label for="user-interested-4">
+                                    <input type="checkbox" name="user-interested" id="user-interested-4" value="mobileapplicatoin">
+                                    Mobile App
+                                    </label>
+                                </div>
+                                
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Button (Double) -->
+                        <div class='divider'></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="user-undo"></label>
+                            <div class="col-sm-7">
+                                <button id="user-undo" name="user-undo" class="btn btn-default">Undo</button>
+                                <button id="user-commit" name="user-commit" class="btn btn-default">Save</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
                 
                 <div class="col-lg-12">
-                    <div class="panel panel-default" id='user-crud' data-target='user'>
+                    <div class="panel panel-default user-crud">
                         <div class="panel-heading">
                             User
                         </div>
@@ -152,13 +271,13 @@
     <script src="//datatables.net/release-datatables/extensions/Plugins/integration/bootstrap/3/dataTables.bootstrap.js"></script>
     <script src="//cdn.datatables.net/tabletools/2.2.3/js/dataTables.tableTools.min.js"></script>
     <script src="//cdn.datatables.net/responsive/1.0.1/js/dataTables.responsive.min.js"></script>
-
+    <script src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
     <!--bootbox-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.2.0/bootbox.min.js"></script>
     
     <!-- Custom Theme JavaScript -->
     <script src="js/sb-admin-2.js"></script>
-
+    <script src="js/u.js"></script>
     <script src="js/main.js"></script>
 </body>
 
