@@ -40,8 +40,8 @@ function GetFormFieldRenderer(s){
     }
 }
 var columnRenderers = {
-    link : function(data, type, row) { return '<a href="'+data+'" target="_blank">'+data+'</a>'; },
-    text : function(data, type, row) { return data; }
+    link : function(data, type, row) { return data===null?'':('<a href="'+data+'" target="_blank">'+data+'</a>'); },
+    text : function(data, type, row) { return data===null?'':data; }
 }
 function GetColumnRenderer(s){
     if(columnRenderers[s]){
@@ -169,11 +169,11 @@ function GetColumnRenderer(s){
         var $sel = $(sel);
         var $tableSel = $(tableSel);
         $.each(columns, function(i, col){
-            $tableSel.find('thead tr').append('<th>'+col.data+'</td>');
-            $tableSel.find('tfoot tr').append('<th>'+col.data+'</td>');
+            $tableSel.find('thead tr').append('<th>'+col.data+'</th>');
+            $tableSel.find('tfoot tr').append('<th>'+col.data+'</th>');
         });
         $dataTable = $tableSel.dataTable({
-            dom: '<"row"<"col-xs-10 data-table-function-group"><"col-xs-2"C<"clear">>>lfrtip',
+            dom: '<"row"<"col-xs-10 btn-toolbar top"><"col-xs-2"<"clear">>>lfrtip',
             serverSide:serverSide,
             processing:processing,
             ajax:ajax,
@@ -182,11 +182,16 @@ function GetColumnRenderer(s){
             drawCallback: drawCallback,
             iDisplayLength: 25,
             order: [[ 0, 'asc' ]]
+            
+            //scrollX:true
         });
+        
+        //console.log($dataTable);
         //new $.fn.dataTable.FixedHeader($dataTable);
         var $tableTool = new $.fn.dataTable.TableTools($dataTable, {
             sRowSelect: "os"
         });
+        
         /*
         $dataTable.api().on('order.dt search.dt', function () {
             $dataTable.api().column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
@@ -195,17 +200,23 @@ function GetColumnRenderer(s){
         }).draw();//*/
 
         buttonhtml = 
-        "<div class='row'>" +
-        "    <div class='col-xs-12'>" +
-        "        <button type='button' class='refresh-btn btn btn-default'><span class='glyphicon glyphicon-refresh'></span>Refresh</button>" +
-        "        <button type='button' class='add-btn btn btn-default'><span class='glyphicon glyphicon-plus'></span>Add</button>" +
-        "        <button type='button' class='remove-btn btn btn-default'><span class='glyphicon glyphicon-remove'></span>Delete</button>" +
-        "        <button type='button' class='edit-btn btn btn-default'><span class='glyphicon glyphicon-pencil'></span>Edit</button>" +
-        "        <button type='button' class='mail-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span>Mail</button>" + 
+        //"<div class='row'>" +
+        //"    <div class='col-xs-12'>" +
+        "<div class='btn-group'>" +
+        "        <button type='button' class='refresh-btn btn btn-default'><span class='glyphicon glyphicon-refresh'></span><span>Refresh</span></button>" +
+        "        <button type='button' class='add-btn btn btn-default'><span class='glyphicon glyphicon-plus'></span><span>Add</span></button>" +
+        "        <button type='button' class='remove-btn btn btn-default'><span class='glyphicon glyphicon-remove'></span><span>Delete</span></button>" +
+        "        <button type='button' class='edit-btn btn btn-default'><span class='glyphicon glyphicon-pencil'></span><span>Edit</span></button>" +
         "        <button type='button' class='select-all-btn btn btn-default toggle-1'><span class='glyphicon glyphicon-refresh'></span><span class='toggle-item-1'>Select all</span><span class='toggle-item-2'>Deselect all</span></button>" +
-        "    </div>" +
-        "</div>";
-        var $functions = $sel.find('.data-table-function-group').append($(buttonhtml));
+        "</div>" +
+        "<div class='btn-group'>" +
+        "        <button type='button' class='mail-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Mail</span></button>" + 
+        //"        <button type='button' class='sms-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>SMS</span></button>" + 
+        "</div>"
+        //"    </div>" +
+        //"</div>";
+        var $functions = $sel.find('.btn-toolbar').append($(buttonhtml));
+        //$functions.append($($tableTool.fnContainer()));
         var data = {
             columns:columns,
             dataTable:$dataTable, 
@@ -251,7 +262,7 @@ function GetColumnRenderer(s){
         $functions.find('.add-btn').on('click', data, function(evt){
             var $form = $(data.addForm.html);
             var $dialog = bootbox.dialog({
-                title:'Create New ' + target,
+                title:'Add ' + target,
                 message:$form,
                 backdrop:'static',
                 keyboard: true,
@@ -298,9 +309,8 @@ function GetColumnRenderer(s){
                 fields: fields,
                 submitButtons : $form.find('#'+data.target+'-commit')
             }).on('success.form.bv', function(evt) {
-                evt.preventDefault();
-                console.log(evt.type);
                 return;
+                evt.preventDefault();
 
                 var $form = $(evt.target);
                 var bv = $form.data('bootstrapValidator');
@@ -360,8 +370,9 @@ function GetColumnRenderer(s){
                 $selectall.removeClass('toggle-1').addClass('toggle-2');   
             }
             $functions.find('.remove-btn').setBTDisabled(numSelectedRowInCurrentView == 0);
-            $functions.find('.mail-btn').setBTDisabled(numSelectedRow == 0);
             $functions.find('.edit-btn').setBTDisabled(numSelectedRowInCurrentView != 1);
+            
+            $functions.find('.mail-btn, .sms-btn').setBTDisabled(numSelectedRow == 0);
         }
 
         onTableUpdateOrDraw(data);

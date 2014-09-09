@@ -1,14 +1,10 @@
 @import url('../../m/css/lesshat.less');
 @import url('../../m/css/vendor/bootstrap/bootstrap.less');
 
-.data-table-function-group { 
+.btn-toolbar { 
     &.top { padding-bottom:15px; }
     .btn { min-width:80px; 
-        .glyphicon { display:none; }
-        margin-top:2px;
-        margin-bottom:2px;
-        margin-right:2px;
-        &:last-child { margin-right:0px; }
+        .fa, .glyphicon { display:none; }
     }
 }
 table.dataTable tbody tr{
@@ -29,11 +25,15 @@ div.dataTables_wrapper { clear: both; }
 
 
 .crud-form {
+    hr.modal-footer-divider { margin-bottom:15px; }
     .crud-form-buttons {
+        margin-bottom:0px;
         &.modal-footer { margin-bottom:0px; padding-bottom:0px; }
-        .btn-group {
-            //.make-xs-column(6, 10px);
-            .btn { min-width:120px; max-width:100%; width:100%; margin-top:2px; marign-bottom:2px; }   
+        .form-btn-group { 
+            padding-right:@grid-gutter-width/4; padding-left:@grid-gutter-width/4;
+            &:last-child { padding-right:@grid-gutter-width/2; }
+            &:first-child { padding-left:@grid-gutter-width/2; }
+            .btn { min-width:120px; max-width:100%; width:100%;  }   
         }
     }
     .input-group-btn {
@@ -56,3 +56,4 @@ div.dataTables_wrapper { clear: both; }
     user-select: none;
 }
 
+th, td { white-space: nowrap; }

@@ -32,7 +32,7 @@
     <link href="css/sb-admin-2.css" rel="stylesheet">
 
     <!-- Custom Fonts -->
-    <link href="font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 
     <link rel="stylesheet/less" type="text/css" href="css/main.less" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.7.4/less.min.js"></script>
@@ -115,7 +115,7 @@
             <!-- /.row -->
             <div class="row">
 
-                <form data-template class="form-horizontal crud-form" id='user-form' style='display:none;'>
+                <form data-template class="form-horizontal crud-form" id='user-form' style='display:none;' action='javascript:void(0)'>
                     <fieldset>
                         <!-- Text input-->
                         <div class="form-group">
@@ -131,7 +131,7 @@
                                 <div class="input-group">
                                     <input id="user-email" name="user-email" type="email" placeholder="" class="form-control input-md">
                                     <span class="input-group-btn">
-                                        <button class="btn btn-default mail-btn" type="button">Mail</button>
+                                        <button class="btn btn-default mail-btn" type="button">Send</button>
                                     </span>
                                 </div>
                             </div>
@@ -140,12 +140,12 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label" for="user-contact">Contact</label>  
                             <div class="col-sm-7">
-                                <div class="input-group">
+                                <!--<div class="input-group">-->
                                     <input id="user-contact" name="user-contact" type="text" placeholder="" class="form-control input-md">
-                                    <span class="input-group-btn">
+                                    <!--<span class="input-group-btn">
                                         <button class="btn btn-default sms-btn" type="button">SMS</button>
                                     </span>
-                                </div>
+                                </div>-->
                             </div>
                         </div>
                         <!-- Text input-->
@@ -169,7 +169,7 @@
                                 <div class="input-group">
                                     <input id="user-website" name="user-website" type="text" placeholder="" class="form-control input-md">
                                     <span class="input-group-btn">
-                                        <button class="btn btn-default link-btn" type="button">link</button>
+                                        <button class="btn btn-default link-btn" type="button">Link</button>
                                     </span>
                                 </div>
                             </div>
@@ -213,16 +213,16 @@
                             </div>
                         </div>
                         <!-- Button (Double) -->
-                        <hr>
+                        <hr class='modal-footer-divider'>
                         <div class="form-group crud-form-buttons">
                             <!--<label class="col-sm-3 control-label" for="user-undo"></label>-->
                             <div class="col-sm-12">
                                 <div class='row'>
-                                    <div class='col-xs-6 btn-group'>
-                                        <!--<button id="user-undo" name="undo" type='other' class="btn btn-default">Undo</button>-->
+                                    <div class='col-xs-6 form-btn-group'>
+                                        <button id="user-undo" name="undo" type='button' class="btn-lg btn btn-primary">Undo</button>
                                     </div>
-                                    <div class='col-xs-6 btn-group'>
-                                        <button id="user-commit" name="commit" type='submit' class="btn btn-default">Save</button>
+                                    <div class='col-xs-6 form-btn-group'>
+                                        <button id="user-commit" name="commit" type='submit' class="btn-lg btn btn-primary">Save</button>
                                     </div>
                                 </div>
                             </div>
