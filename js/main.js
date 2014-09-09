@@ -413,6 +413,23 @@ $(function () {
     
     // Initialize Intro page
     if ($("body").hasClass("intro")) {
+        var redirect = {
+            conditions : {timeout:false},
+            url : 'home.html',
+            setCondition : function(condition) {
+                if(!this.conditions[condition] === undefined)return;
+                this.conditions[condition] = true;
+                var anyCondNotMet = false;
+                for(k in this.conditions){
+                    if(!this.conditions[k]) { anyCondNotMet = true; return; }
+                }
+                window.location = this.url;
+            }
+        }
+        setTimeout(function(){
+            redirect.setCondition('timeout');
+        },8000);
+        
         $(".intro #content").children("div").css("height", "640px");
         setTimeout(function () {
             $("#enter-btn").fadeIn(750);

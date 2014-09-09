@@ -101,6 +101,21 @@
 			(new swiffy.Stage(document.getElementById("content"), swiffyobject)).start();
             
             
+            var redirect = {
+                conditions : {preloaded:false, timeout:false},
+                url : 'home.html',
+                setCondition : function(condition) {
+                    if(!this.conditions[condition] === undefined)return;
+                    this.conditions[condition] = true;
+                    var anyCondNotMet = false;
+                    for(k in this.conditions){
+                        if(!this.conditions[k]) { anyCondNotMet = true; return; }
+                    }
+                    window.location = this.url;
+                }
+            }
+            
+            
             $.html5Loader({
                   filesToLoad:        'js/files.json', // this could be a JSON or simply a javascript object
                   onBeforeLoad:       function () {
@@ -113,12 +128,16 @@
                             $("#enter-btn").attr('href', 'home.html');
                             $("#enter-btn").fadeIn(750);
                         });
+                        redirect.setCondition('preloaded');
                   },
                   onElementLoaded:    function ( obj, elm) { },
                   onUpdate:           function ( percentage ) { 
                     $('#enter-btn').html(percentage + '%');
                   }
             });
+            setTimeout(function(){
+                redirect.setCondition('timeout');
+            },8000);
         </script>
         
         <!-- Google tracking  -->

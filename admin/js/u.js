@@ -200,8 +200,6 @@ function GetColumnRenderer(s){
         }).draw();//*/
 
         buttonhtml = 
-        //"<div class='row'>" +
-        //"    <div class='col-xs-12'>" +
         "<div class='btn-group'>" +
         "        <button type='button' class='refresh-btn btn btn-default'><span class='glyphicon glyphicon-refresh'></span><span>Refresh</span></button>" +
         "        <button type='button' class='add-btn btn btn-default'><span class='glyphicon glyphicon-plus'></span><span>Add</span></button>" +
@@ -211,10 +209,11 @@ function GetColumnRenderer(s){
         "</div>" +
         "<div class='btn-group'>" +
         "        <button type='button' class='mail-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Mail</span></button>" + 
-        //"        <button type='button' class='sms-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>SMS</span></button>" + 
-        "</div>"
-        //"    </div>" +
-        //"</div>";
+        "</div>" +
+        "<div class='btn-group'>" +
+        "        <button type='button' class='import-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Import</span></button>" + 
+        "        <button type='button' class='import-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Export</span></button>" + 
+        "</div>";
         var $functions = $sel.find('.btn-toolbar').append($(buttonhtml));
         //$functions.append($($tableTool.fnContainer()));
         var data = {
@@ -268,6 +267,7 @@ function GetColumnRenderer(s){
                 keyboard: true,
                 
             });
+            $form.find('input').first().focus();
             $form.find('#'+data.target+'-undo').hide();
             if(data.addForm.init)
                 data.addForm.init(data, $form, $dialog);
@@ -287,6 +287,9 @@ function GetColumnRenderer(s){
                 backdrop:'static',
                 keyboard: true
             });
+            $dialog.on('sb.modal.shown', function(){
+                $form.find('input').first().focus();
+            });
             var rowdata = $api.row('.selected').data();
             for(k in data.editForm.columns){
                 var v = rowdata[k];
@@ -300,6 +303,7 @@ function GetColumnRenderer(s){
                     fields[data.target+'-'+columns[k].data] = { validators : columns[k].validators };
                 }
             }
+            
             $form.bootstrapValidator({
                 feedbackIcons: {
                     valid: 'glyphicon glyphicon-ok',
