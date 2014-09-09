@@ -29,12 +29,12 @@ function getEscapeObjectProperties($o){
 }
 
 class Form {
-    public $readFields = array("id","name","email","contact","company","businessType","interested","startDate","message","budget","createdAt","updatedAt");
-    public $editFields = array("name","email","contact","company","businessType","interested","startDate","message","budget");
+    public $readFields = array("id","name","email","contact","company","businessType","interested","website","startDate","message","budget","createdAt","updatedAt");
+    public $editFields = array("name","email","contact","company","businessType","interested","website","startDate","message","budget");
     public $config;
     public $fields = array(
         'name'=>null, 'email'=>null, 'contact'=>null, 'company'=>null, 
-        'businessType'=>null, 'startDate'=>null, 
+        'businessType'=>null, 'startDate'=>null, 'website'=>null,
         'message'=>null, 'budget'=>null, 'interested'=>null
     );
     public $table = "User";
@@ -77,8 +77,8 @@ class Form {
         $q2 = "";
         foreach($user as $key => $value) {
             if(!in_array($key, $this->editFields)) continue;
-            if($q2 === "") $q2 .= $key . " = " . $value;
-            else $q2 .= " , " . $key . " = " . $value;
+            if($q2 === "") $q2 .= "$key = '$value'";
+            else $q2 .= " , $key = '$value'";
         }
         $q = "UPDATE {$this->table} SET $q2 WHERE id = ${user['id']}";
         return $q;
@@ -93,13 +93,13 @@ class Form {
         getEscapeObjectProperties($user);
         $q2 = "";
         foreach($user as $key => $value) {
-            if(!in_array($key, $this->fields)) continue;
+            if(!array_key_exists($key, $this->fields)) continue;
             if($q2 === "") $q2 .= $key;
             else $q2 .= " , " . $key;
         }
         $q3 = "";
         foreach($user as $key => $value) {
-            if(!in_array($key, $this->fields)) continue;
+            if(!array_key_exists($key, $this->fields)) continue;
             if($q3 === "") $q3 .= ($value === null ? 'NULL' : "'" . $value . "'");
             else $q3 .= " , " . ($value === null ? 'NULL' : "'" . $value . "'");
         }
@@ -128,6 +128,19 @@ class Form {
             $body .= "<b>" . ucfirst($key) . ":</b> $value<br/><br/>";
         }
         return $body;
+    }
+    
+    public function getOnInsertQuery($user, $con) {
+        $id = mysqli_insert_id($con);
+        $q2 = "id = $id";
+        $q = "UPDATE {$this->table} SET createdAt = now(), updatedAt = now() WHERE $q2"; 
+        return $q;
+    }
+    public function getOnUpdateQuery($user) {
+        getEscapeObjectProperties($user);
+        $q2 = "id = ${user['id']}";
+        $q = "UPDATE {$this->table} SET updatedAt = now() WHERE $q2";   
+        return $q;
     }
 };
 

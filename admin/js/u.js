@@ -1,16 +1,67 @@
+var bootbox_alert2 = function(option) {
+    option.title = option.title;
+    option.message = '<p class="text-danger">' + option.message + '</p>';
+    option.className = 'modal-alert2',
+    option.buttons = {
+            Close:{
+                label:'Close',
+                className:'btn-primary',
+                callback:function(){
+                    //bootbox.hideAll();    
+                }
+            }
+        }
+    
+    var $dialog = bootbox.dialog(option);
+    /*
+    var $md = $dialog.find('.modal-dialog');
+    var w = $md.width();
+    var mtop = parseInt($md.css('margin-top'));
+    $md.css('margin-top', mtop*2+'px');
+    $md.width(0.9 * w);//*/
+}
+
 if (!String.prototype.trim) {
   String.prototype.trim = function () {
     return this.replace(/^\s+|\s+$/g, '');
   };
 }
 
+$.event.special.inputchange = {
+    setup: function() {
+        var self = this, val;
+        $.data(this, 'timer', window.setInterval(function() {
+            val = self.value;
+            if ( $.data( self, 'cache') != val ) {
+                $.data( self, 'cache', val );
+                $( self ).trigger( 'inputchange' );
+            }
+        }, 20));
+    },
+    teardown: function() {
+        window.clearInterval( $.data(this, 'timer') );
+    },
+    add: function() {
+        $.data(this, 'cache', this.value);
+    }
+};
+
+
+
 var formFieldRenderers = {
     str2text:{
-        render:function(raw, $ele){ $ele.val(raw); },
-        get:function(raw, $ele){ return $ele.val().trim(); }
+        render:function(raw, $ele, col){
+            if(raw === null)raw=''; 
+            $ele.val(raw); 
+        },
+        get:function(raw, $ele, col){
+            var v = $ele.val().trim(); 
+            if(col.nullable && v === '') v = null; 
+            return v; 
+        }
     },
     strs2checkboxes:{
-        render:function(raw, $ele){
+        render:function(raw, $ele, col){
             if(raw===null)raw='';
             var v2 = raw.split(','); 
             if(!v2) v2 = [];
@@ -20,7 +71,7 @@ var formFieldRenderers = {
                 $(this).prop('checked', v2.indexOf($(this).val())>=0);
             });
         },
-        get:function(raw, $ele){
+        get:function(raw, $ele, col){
             var ret = '';
             var $checkboxes = $ele;
             $checkboxes.find('input[type=checkbox]').each(function(){
@@ -51,14 +102,56 @@ function GetColumnRenderer(s){
     }
 }
 
+var trueValidator = {
+    message : '',   
+    callback : function(value, validator, $field) { return true; }
+};
+
+
 
 (function( $ ) {
+    $.fn.detectFormFieldChange = function(option) {
+        var $form = this;
+        var onChanged = option.onChanged;
+        $form.find(':text').keypress(function(e) { // text written
+            onChanged(e, $(this));
+        });
+
+        $form.find(':text').keyup(function(e) {
+            if (e.keyCode == 8 || e.keyCode == 46) { //backspace and delete key
+                onChanged(e, $(this));
+            } else { // rest ignore
+                e.preventDefault();
+            }
+        });
+        $form.find(':text').bind('paste', function(e) { // text pasted
+            onChanged(e, $(this));
+        });
+
+        $form.find('select').change(function(e) { // select element changed
+            onChanged(e, $(this));
+        });
+
+        $form.find(':radio').change(function(e) { // radio changed
+            onChanged(e, $(this));
+        });
+
+        $form.find(':password').keypress(function(e) { // password written
+            onChanged(e, $(this));
+        });
+        $form.find(':password').bind('paste', function(e) { // password pasted
+            onChanged(e, $(this));
+        });
+        return this;
+    }
+    
+    
     $.fn.setBTDisabled = function(b) {
-        this.toggleClass('disabled', b).prop('disabled', b);
+        this.prop('disabled', b);
         return this;
     };
     $.fn.isBTDisabled = function() {
-        return this.hasClass('disabled');
+        return this.prop('disabled');
     }
 
     $.fn.loginForm = function(option) {
@@ -118,7 +211,7 @@ function GetColumnRenderer(s){
                 error: function(xhr, optns, err)
                 {
                     console.log(xhr.responseText);
-                    if(optns == 'parseerror'){
+                    if(optns == 'parsererror'){
                         $form.find('.feedback').html('Fail to receive reply from server, please try again later.');
                     }else{
                         $form.find('.feedback').html('Fail to connect to server, please try again later.');
@@ -128,8 +221,6 @@ function GetColumnRenderer(s){
                     bv.resetForm(true);
                 }
             });
-
-            
         }).on('success.field.bv', function(evt,data) {
             var $form = data.bv.$form;
             $form.find('.feedback').html('');
@@ -176,11 +267,17 @@ function GetColumnRenderer(s){
             dom: '<"row"<"col-xs-10 btn-toolbar top"><"col-xs-2"<"clear">>>lfrtip',
             serverSide:serverSide,
             processing:processing,
-            ajax:ajax,
+            ajax:{
+                url:ajax,
+                data:function(d){
+                    console.log(d);
+                    d.myKey = 'abc';      
+                }
+            },
             columns: columns,
             //columnDefs: columnDefs,
             drawCallback: drawCallback,
-            iDisplayLength: 25,
+            iDisplayLength: 50,
             order: [[ 0, 'asc' ]]
             
             //scrollX:true
@@ -253,11 +350,95 @@ function GetColumnRenderer(s){
             var $api = data.api;
             var $actions = data.actions;
             var $tableTool = data.tableTool;
-            //console.log($tableTool.fnGetSelected()[0]);
-            //console.log($api.row($tableTool.fnGetSelected()[0]));
-            //evt.data.api.rows('.selected').remove().draw(false);
-            //onTableUpdateOrDraw(data);
+            var datas = evt.data.api.rows('.selected').data();
+            var rowdatas = [];
+            
+            
+            
+            for(i = 0, len = datas.length ; i < len ; i++){
+                rowdatas.push({id:datas[i].id});
+            }
+            $.ajax({
+                type:'POST',
+                url:actions.delete,
+                dataType:'json',
+                data:{ users : rowdatas },
+                success: function(response)
+                {
+                    if(response.error_exist){
+                        $form.find('fieldsets').prop('disabled',false);
+                        console.log(response);
+                        bootbox_alert2({ 
+                            title:'Server Error',
+                            message:'Reason: '+response.error_msg + '<br/>' + 'please try again later.'
+                        });
+                        return;   
+                    }
+                    bootbox.hideAll();
+                },
+                error: function(xhr, optns, err)
+                {
+                    console.log(optns + ',' + xhr.responseText);
+                    if(optns == 'parsererror'){
+                        bootbox_alert2({ 
+                            title:'Server Error',
+                            message:'Fail to receive reply from server, please try again later.'
+                        });
+                    }else{
+                        bootbox_alert2({ 
+                            title:'Server Error',
+                            message:'Fail to connect to server, please try again later.'
+                        });
+                    }
+                },
+                complete: function() { 
+                    $dataTable.fnDraw();
+                }
+            });
         });
+        
+        var formRenderer = {
+            data : null,
+            render : function(rowdata, $form) {
+                for(k in this.data.editForm.columns){
+                    var $ele = $form.find('#'+this.data.target+'-'+k);
+                    var col = null;
+                    for(j in this.data.columns) 
+                        if(this.data.columns[j].data == k){
+                            col = this.data.columns[j]; 
+                            break; 
+                        }
+                    GetFormFieldRenderer(this.data.editForm.columns[k].render).render(rowdata[k], $ele, col);
+                }                    
+            },
+            get : function(rowdata, $form) {
+                for(k in this.data.editForm.columns){
+                    var $ele = $form.find('#'+this.data.target+'-'+k);
+                    var col = null;
+                    for(j in this.data.columns) 
+                        if(this.data.columns[j].data == k){
+                            col = this.data.columns[j]; 
+                            break; 
+                        }
+                    rowdata[k] = GetFormFieldRenderer(this.data.editForm.columns[k].render).get(rowdata[k], $ele, col);
+                }   
+            }
+        }
+        var formValidatorOption = {
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {}
+        };
+        for(k in columns){
+            if(columns[k].validators){
+                formValidatorOption.fields[data.target+'-'+columns[k].data] = { validators : columns[k].validators };
+            }
+        }
+        
+
         $functions.find('.add-btn').on('click', data, function(evt){
             var $form = $(data.addForm.html);
             var $dialog = bootbox.dialog({
@@ -265,10 +446,88 @@ function GetColumnRenderer(s){
                 message:$form,
                 backdrop:'static',
                 keyboard: true,
-                
             });
-            $form.find('input').first().focus();
-            $form.find('#'+data.target+'-undo').hide();
+            var enableSuccessFormBV = false;
+            $dialog.on('shown.bs.modal', function(){ 
+                $form.find('input').first().focus();
+                enableSuccessFormBV = true;
+            });
+            
+            $form.find('#'+data.target+'-undo').on('click', function(){
+                var bv = $form.data('bootstrapValidator');
+                bv.resetForm(true);
+                $form.find('.input-group-btn .btn').prop('disabled',true);
+                $form.find('input').first().focus();
+            });
+            $form.find('#'+data.target+'-commit').on('click', function(){
+                $form.find('fieldsets').prop('disabled',true);
+            });
+            $form.find('.input-group-btn .btn').prop('disabled',true);
+            $form.find('.link-btn').on('click', function() {
+                var link = $(this).closest('.input-group').find('input').val();
+                window.open(link, '_blank');
+                window.focus();
+            });
+            $form.bootstrapValidator(formValidatorOption
+            ).on('success.form.bv', function(evt) { 
+                evt.preventDefault();
+                if(!enableSuccessFormBV)return;
+                
+                var $form = $(evt.target);
+                var bv = $form.data('bootstrapValidator');
+                var rowdata = {};
+                formRenderer.data = data;
+                formRenderer.get(rowdata, $form);
+                
+                $.ajax({
+                    type:'POST',
+                    url:actions.add,
+                    dataType:'json',
+                    data:{ users : [rowdata] },
+                    success: function(response)
+                    {
+                        if(response.error_exist){
+                            $form.find('fieldsets').prop('disabled',false);
+                            console.log(response);
+                            bootbox_alert2({ 
+                                title:'Server Error',
+                                message:'Reason: '+response.error_msg + '<br/>' + 'please try again later.'
+                            });
+                            return;   
+                        }
+                        bootbox.hideAll();
+                    },
+                    error: function(xhr, optns, err)
+                    {
+                        console.log(xhr.responseText);
+                        $form.find('fieldsets').prop('disabled',false);
+                        if(optns == 'parsererror'){
+                            bootbox_alert2({ 
+                                title:'Server Error',
+                                message:'Fail to receive reply from server, please try again later.'
+                            });
+                        }else{
+                            bootbox_alert2({ 
+                                title:'Server Error',
+                                message:'Fail to connect to server, please try again later.'
+                            });
+                        }
+                    },
+                    complete: function() { 
+                        $dataTable.fnDraw();
+                    }
+                });
+            }).on('error.field.bv', function(evt, data) {
+                var $form = data.bv.$form;
+                var $addonbtn = $form.find('#'+data.field).next('.input-group-btn').find('.btn');
+                $addonbtn.prop('disabled',true);
+            }).on('success.field.bv', function(evt,data) {
+                var $form = data.bv.$form;
+                var $input = $form.find('#'+data.field);
+                var $addonbtn = $input.next('.input-group-btn').find('.btn');
+                var hasinput = $input.val().trim().length > 0;
+                $addonbtn.prop('disabled', !hasinput);
+            });
             if(data.addForm.init)
                 data.addForm.init(data, $form, $dialog);
         });
@@ -282,52 +541,67 @@ function GetColumnRenderer(s){
             if(numSelectedRowInCurrentView == 0)return;
             var $form = $(data.editForm.html);
             var $dialog = bootbox.dialog({
+                className:'abc',
                 title:'Edit ' + target,
                 message:$form,
                 backdrop:'static',
                 keyboard: true
             });
-            $dialog.on('sb.modal.shown', function(){
-                $form.find('input').first().focus();
-            });
             var rowdata = $api.row('.selected').data();
-            for(k in data.editForm.columns){
-                var v = rowdata[k];
-                var $ele = $form.find('#'+data.target+'-'+k);
-                GetFormFieldRenderer(data.editForm.columns[k].render).render(rowdata[k], $ele);
-            }
+            formRenderer.data = data;
+            formRenderer.render(rowdata, $form);
+            $form.find('#'+data.target+'-undo').setBTDisabled(true);
             
-            var fields = {};
-            for(k in columns){
-                if(columns[k].validators){
-                    fields[data.target+'-'+columns[k].data] = { validators : columns[k].validators };
+            var enableSuccessFormBV = false;
+            $dialog.on('shown.bs.modal', function(){ 
+                $form.find('input, button').blur().focusout();
+                $form.data('bootstrapValidator').validate();
+                enableSuccessFormBV = true;
+                formFieldChanged = false;
+            });
+            
+            
+            var formFieldChanged = false;
+            $form.detectFormFieldChange({
+                onChanged : function(e, $ele) {
+                    $form.find('#'+data.target+'-undo').setBTDisabled(false); 
+                    formFieldChanged = true;
                 }
-            }
-            
-            $form.bootstrapValidator({
-                feedbackIcons: {
-                    valid: 'glyphicon glyphicon-ok',
-                    invalid: 'glyphicon glyphicon-remove',
-                    validating: 'glyphicon glyphicon-refresh'
-                },
-                fields: fields,
-                submitButtons : $form.find('#'+data.target+'-commit')
-            }).on('success.form.bv', function(evt) {
-                return;
+            });
+            $form.find('#'+data.target+'-undo').on('click', function(){
+                var bv = $form.data('bootstrapValidator');
+                enableSuccessFormBV = false;
+                formRenderer.render($api.row('.selected').data(), $form);
+                $form.find('#'+data.target+'-undo').setBTDisabled(true);
+                $form.data('bootstrapValidator').validate();
+                enableSuccessFormBV = true;
+                formFieldChanged = false;
+            });
+            $form.bootstrapValidator(formValidatorOption
+            ).on('success.form.bv', function(evt) {
                 evt.preventDefault();
-
                 var $form = $(evt.target);
                 var bv = $form.data('bootstrapValidator');
-
+                if(!enableSuccessFormBV)return;
+                
+                var updaterowdata = $.extend(true, {}, rowdata);
+                formRenderer.data = data;
+                formRenderer.get(updaterowdata, $form);
+                
+                
                 $.ajax({
                     type:'POST',
                     url:actions.update,
                     dataType:'json',
-                    data:{ users : [rowdata] },
+                    data:{ users : [updaterowdata] },
                     success: function(response)
                     {
                         if(response.error_exist){
-                            $form.find('.feedback').html(response.error_msg);
+                            console.log(response.error_msg);
+                            bootbox_alert2({ 
+                                title:'Server Error',
+                                message:'Reason: '+response.error_msg + '<br/>' + 'please try again later.'
+                            });
                             return;   
                         }
                         bootbox.hideAll();
@@ -335,22 +609,33 @@ function GetColumnRenderer(s){
                     error: function(xhr, optns, err)
                     {
                         console.log(xhr.responseText);
-                        if(optns == 'parseerror'){
-                            $form.find('.feedback').html('Fail to receive reply from server, please try again later.');
+                        if(optns == 'parsererror'){
+                            bootbox_alert2({ 
+                                title:'Server Error',
+                                message:'Fail to receive reply from server, please try again later.'
+                            });
                         }else{
-                            $form.find('.feedback').html('Fail to connect to server, please try again later.');
+                            bootbox_alert2({ 
+                                title:'Server Error',
+                                message:'Fail to connect to server, please try again later.'
+                            });
                         }
                     },
                     complete: function() { 
                         $dataTable.fnDraw();
                     }
                 });
+            }).on('error.field.bv', function(evt, data) {
+                var $form = data.bv.$form;
+                var $addonbtn = $form.find('#'+data.field).next('.input-group-btn').find('.btn');
+                $addonbtn.prop('disabled',true);
             }).on('success.field.bv', function(evt,data) {
                 var $form = data.bv.$form;
-                $form.find('.feedback').html('');
-            });
-            
-            
+                var $input = $form.find('#'+data.field);
+                var $addonbtn = $input.next('.input-group-btn').find('.btn');
+                var hasinput = $input.val().trim().length > 0;
+                $addonbtn.prop('disabled', !hasinput);
+            });    //*/
             if(data.editForm.init)
                 data.editForm.init(data, $form, $dialog, $api.row('.selected'));
         });

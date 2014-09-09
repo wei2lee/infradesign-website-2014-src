@@ -57,3 +57,25 @@ div.dataTables_wrapper { clear: both; }
 }
 
 th, td { white-space: nowrap; }
+
+.modal-alert2 {
+    .modal-dialog {
+        width: 90%;
+        margin:10px+30px auto;
+    }
+
+    // Scale up the modal
+    @media (min-width: @screen-sm-min) {
+      // Automatically set modal's width for larger viewports
+      .modal-dialog {
+        width: @modal-md*0.9;
+        margin: 30px*2 auto;
+      }
+      // Modal sizes
+      .modal-sm { width: @modal-sm*0.9; }
+    }
+
+    @media (min-width: @screen-md-min) {
+      .modal-lg { width: @modal-lg*0.9; }
+    }
+}

@@ -50,23 +50,37 @@ if($action == 'login') {
                 $q = $form->getEditQuery($user);   
                 $res = mysqli_query($con, $q);
                 checkMySQLError();
+
+                $q = $form->getOnUpdateQuery($user);
+                $res = mysqli_query($con, $q);
+                checkMySQLError();
             }
+            echo getResponseJSONString(0, 0, '', '');
         }else if($action == 'delete'){
             $users = $_POST['users'];
-            foreach($user as $i => $user) {
+            foreach($users as $i => $user) {
                 $q = $form->getDeleteQuery($user);   
                 $res = mysqli_query($con, $q);
                 checkMySQLError();
             }
+            echo getResponseJSONString(0, 0, '', '');
         }else if($action == 'new'){
             $users = $_POST['users'];
-            foreach($user as $i => $user) {
+            foreach($users as $i => $user) {
                 $q = $form->getNewQuery($user);   
                 $res = mysqli_query($con, $q);
                 checkMySQLError();
+                
+                $q = $form->getOnInsertQuery($user, $con);
+                $res = mysqli_query($con, $q);
+                checkMySQLError();
             }
+            echo getResponseJSONString(0, 0, '', '');
+        }else{
+            echo getResponseJSONString(1, 0, 'Unable to perform action', '');
         }
+    }else{
+        echo getResponseJSONString(1, 0, 'Unable to perform action', '');   
     }
 }
-
 ?>

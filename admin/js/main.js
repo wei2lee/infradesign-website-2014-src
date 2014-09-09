@@ -30,39 +30,32 @@ $(function() {
         $('.user-crud').crud({
             tableSel : '.user-crud table',
             columns : [
-                { data: "name", 
+                { data: "name", nullable : false,
                     validators: { 
                         notEmpty: {
                             message: 'The name is required and cannot be empty.'
                         }
                     }
                 },
-                { data: "email",
+                { data: "email", nullable : true,
                     validators: { 
                         emailAddress : {
                             message: 'The input is not a valid email address.'
                         }
                     }
                 },
-                { data: "contact",
+                { data: "contact", nullable : true, validators: {  } },
+                { data: "company", nullable : true, validators: {  } },
+                { data: "website", nullable : true, render:GetColumnRenderer('link'),
                     validators: { 
-                        notEmpty: {
-                            message: 'The contact is required and cannot be empty.'
-                        }
+                        callback: trueValidator ,
+                        uri: { message: 'The input is not a valid url.' }
                     }
                 },
-                { data: "company" },
-                { data: "website", render:GetColumnRenderer('link'),
-                    validators: { 
-                        uri: {
-                            message: 'The input is not a valid url.'
-                        }
-                    }
-                },
-                { data: "businessType" },
-                { data: "interested" },
-                { data: "createdAt", type: 'date' },
-                { data: "updatedAt", type: 'date' }
+                { data: "businessType", nullable : true, validators: {  } },
+                { data: "interested", nullable : true, validators: {  } },
+                { data: "createdAt", nullable : true, validators: {  }, type: 'date' },
+                { data: "updatedAt", nullable : true, validators: {  }, type: 'date' }
             ],
             
             //ajax : '../resources/api_admin.php?action=read&target=user',
