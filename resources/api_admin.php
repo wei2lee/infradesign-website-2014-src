@@ -11,8 +11,10 @@ function checkMySQLError() {
 
 session_start();
 $con=mysqli_connect($config['db']['host'],$config['db']['user'],$config['db']['pass'],$config['db']['db']);
+mysqli_set_charset($con, 'utf8');
 checkMySQLError();
 $form = new Form();
+$form->con = $con;
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 $target = isset($_GET['target']) ? $_GET['target'] : '';
@@ -76,6 +78,8 @@ if($action == 'login') {
                 checkMySQLError();
             }
             echo getResponseJSONString(0, 0, '', '');
+        }else if($action == 'export'){
+            $form->export();
         }else{
             echo getResponseJSONString(1, 0, 'Unable to perform action', '');
         }

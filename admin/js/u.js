@@ -13,12 +13,24 @@ var bootbox_alert2 = function(option) {
         }
     
     var $dialog = bootbox.dialog(option);
-    /*
-    var $md = $dialog.find('.modal-dialog');
-    var w = $md.width();
-    var mtop = parseInt($md.css('margin-top'));
-    $md.css('margin-top', mtop*2+'px');
-    $md.width(0.9 * w);//*/
+}
+
+var bootbox_underdevelopment = function(option) {
+    if(!option)option={};
+    option.title = 'This function is under development!';
+    option.message = '<p class="text-info">There\'s no dedicated timeline when this function is developed.</p>';
+    option.className = 'modal-alert2',
+    option.buttons = {
+            Close:{
+                label:'Close',
+                className:'btn-primary',
+                callback:function(){
+                    //bootbox.hideAll();    
+                }
+            }
+        }
+    
+    var $dialog = bootbox.dialog(option);
 }
 
 if (!String.prototype.trim) {
@@ -265,13 +277,12 @@ var trueValidator = {
         });
         $dataTable = $tableSel.dataTable({
             dom: '<"row"<"col-xs-10 btn-toolbar top"><"col-xs-2"<"clear">>>lfrtip',
+            //dom: '<t>',
             serverSide:serverSide,
             processing:processing,
             ajax:{
                 url:ajax,
-                data:function(d){
-                    console.log(d);
-                    d.myKey = 'abc';      
+                data:function(d){     
                 }
             },
             columns: columns,
@@ -279,22 +290,11 @@ var trueValidator = {
             drawCallback: drawCallback,
             iDisplayLength: 50,
             order: [[ 0, 'asc' ]]
-            
-            //scrollX:true
         });
         
-        //console.log($dataTable);
-        //new $.fn.dataTable.FixedHeader($dataTable);
         var $tableTool = new $.fn.dataTable.TableTools($dataTable, {
             sRowSelect: "os"
         });
-        
-        /*
-        $dataTable.api().on('order.dt search.dt', function () {
-            $dataTable.api().column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
-                cell.innerHTML = i+1;
-            });
-        }).draw();//*/
 
         buttonhtml = 
         "<div class='btn-group'>" +
@@ -309,7 +309,7 @@ var trueValidator = {
         "</div>" +
         "<div class='btn-group'>" +
         "        <button type='button' class='import-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Import</span></button>" + 
-        "        <button type='button' class='import-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Export</span></button>" + 
+        "        <button type='button' class='export-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Export</span></button>" + 
         "</div>";
         var $functions = $sel.find('.btn-toolbar').append($(buttonhtml));
         //$functions.append($($tableTool.fnContainer()));
@@ -352,9 +352,6 @@ var trueValidator = {
             var $tableTool = data.tableTool;
             var datas = evt.data.api.rows('.selected').data();
             var rowdatas = [];
-            
-            
-            
             for(i = 0, len = datas.length ; i < len ; i++){
                 rowdatas.push({id:datas[i].id});
             }
@@ -437,7 +434,26 @@ var trueValidator = {
                 formValidatorOption.fields[data.target+'-'+columns[k].data] = { validators : columns[k].validators };
             }
         }
+        $functions.find('.mail-btn, .import-btn').on('click', data, function(evt) {
+            bootbox_underdevelopment();
+        });
         
+        $functions.find('.export-btn').on('click', data, function(evt) {
+            var actions = data.actions;
+            $.ajax({
+                url:actions.export,
+                type:'POST',
+                success: function(response)
+                {
+                    //console.log(response);
+                },
+                error: function(xhr, optns, err)
+                {
+                    //console.log(xhr.responseText);
+                },
+                complete: function() { }
+            });
+        });
 
         $functions.find('.add-btn').on('click', data, function(evt){
             var $form = $(data.addForm.html);
@@ -467,6 +483,9 @@ var trueValidator = {
                 var link = $(this).closest('.input-group').find('input').val();
                 window.open(link, '_blank');
                 window.focus();
+            });
+            $form.find('.mail-btn').on('click', function() {
+                bootbox_underdevelopment();
             });
             $form.bootstrapValidator(formValidatorOption
             ).on('success.form.bv', function(evt) { 
@@ -576,6 +595,14 @@ var trueValidator = {
                 $form.data('bootstrapValidator').validate();
                 enableSuccessFormBV = true;
                 formFieldChanged = false;
+            });
+            $form.find('.link-btn').on('click', function() {
+                var link = $(this).closest('.input-group').find('input').val();
+                window.open(link, '_blank');
+                window.focus();
+            });
+            $form.find('.mail-btn').on('click', function() {
+                bootbox_underdevelopment();
             });
             $form.bootstrapValidator(formValidatorOption
             ).on('success.form.bv', function(evt) {

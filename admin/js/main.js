@@ -17,8 +17,6 @@ $(function() {
                 url:action,
                 dataType:'json',
                 complete: function() { 
-                    console.log($(this));
-                    console.log(this);
                     window.location.href = this.redirectURL;
                 },
                 redirectURL:redirectURL
@@ -30,7 +28,7 @@ $(function() {
         $('.user-crud').crud({
             tableSel : '.user-crud table',
             columns : [
-                { data: "name", nullable : false,
+                { data: "name", nullable : false, label: "Name",
                     validators: { 
                         notEmpty: {
                             message: 'The name is required and cannot be empty.'
@@ -66,6 +64,7 @@ $(function() {
                 add : '../resources/api_admin.php?action=new&target=user',
                 delete : '../resources/api_admin.php?action=delete&target=user',
                 update : '../resources/api_admin.php?action=update&target=user',
+                export : '../resources/api_admin.php?action=export&target=user'
             },
             target : 'user',
             editorForm : { 

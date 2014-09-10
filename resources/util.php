@@ -29,9 +29,10 @@ function getEscapeObjectProperties($o){
 }
 
 class Form {
-    public $readFields = array("id","name","email","contact","company","businessType","interested","website","startDate","message","budget","createdAt","updatedAt");
-    public $editFields = array("name","email","contact","company","businessType","interested","website","startDate","message","budget");
+    public $readFields = array("id","name","email","contact","company","businessType","interested","website","createdAt","updatedAt");
+    public $editFields = array("name","email","contact","company","businessType","interested","website");
     public $config;
+    public $con;
     public $fields = array(
         'name'=>null, 'email'=>null, 'contact'=>null, 'company'=>null, 
         'businessType'=>null, 'startDate'=>null, 'website'=>null,
@@ -141,6 +142,39 @@ class Form {
         $q2 = "id = ${user['id']}";
         $q = "UPDATE {$this->table} SET updatedAt = now() WHERE $q2";   
         return $q;
+    }
+    public function export() {
+        $q = $this->getReadQuery();
+        
+        $res=mysqli_query($this->con, $q);//get the result (ressource)
+        /** Include PHPExcel */
+        require_once 'lib/PHPExcel.php';//change if necessary
+
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $F=$objPHPExcel->getActiveSheet();
+        $Line=1;
+        $col=0;
+        foreach($this->readFields as $key => $value) {
+            $F->setCellValueByColumnAndRow($col, $Line, $value);
+            $col++;
+        }
+        ++$Line;
+        while($r=mysqli_fetch_assoc($res)){//extract each record
+            $col = 0;
+            foreach($r as $key => $value) {
+                if($value === null) $value = '';
+                $F->setCellValueByColumnAndRow($col, $Line, $value);
+                $col++;
+            }
+            ++$Line;
+        }
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="report.xls"');
+        header('Cache-Control: max-age=0');
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save('php://output');
     }
 };
 
