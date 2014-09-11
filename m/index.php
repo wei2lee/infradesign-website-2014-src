@@ -100,39 +100,84 @@
 			document.getElementById("sound").play();
 			(new swiffy.Stage(document.getElementById("content"), swiffyobject)).start();
             
-            
+            function lerp(from, to, d) {
+                return from + (to-from)*d;
+            }
+            var $enterbtn = $("#enter-btn");
             var redirect = {
+                p : { raw : 0, to : 0, d: 0.9 },
+                
+                conditionCallbacks : {
+                    preloaded:function(){
+                        this.stop();
+                        $enterbtn.fadeOut(750, function(){
+                            $enterbtn.html("[ENTER WEBSITE]");
+                            $enterbtn.attr('href', 'home.html');
+                            $enterbtn.fadeIn(750);
+                        });
+                    }, 
+                    timeout:function(){
+                        
+                    },
+                    all:function(){
+                        var _this = this;
+                        setTimeout(function(){
+                            _this.stop();
+                            //window.location = _this.url;
+                        },2000);
+                    }
+                },
                 conditions : {preloaded:false, timeout:false},
                 url : 'home.html',
                 setCondition : function(condition) {
+                    var _this = this;
                     if(!this.conditions[condition] === undefined)return;
-                    this.conditions[condition] = true;
-                    var anyCondNotMet = false;
-                    for(k in this.conditions){
-                        if(!this.conditions[k]) { anyCondNotMet = true; return; }
+                    var oldv = this.conditions[condition];
+                    var newv = true;
+                    this.conditions[condition] = newv;
+                    if(!oldv && newv) {
+                        this.conditionCallbacks[condition].call(this);
+                        
+                        for(k in this.conditions){
+                            if(!this.conditions[k]) { return; }
+                        }
+                        this.conditionCallbacks.all.call(this);
                     }
-                    window.location = this.url;
+                },
+                timeoutid : 0,
+                interval : 1000/24,
+                start : function() {
+                    if(this.timeoutid != 0) return;
+                    var _this = this;
+                    this.timeoutid = setInterval(function() {
+                        
+                        _this.p.raw = lerp(_this.p.raw, _this.p.to, _this.p.d * _this.interval/1000);
+                        console.log(_this.p.raw + ',' + _this.p.to);
+                        $enterbtn.html(Math.round(_this.p.raw) + '%');
+                    },this.interval);
+                },
+                stop : function() {
+                    if(this.timeoutid) clearInterval(this.timeoutid);
+                    this.timeoutid = 0;
                 }
             }
             
-            
+            $enterbtn.attr('href', 'javascript:void(0)');
+            $enterbtn.fadeIn(150);
+            redirect.start();
             $.html5Loader({
                   filesToLoad:        'js/files.json', // this could be a JSON or simply a javascript object
                   onBeforeLoad:       function () {
-                    $("#enter-btn").attr('href', 'javascript:void(0)');
-                    $("#enter-btn").fadeIn(150);
+                      //console.log('onBeforeLoad');
                   },
                   onComplete:         function () {
-                        $('#enter-btn').fadeOut(750, function(){
-                            $("#enter-btn").html("[ENTER WEBSITE]");
-                            $("#enter-btn").attr('href', 'home.html');
-                            $("#enter-btn").fadeIn(750);
-                        });
-                        redirect.setCondition('preloaded');
+                      //console.log('onComplete');
+                      redirect.setCondition('preloaded');
                   },
                   onElementLoaded:    function ( obj, elm) { },
                   onUpdate:           function ( percentage ) { 
-                    $('#enter-btn').html(percentage + '%');
+                      //console.log('onUpdate:'+percentage);
+                      redirect.p.to = percentage;
                   }
             });
             setTimeout(function(){

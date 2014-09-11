@@ -28,32 +28,32 @@ $(function() {
         $('.user-crud').crud({
             tableSel : '.user-crud table',
             columns : [
-                { data: "name", nullable : false, label: "Name",
+                { data: "name", title: "Name", nullable : false, render:GetColumnRenderer('text'),
                     validators: { 
                         notEmpty: {
                             message: 'The name is required and cannot be empty.'
                         }
                     }
                 },
-                { data: "email", nullable : true,
+                { data: "email", title: "Email", nullable : true, render:GetColumnRenderer('text'),
                     validators: { 
                         emailAddress : {
                             message: 'The input is not a valid email address.'
                         }
                     }
                 },
-                { data: "contact", nullable : true, validators: {  } },
-                { data: "company", nullable : true, validators: {  } },
-                { data: "website", nullable : true, render:GetColumnRenderer('link'),
+                { data: "contact", title: "Contact", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
+                { data: "company", title: "Company", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
+                { data: "website", title: "Website", nullable : true, render:GetColumnRenderer('link'),
                     validators: { 
                         callback: trueValidator ,
                         uri: { message: 'The input is not a valid url.' }
                     }
                 },
-                { data: "businessType", nullable : true, validators: {  } },
-                { data: "interested", nullable : true, validators: {  } },
-                { data: "createdAt", nullable : true, validators: {  }, type: 'date' },
-                { data: "updatedAt", nullable : true, validators: {  }, type: 'date' }
+                { data: "interested", title: "Interested", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
+                { data: "updatedAt", title: "Last Modified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' },
+                { data: "businessType", title: "Business Type", nullable : true, render:GetColumnRenderer('text'), validators: {  } }
+                
             ],
             
             //ajax : '../resources/api_admin.php?action=read&target=user',

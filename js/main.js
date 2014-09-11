@@ -407,6 +407,7 @@ $(function () {
 
     // Header 
     if(isgoapp){
+        $('body').append($(trackingHtml2));
         $('#nav').hide();
         $('#logo').css({'float':'none', 'margin':'20px auto 0 auto', 'display':'inline-block', 'cursor':'pointer'});
     }
@@ -707,6 +708,8 @@ var popupRegisterHtml;
 var popupThankHtml;
 var popupVideoHtml;
 var popupThankCloseTimeout;
+var popupThankHtmlConversionTrackingHtml =
+'<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/964388869/?label=LAyzCJvQnVYQhdDtywM&amp;guid=ON&amp;script=0"/>';
 
 var delayHomeSliderStartAutoAfterPagerClick;
 var homeSlider;
@@ -1048,7 +1051,7 @@ function initHome() {
     /* popup */
     var popupRegisterContainer = $("#popup_register_container");
     popupRegisterHtml = $("#popup_content_register").wrap('<div>').parent().html();
-    popupThankHtml = $("#popup_content_thank").wrap('<div>').parent().html();
+    popupThankHtml = $("#popup_content_thank").wrap('<div>').parent().html() + popupThankHtmlConversionTrackingHtml;
     popupVideoHtml = $("#popup_content_video").wrap('<div>').parent().html();
     popupRegisterContainer.remove();
     var submitted = false;

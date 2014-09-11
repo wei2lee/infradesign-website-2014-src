@@ -1,7 +1,7 @@
-var bootbox_alert2 = function(option) {
+var bootbox_small = function(option) {
     option.title = option.title;
     option.message = '<p class="text-danger">' + option.message + '</p>';
-    option.className = 'modal-alert2',
+    option.className = 'modal-small',
     option.buttons = {
             Close:{
                 label:'Close',
@@ -19,7 +19,7 @@ var bootbox_underdevelopment = function(option) {
     if(!option)option={};
     option.title = 'This function is under development!';
     option.message = '<p class="text-info">There\'s no dedicated timeline when this function is developed.</p>';
-    option.className = 'modal-alert2',
+    option.className = 'modal-small',
     option.buttons = {
             Close:{
                 label:'Close',
@@ -33,10 +33,16 @@ var bootbox_underdevelopment = function(option) {
     var $dialog = bootbox.dialog(option);
 }
 
-if (!String.prototype.trim) {
+if(!String.prototype.trim) {
   String.prototype.trim = function () {
     return this.replace(/^\s+|\s+$/g, '');
   };
+}
+
+if(!String.prototype.capitalizeFirstChar) {
+    String.prototype.capitalizeFirstChar = function() {
+        return this[0].toUpperCase() + this.slice(1);
+    }
 }
 
 $.event.special.inputchange = {
@@ -58,7 +64,9 @@ $.event.special.inputchange = {
     }
 };
 
-
+function createHiddenIframe(src) {
+    return $('iframe').hide().attr('src', src);
+}
 
 var formFieldRenderers = {
     str2text:{
@@ -80,7 +88,9 @@ var formFieldRenderers = {
             v2 = v2.map(function(s){ return s.trim(); });
             var $checkboxes = $ele;
             $checkboxes.find('input[type=checkbox]').each(function(){
-                $(this).prop('checked', v2.indexOf($(this).val())>=0);
+                var prop = v2.indexOf($(this).val())>=0;
+                if(!prop)prop = v2.indexOf($(this).attr('value1'))>=0
+                $(this).prop('checked', prop);
             });
         },
         get:function(raw, $ele, col){
@@ -88,7 +98,7 @@ var formFieldRenderers = {
             var $checkboxes = $ele;
             $checkboxes.find('input[type=checkbox]').each(function(){
                 if($(this).prop('checked')){
-                    ret += (ret==''?'':',') + $(this).val();   
+                    ret += (ret==''?'':', ') + $(this).val();   
                 }
             });
             return ret;
@@ -104,7 +114,8 @@ function GetFormFieldRenderer(s){
 }
 var columnRenderers = {
     link : function(data, type, row) { return data===null?'':('<a href="'+data+'" target="_blank">'+data+'</a>'); },
-    text : function(data, type, row) { return data===null?'':data; }
+    text : function(data, type, row) { return data===null?'':data; },
+    empty : function(data, type, row) { return ''; }
 }
 function GetColumnRenderer(s){
     if(columnRenderers[s]){
@@ -264,7 +275,9 @@ var trueValidator = {
             {
                 "searchable": false,
                 "orderable": false,
-                "targets": 0
+                "targets": 0,
+                "data": null,
+                "defaultContent": ""
             }
         ];
         var $dataTable;
@@ -272,11 +285,11 @@ var trueValidator = {
         var $sel = $(sel);
         var $tableSel = $(tableSel);
         $.each(columns, function(i, col){
-            $tableSel.find('thead tr').append('<th>'+col.data+'</th>');
-            $tableSel.find('tfoot tr').append('<th>'+col.data+'</th>');
+            $tableSel.find('thead tr').append('<th>'+col.title+'</th>');
+            $tableSel.find('tfoot tr').append('<th>'+col.title+'</th>');
         });
         $dataTable = $tableSel.dataTable({
-            dom: '<"row"<"col-xs-10 btn-toolbar top"><"col-xs-2"<"clear">>>lfrtip',
+            dom: '<"row"<"col-xs-12 btn-toolbar top">>lfrtip',
             //dom: '<t>',
             serverSide:serverSide,
             processing:processing,
@@ -289,6 +302,7 @@ var trueValidator = {
             //columnDefs: columnDefs,
             drawCallback: drawCallback,
             iDisplayLength: 50,
+            responsive: true,
             order: [[ 0, 'asc' ]]
         });
         
@@ -365,7 +379,7 @@ var trueValidator = {
                     if(response.error_exist){
                         $form.find('fieldsets').prop('disabled',false);
                         console.log(response);
-                        bootbox_alert2({ 
+                        bootbox_small({ 
                             title:'Server Error',
                             message:'Reason: '+response.error_msg + '<br/>' + 'please try again later.'
                         });
@@ -377,12 +391,12 @@ var trueValidator = {
                 {
                     console.log(optns + ',' + xhr.responseText);
                     if(optns == 'parsererror'){
-                        bootbox_alert2({ 
+                        bootbox_small({ 
                             title:'Server Error',
                             message:'Fail to receive reply from server, please try again later.'
                         });
                     }else{
-                        bootbox_alert2({ 
+                        bootbox_small({ 
                             title:'Server Error',
                             message:'Fail to connect to server, please try again later.'
                         });
@@ -440,25 +454,30 @@ var trueValidator = {
         
         $functions.find('.export-btn').on('click', data, function(evt) {
             var actions = data.actions;
-            $.ajax({
-                url:actions.export,
-                type:'POST',
-                success: function(response)
-                {
-                    //console.log(response);
+            console.log(actions.export);
+            $.fileDownload(actions.export, {
+                
+                prepareCallback : function(url ) {
+                
                 },
-                error: function(xhr, optns, err)
-                {
-                    //console.log(xhr.responseText);
+                
+                successCallback : function(url ) {
+                    
                 },
-                complete: function() { }
+                
+                failCallback : function(responseHtml, url) {
+                    bootbox_small({ 
+                        title:'Server Error',
+                        message:'Fail to receive reply from server, please try again later.'
+                    });
+                }//*/
             });
         });
 
         $functions.find('.add-btn').on('click', data, function(evt){
             var $form = $(data.addForm.html);
             var $dialog = bootbox.dialog({
-                title:'Add ' + target,
+                title:'Create New ' + target.capitalizeFirstChar(),
                 message:$form,
                 backdrop:'static',
                 keyboard: true,
@@ -508,7 +527,7 @@ var trueValidator = {
                         if(response.error_exist){
                             $form.find('fieldsets').prop('disabled',false);
                             console.log(response);
-                            bootbox_alert2({ 
+                            bootbox_small({ 
                                 title:'Server Error',
                                 message:'Reason: '+response.error_msg + '<br/>' + 'please try again later.'
                             });
@@ -521,12 +540,12 @@ var trueValidator = {
                         console.log(xhr.responseText);
                         $form.find('fieldsets').prop('disabled',false);
                         if(optns == 'parsererror'){
-                            bootbox_alert2({ 
+                            bootbox_small({ 
                                 title:'Server Error',
                                 message:'Fail to receive reply from server, please try again later.'
                             });
                         }else{
-                            bootbox_alert2({ 
+                            bootbox_small({ 
                                 title:'Server Error',
                                 message:'Fail to connect to server, please try again later.'
                             });
@@ -561,7 +580,7 @@ var trueValidator = {
             var $form = $(data.editForm.html);
             var $dialog = bootbox.dialog({
                 className:'abc',
-                title:'Edit ' + target,
+                title:'Edit ' + target.capitalizeFirstChar(),
                 message:$form,
                 backdrop:'static',
                 keyboard: true
@@ -625,7 +644,7 @@ var trueValidator = {
                     {
                         if(response.error_exist){
                             console.log(response.error_msg);
-                            bootbox_alert2({ 
+                            bootbox_small({ 
                                 title:'Server Error',
                                 message:'Reason: '+response.error_msg + '<br/>' + 'please try again later.'
                             });
@@ -637,12 +656,12 @@ var trueValidator = {
                     {
                         console.log(xhr.responseText);
                         if(optns == 'parsererror'){
-                            bootbox_alert2({ 
+                            bootbox_small({ 
                                 title:'Server Error',
                                 message:'Fail to receive reply from server, please try again later.'
                             });
                         }else{
-                            bootbox_alert2({ 
+                            bootbox_small({ 
                                 title:'Server Error',
                                 message:'Fail to connect to server, please try again later.'
                             });

@@ -401,9 +401,9 @@ function HomeController() {
         this.controllers[v.name] = v.controller;
     }
 
-
+    var popupThankHtmlConversionTrackingHtml = '<img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/964388869/?label=LAyzCJvQnVYQhdDtywM&amp;guid=ON&amp;script=0"/>';
     this.registerHtml = $("#popup_register").wrap('<div>').parent().html();
-    this.popupThankHtml = $("#popup_content_thank").show().wrap('<div>').parent().html();
+    this.popupThankHtml = $("#popup_content_thank").show().wrap('<div>').parent().html() + popupThankHtmlConversionTrackingHtml;
     $("#popup_content_register").remove();
     $("#popup_content_thank").remove();
     $.each(this.controllermaps, function(i,map){
@@ -670,42 +670,44 @@ BannerController.prototype = $.extend(Object.create(Controller.prototype), {
         this.$slider = this.$sel.find('.slider').bxSlider(this.sliderOption);
         
         this.$sel.find('[data-slidercontent]').click(function(){
+            
             var i = app.controllers.home.subsels.indexOf($(this).attr('data-slidercontent'));
             if(i>=0){
                 app.controllers.home.$slider.goToSlide(i);   
-            }
+            }//*/
         });
         
         
     },
     onDidSlideToSelf : function() { console.log('BannerController.onDidSlideToSelf@'+this.sel);
-        this.$slider.startAuto();
+        //this.$slider.startAuto();
     },
     onWillSlideFromSelf : function() {
-        this.$slider.goToSlide(0);   
-        this.$slider.stopAuto();
+        //this.$slider.goToSlide(0);   
+        //this.$slider.stopAuto();
     },
     
     onShown : function(a) {
         Controller.prototype.onShown.call(this);
-        this.$slider.startAuto();
+        //this.$slider.startAuto();
     },
 
     onHide : function(a) {
         this.$sliderContents.scrollTop(1);
-        this.$slider.goToSlide(0);   
-        this.$slider.stopAuto();
+        //this.$slider.goToSlide(0);   
+        //this.$slider.stopAuto();
         //fix bxslider wouldnt udpate to proper state 
         //if the slider is hidden before the transition is ended
-        this.$slider.slider.working = false;
-        this.$slider.unbind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd');
+        
+        //this.$slider.slider.working = false;
+        //this.$slider.unbind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd');
     },
     onHidden : function(a) {
         //
         //fix bxslider wouldnt udpate to proper state 
         //if the slider is hidden before the transition is ended
-        this.$slider.slider.working = false;
-        this.$slider.unbind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd');
+        //this.$slider.slider.working = false;
+        //this.$slider.unbind('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd');
     },
     onResize : function(evt){ 
         var ww = $(window).width();
@@ -1572,6 +1574,8 @@ $(document).ready(function(){
         });
         console.log('address.init@' + prevvalue + ' > '+event.value + ', match:'+match);
         if(matchedcontroller){
+
+            
             $('a').each(function() {
                 var alink = $(this).attr('href') || "";
                 if (alink.indexOf('#') == 0) {

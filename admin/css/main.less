@@ -1,18 +1,14 @@
 @import url('../../m/css/lesshat.less');
-@import url('../../m/css/vendor/bootstrap/bootstrap.less');
-
-.btn-toolbar { 
-    &.top { padding-bottom:15px; }
-    .btn { min-width:80px; 
-        .fa, .glyphicon { display:none; }
-    }
+@import url('../../m/css/vendor/bootstrap/variables.less');
+//util
+.disable-text-selection {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
-table.dataTable tbody tr{
-    &.selected, &.active { 
-        td { background-color:transparent; }
-    }
-}
-
 .toggle-2 {
     .toggle-item-1 { display:none; }
 }
@@ -20,9 +16,59 @@ table.dataTable tbody tr{
     .toggle-item-2 { display:none; }   
 }
 
-div.DTTT { margin-bottom: 0.5em; float: right; }
-div.dataTables_wrapper { clear: both; }
+.modal-small {
+    .modal-dialog {
+        width: 90%;
+        margin:10px+30px auto;
+    }
+    @media (min-width: @screen-sm-min) {
+      .modal-dialog {
+        width: @modal-md*0.9;
+        margin: 30px*2 auto;
+      }
+      .modal-sm { width: @modal-sm*0.9; }
+    }
+    @media (min-width: @screen-md-min) {
+      .modal-lg { width: @modal-lg*0.9; }
+    }
+}
 
+
+//crud
+.dataTables_wrapper {
+    .btn-toolbar { 
+        &.top { padding-bottom:15px; }
+        .btn-group {
+            .btn { min-width:80px; margin-top:4px;
+                .fa, .glyphicon { display:none; }
+            }
+        }
+    }
+    .dataTables_length {
+        float:right;
+        @media (max-width:@screen-xs-max) { display:none; }
+    }
+    .dataTables_info {
+        display:inline-block;
+        @media (max-width:@screen-xs-max) { display:none; }
+    }
+    .dataTables_filter {
+        float:left;
+    }
+    .dataTables_paginate {
+        display:inline-block;
+        @media (max-width:@screen-xs-max) { float:left; }
+    }
+}
+table.dataTable {
+    tbody tr{
+        min-height:37px;
+        &.selected, &.active { 
+            td { background-color:transparent; }
+        }
+        th, td { white-space: nowrap; }
+    }
+}
 
 .crud-form {
     hr.modal-footer-divider { margin-bottom:15px; }
@@ -46,36 +92,3 @@ div.dataTables_wrapper { clear: both; }
     }
 }
 
-
-.disable-text-selection {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-th, td { white-space: nowrap; }
-
-.modal-alert2 {
-    .modal-dialog {
-        width: 90%;
-        margin:10px+30px auto;
-    }
-
-    // Scale up the modal
-    @media (min-width: @screen-sm-min) {
-      // Automatically set modal's width for larger viewports
-      .modal-dialog {
-        width: @modal-md*0.9;
-        margin: 30px*2 auto;
-      }
-      // Modal sizes
-      .modal-sm { width: @modal-sm*0.9; }
-    }
-
-    @media (min-width: @screen-md-min) {
-      .modal-lg { width: @modal-lg*0.9; }
-    }
-}
