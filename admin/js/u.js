@@ -33,6 +33,82 @@ var bootbox_underdevelopment = function(option) {
     var $dialog = bootbox.dialog(option);
 }
 
+var bootbox_fileupload = function(option) {
+    
+    
+    if(!option)option={};
+    var $ele = option.$ele;
+    
+    console.log($ele);
+    var action = option.action;
+    function uploadFiles()
+    {
+        var formData = new FormData();
+        $.each(files, function(key, value){
+            formData.append(key, value);
+        });
+        return;
+        $.ajax({
+            url: action,
+            type: 'POST',
+            data: formData,
+            cache: false,
+            dataType: 'json',
+            processData: false, // Don't process the files
+            contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+            xhr: function()
+            {
+                var xhr = new window.XMLHttpRequest();
+                xhr.upload.addEventListener("progress", function(evt){
+                    if (evt.lengthComputable) {
+                        var percentComplete = evt.loaded / evt.total;
+                        $ele.find('.progress').width(percentComplete + '%');
+                    }
+                }, false);
+            },
+            success: function(response)
+            {
+                console.log(response);
+                if(response.error_exist){
+                    return;   
+                }
+                
+            },
+            error: function(xhr, optns, err)
+            {
+                console.log(xhr.responseText);
+                if(optns == 'parsererror'){
+                    
+                }else{
+                    
+                }
+            },
+            complete: function() { 
+            }
+        });
+    }
+    option.title = 'Import';
+    option.message = 
+    '<p class="text-info">' + option.file.name + '</p>' + 
+    '<div class="progress">'+
+    '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">'+
+    '    <span class="sr-only">40% Complete (success)</span>'+
+    '</div>'+
+    '</div>';
+    option.className = 'modal-small',
+    option.buttons = {
+        Cancel:{
+            label:'Cancel',
+            className:'btn-primary',
+            callback:function(){
+
+            }
+        }
+    }
+    
+    var $dialog = bootbox.dialog(option);
+}
+
 if(!String.prototype.trim) {
   String.prototype.trim = function () {
     return this.replace(/^\s+|\s+$/g, '');
@@ -322,7 +398,7 @@ var trueValidator = {
         "        <button type='button' class='mail-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Mail</span></button>" + 
         "</div>" +
         "<div class='btn-group'>" +
-        "        <button type='button' class='import-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Import</span></button>" + 
+        "        <input type='file' class='import-btn'>" + 
         "        <button type='button' class='export-btn btn btn-default'><span class='glyphicon glyphicon-envelope'></span><span>Export</span></button>" + 
         "</div>";
         var $functions = $sel.find('.btn-toolbar').append($(buttonhtml));
@@ -448,9 +524,25 @@ var trueValidator = {
                 formValidatorOption.fields[data.target+'-'+columns[k].data] = { validators : columns[k].validators };
             }
         }
-        $functions.find('.mail-btn, .import-btn').on('click', data, function(evt) {
-            bootbox_underdevelopment();
+        
+        
+        var fileAPISupport = window.File && window.FileReader && window.FileList && window.Blob;
+        $fileinput = $functions.find('input[type=file].import-btn').attr('title', 'import').addClass('import-btn');
+        $fileinput.bootstrapFileInput();
+        $fileinput.find('input').removeClass('import-btn');
+        $functions.find('.import-btn input[type=file]').on('change', data, function(evt) {
+            var files = evt.target.files;
+            if(files.length == 0)return;
+            bootbox_fileupload({
+                file:files[0],
+                $ele:$(this)
+            });
         });
+        
+        $functions.find('.mail-btn').on('click', data, function(evt) {
+            //bootbox_underdevelopment();
+        });
+        
         
         $functions.find('.export-btn').on('click', data, function(evt) {
             var actions = data.actions;
@@ -686,7 +778,7 @@ var trueValidator = {
                 data.editForm.init(data, $form, $dialog, $api.row('.selected'));
         });
         function drawCallback(settings){
-            console.log('drawCallback');
+            //console.log('drawCallback');
             if(this.data('data'))
                 onTableUpdateOrDraw(this.data('data'));   
         }
@@ -696,7 +788,7 @@ var trueValidator = {
             var numSelectedRowInCurrentView = $api.rows('.selected')[0].length;
             var numSelectedRow = data.tableTool.fnGetSelected().length;
             var numRow = $api.rows()[0].length;
-            console.log(numSelectedRowInCurrentView+'('+$api.rows('.selected')[0].length+')/'+numSelectedRow+'/'+numRow);
+            //console.log(numSelectedRowInCurrentView+'('+$api.rows('.selected')[0].length+')/'+numSelectedRow+'/'+numRow);
             $selectall = $functions.find('.select-all-btn');
             $selectall.setBTDisabled(numRow == 0);
             if(numRow == 0 || numSelectedRow != numRow){

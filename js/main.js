@@ -407,7 +407,6 @@ $(function () {
 
     // Header 
     if(isgoapp){
-        $('body').append($(trackingHtml2));
         $('#nav').hide();
         $('#logo').css({'float':'none', 'margin':'20px auto 0 auto', 'display':'inline-block', 'cursor':'pointer'});
     }

@@ -28,6 +28,33 @@ function getEscapeObjectProperties($o){
     }
 }
 
+class AUser {
+    public $con;
+    public $fields = array("id", "firstName", "lastName", "username", "email", "mobile", "mailChimpUsername", "role", "updatedAt");
+    public $table = "AUser";
+    public function getLoginQuery($user) {
+        getEscapeObjectProperties($user);
+        $authName = $user['authName'];
+        $authPassword = $user['authPassword'];
+        
+        $q2 = "";
+        foreach($this->fields as $key => $value) {
+            if($q2 === "") $q2 .= " $value ";
+            else $q2 .= " ,$value ";
+        }
+        
+        $q = 
+        " SELECT $q2 " . 
+        " FROM {$this->table} " . 
+        " WHERE role = 'admin' AND (username = '$authName' OR email = '$authName') AND password = '$authPassword'";
+        return $q;
+    }
+    public function getOnLoginQuery($id) {
+        $q = "UPDATE {$this->table} SET lastLoginAt = now() WHERE id = $id";
+        return $q;
+    }
+}
+
 class Form {
     public $readFields = array("id","name","email","contact","company","businessType","interested","website","createdAt","updatedAt");
     public $editFields = array("name","email","contact","company","businessType","interested","website");
@@ -55,14 +82,7 @@ class Form {
             $this->fields[$key] = $displayValue;
         }
     }
-    public function getLoginQuery($user) {
-        getEscapeObjectProperties($user);
-        $authName = $user['authName'];
-        $authPassword = $user['authPassword'];
-        $q = "SELECT count(*) FROM {$this->table} WHERE role = 'admin' AND authName = '$authName' AND authPassword = '$authPassword'";
-        return $q;
-    }
-    
+
     public function getReadQuery() {
         $q2 = "";
         foreach($this->readFields as $key => $value){
@@ -175,6 +195,23 @@ class Form {
         header('Cache-Control: max-age=0');
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save('php://output');
+    }
+    
+    public function import($files) {
+        $error = false;
+        $uploaddir = './uploads/';
+        foreach($files as $file)
+        {
+            if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name'])))
+            {
+                $files[] = $uploaddir .$file['name'];
+            }
+            else
+            {
+                $error = true;
+            }
+        }
+        $data = ($error) ? array('error' => 'There was an error uploading your files') : array('files' => $files);
     }
 };
 
