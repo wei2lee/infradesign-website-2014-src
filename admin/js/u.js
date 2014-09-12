@@ -18,7 +18,7 @@ var bootbox_small = function(option) {
 var bootbox_underdevelopment = function(option) {
     if(!option)option={};
     option.title = 'This function is under development!';
-    option.message = '<p class="text-info">There\'s no dedicated timeline when this function is developed.</p>';
+    option.message = '<p class="text-info">The engineer is spending effort to complete it.</p>';
     option.className = 'modal-small',
     option.buttons = {
             Close:{
