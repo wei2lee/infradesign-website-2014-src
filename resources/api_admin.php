@@ -56,6 +56,7 @@ if($action == 'login') {
     if($target == 'user') {
         $form = new Form();
         $form->con = $con;
+        $form->config = $config;
         
         if($action == 'read') {
             $q = $form->getReadQuery();
@@ -101,7 +102,8 @@ if($action == 'login') {
         }else if($action == 'export'){
             $form->export();
         }else if($action == 'import'){
-            $form->import();
+            $form->import($_FILES);
+            echo getResponseJSONString(0, 0, 'imported', '');
         }else{
             echo getResponseJSONString(1, 0, 'Unable to perform action', '');
         }

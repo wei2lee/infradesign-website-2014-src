@@ -64,7 +64,8 @@ $(function() {
                 add : '../resources/api_admin.php?action=new&target=user',
                 delete : '../resources/api_admin.php?action=delete&target=user',
                 update : '../resources/api_admin.php?action=update&target=user',
-                export : '../resources/api_admin.php?action=export&target=user'
+                export : '../resources/api_admin.php?action=export&target=user',
+                import : '../resources/api_admin.php?action=import&target=user'
             },
             target : 'user',
             editorForm : { 

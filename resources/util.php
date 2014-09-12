@@ -198,13 +198,19 @@ class Form {
     }
     
     public function import($files) {
+        if($files == null || count($files) == 0) {
+            echo getResponseJSONString(1, 0, 'No file is uploaded', '');
+        }
+        
+        
+        
         $error = false;
-        $uploaddir = './uploads/';
+        $uploadPath = $this->config['uploadPath'];
         foreach($files as $file)
         {
-            if(move_uploaded_file($file['tmp_name'], $uploaddir .basename($file['name'])))
+            if(move_uploaded_file($file['tmp_name'], $uploadPath . '/' . basename($file['name'])))
             {
-                $files[] = $uploaddir .$file['name'];
+                $files[] = $uploadPath .$file['name'];
             }
             else
             {

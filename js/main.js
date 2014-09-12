@@ -715,7 +715,63 @@ var homeSlider;
 var homeSliderOption;
 
 var showcase360panorama;
-function initHome() {         
+function initHome() {  
+    $('body').css('overflow', 'hidden');
+    
+    var _gaq = _gaq || [];
+    
+    function HomeController() {
+        this.controllers = [
+            {url:'/banner', index:0, sel:'', isRoot:true},
+            {url:'/prosales', index:1, sel:'', isRoot:false},
+            {url:'/saleskit', index:2, sel:'', isRoot:false},
+            {url:'/virtual-tour', index:3, sel:'', isRoot:false},
+            {url:'/augmented-reality', index:4, sel:'', isRoot:false}
+        ];
+        for(k in this.controllers) {
+            var controller = this.controllers[k];
+            controller.testURL = function testURL(link) {
+                return this.url == link || link.indexOf(this.url) == 0; 
+            }
+            controller.processURL = function processURL(last, curr) { 
+                return this.testURL(curr.value); 
+            }
+        }
+        this.processURL = function(last,curr){
+            var _this = this;
+            if(this.testURL(curr.value)){
+                var childtested = 0;
+                for(i in this.controllers) {
+                    console.log(curr.value + ',' + this.controllers[i].isRoot);
+                    if((curr.value==''||curr.value=='/'||curr.value=='/home') && this.controllers[i].isRoot){
+                        sectionContainerSlider.goToSlide(0);
+                        childtested = 1;   
+                        break;
+                    }
+                    if(this.controllers[i].testURL(curr.value)){
+                        sectionContainerSlider.goToSlide(this.controllers[i].index);
+                        childtested = 1;
+                        break;   
+                    }
+                }
+                if(!childtested){
+                }
+                return true; 
+            }  
+            return false;
+        }
+        this.testURL = function(link){
+            if(link==''||link=='/'||link=='/home'||link.indexOf('/home')==0)
+                return true;
+            else
+                return false;
+        }
+        return this;   
+    }
+    var home = new HomeController();
+
+    
+    
     var $sel;
     
     /* sections */
@@ -730,7 +786,10 @@ function initHome() {
     });
     sectionSlideHandles = {
         0:onSectionHomeSlide,
-        3:onSection360Slide
+        1:onSectionProsalesSlide,
+        2:onSectionSaleskitSlide,
+        3:onSection360Slide,
+        4:onSectionARSlide
     };
     sectionLogonHandles = {
     }
@@ -833,10 +892,12 @@ function initHome() {
         var sectionControl = sectionContainerSlider.parent().parent().find(".bx-controls-direction");
         switch(type){
             case "willSlideTo":    
+                
                 homeSlider.goToSlide(0, 'reset');
                 sectionControl.fadeOut();   
                 break;
             case "didSlideTo":
+                $.address.value('/banner');
                 if(homeSliderOption.auto)
                     homeSlider.startAuto();
                 break;
@@ -923,8 +984,6 @@ function initHome() {
     
     /* Section Prosales */
     $sel = $('#section_prosales');
-    $sel.find("a.demoversion").click(function(){
-    });
     
     $sel.find('#prosales_video').parent().click(function(){
         var $video = $('#section_prosales').find('video');
@@ -933,9 +992,24 @@ function initHome() {
         $(this).off('click'); 
     });//*/
     
+    function onSectionProsalesSlide(type){ 
+        switch(type){
+            case "didSlideTo":
+                $.address.value('/prosales');
+                break;
+        }
+    }
     
+    /* Section Saleskit */
+    function onSectionSaleskitSlide(type){ 
+        switch(type){
+            case "didSlideTo":
+                $.address.value('/saleskit');
+                break;
+        }
+    }
     
-    /* Section 360 */
+    /* Section 360 Virtual Tour */
     $sel = $('#section_360');
     $sel.find('.change-time-btn-group a').click(function(){
         var data = $(this).attr('data');
@@ -950,6 +1024,7 @@ function initHome() {
             case "willSlideTo":     
                 break;
             case "didSlideTo":
+                $.address.value('/virtual-tour');
                 startShowcasePanoramaSlideShow();
                 startShowcase360tour();
                 break;
@@ -1044,8 +1119,14 @@ function initHome() {
         panoramaShowcaseTimeline.kill();
     }
     
-    /* */
-    
+    /* Section augmented reality */
+    function onSectionARSlide(type){ 
+        switch(type){
+            case "didSlideTo":
+                $.address.value('/augmented-reality');
+                break;
+        }
+    }
     
     /* popup */
     var popupRegisterContainer = $("#popup_register_container");
@@ -1263,36 +1344,77 @@ function initHome() {
         var ww = Math.max($(window).width(), 1024);
         var wh = Math.max($(window).height(), 600);
         var ch = wh - 135;
+        
+        var bw = parseInt($('body').width());
+        var bh = parseInt($('body').height());
+        
+        $('body').css({height:wh});
         $('.section').css({width:ww, height:wh});
         $('.home_slide').css({width:ww, height:wh});
         $('.section_page').css({width:ww, height:wh});
         sectionContainerSlider.redrawSlider();
         homeSlider.redrawSlider();
-    });
+    }); 
 
-    /* login */
-    function setRegistered(_isRegistered){
-        /*
-        if(isRegistered == _isRegistered)return;
-        isRegistered = _isRegistered;
-        if(isRegistered){
-            $(".sections").addClass("islogon");
-            $(".section_content_extra>*").hide().fadeIn();
-            var f = sectionLogonHandles[sectionContainerSlider.getCurrentSlide()];
-            if(f){
-                f();   
+    var lastProcessedEvent = null;
+    $.address.init(function(event) {
+        var prevvalue = lastProcessedEvent ? lastProcessedEvent.value : "";
+        var matched = false;
+        var match = '';
+        var matchedcontroller = null;
+
+        if (lastProcessedEvent && lastProcessedEvent.value == event.value) return;
+
+        $.each([home], function(name, controller) {
+            if (controller.processURL(lastProcessedEvent, event)) {
+                lastProcessedEvent = event;
+                match = true;
+                matchedcontroller = controller;
+                _gaq.push(['_trackPageview', '/' + event.value]);
+                return false;
             }
-        }else{
-            $(".sections").removeClass("islogon");
-        }//*/
-    }
+        });
+        console.log('address.init@' + prevvalue + ' > '+event.value + ', match:'+match);
+        if(matchedcontroller){
+            $('a').each(function() {
+                var alink = $(this).attr('href') || "";
+                if (alink.indexOf('#') == 0) {
+                    alink = '/' + alink.substring(1);
+                    $(this).toggleClass('selected', matchedcontroller.testURL(event.value));
+                }
+            });
+        }
+    }).bind('change', function(event) {
+        var prevvalue = lastProcessedEvent ? lastProcessedEvent.value : "";
+        var matched = false;
+        var match = '';
+        var matchedcontroller = null;
+        
+        if (lastProcessedEvent && lastProcessedEvent.value == event.value) return;
 
+        $.each([home], function(name, controller) {
+            if (controller.processURL(lastProcessedEvent, event)) {
+                lastProcessedEvent = event;
+                match = true;
+                matchedcontroller = controller;
+                _gaq.push(['_trackPageview', '/' + event.value]);
+                return false;
+            }
+        });
+        console.log('address.change@' + prevvalue + ' > '+event.value);
+        if(matchedcontroller){
+            $('a').each(function() {
+                var alink = $(this).attr('href') || "";
+                if (alink.indexOf('#') == 0) {
+                    alink = '/' + alink.substring(1);
+                    $(this).toggleClass('selected', matchedcontroller.testURL(alink));
+                }
+            });
+        }
+    });
+    
+    
     /* post initialization */
-    if($.cookie) {
-        setRegistered($.cookie("signed") == "yes");
-    }else{
-        setRegistered(false);
-    }
     $(window).trigger('resize');
     sectionContainerSlider.redrawSlider();
     setTimeout(function(){

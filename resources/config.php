@@ -15,6 +15,9 @@ $config = array(
         "pass" => "Nvk#j7sa2a",
         "host" => "mail.infradesign.com.my",
         "port" => 587
-    )
+    ),
+    
+    "publicPath" => realpath(dirname(__FILE__)),
+    "uploadPath" => realpath(dirname(__FILE__)) . '/upload',
 );
 ?>

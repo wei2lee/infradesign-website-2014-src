@@ -1,3 +1,53 @@
+if(!String.prototype.trim) {
+  String.prototype.trim = function () {
+    return this.replace(/^\s+|\s+$/g, '');
+  };
+}
+
+if(!String.prototype.capitalizeFirstChar) {
+    String.prototype.capitalizeFirstChar = function() {
+        return this[0].toUpperCase() + this.slice(1);
+    }
+}
+
+(function($, window, undefined) {
+    //is onprogress supported by browser?
+    var hasOnProgress = ("onprogress" in $.ajaxSettings.xhr());
+    //If not supported, do nothing
+    if (!hasOnProgress) {
+        return;
+    }
+    //patch ajax settings to call a progress callback
+    var oldXHR = $.ajaxSettings.xhr;
+    $.ajaxSettings.xhr = function() {
+        var xhr = oldXHR();
+        var pg = this.progress;
+        if(xhr instanceof window.XMLHttpRequest) {
+            xhr.addEventListener('progress', function(e) {
+                if(e.lengthComputable) {
+                    var pct = (e.loaded / e.total) * 100;
+                    if(typeof pg == 'function')pg(pct);
+                }else {
+                    if(typeof pg == 'function')pg(-1);
+                }
+            }, false);
+        }
+        
+        if(xhr.upload) {
+            xhr.upload.addEventListener('progress', function(e) {
+                if(e.lengthComputable) {
+                    var pct = (e.loaded / e.total) * 100;
+                    if(typeof pg == 'function')pg(pct);
+                }else {
+                    if(typeof pg == 'function')pg(-1);
+                }
+            }, false);
+        }   
+        return xhr;
+    };
+})(jQuery, window);
+
+
 var bootbox_small = function(option) {
     option.title = option.title;
     option.message = '<p class="text-danger">' + option.message + '</p>';
@@ -34,37 +84,49 @@ var bootbox_underdevelopment = function(option) {
 }
 
 var bootbox_fileupload = function(option) {
-    
-    
     if(!option)option={};
     var $ele = option.$ele;
-    
-    console.log($ele);
+    var files = option.files;
     var action = option.action;
-    function uploadFiles()
-    {
-        var formData = new FormData();
-        $.each(files, function(key, value){
-            formData.append(key, value);
-        });
-        return;
+    option.title = 'Import';
+    option.message = 
+    '<p class="text-info">' + files[0].name + '</p>' + 
+    '<div class="progress">'+
+    '<div class="progress-bar progress-bar-success progress-bar-striped active" " role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">'+
+    '    <span class="sr-only"></span>'+
+    '</div>'+
+    '</div>';
+    option.buttons = {
+        Cancel:{
+            label:'Cancel',
+            className:'btn-warning',
+            callback:function(){
+            }
+        }
+    }
+    var $dialog = bootbox.dialog(option);
+    var $progressbar = $dialog.find('.progress-bar');
+    var formData = new FormData();
+    $.each(option.files, function(key, value){
+        formData.append(key, value);
+    });
+    $btn = $dialog.find('.btn-warning');
+    $btn.css({transition:'background-color 0.5s ease-out', width:'100px'});
+    var successBtnDelay = 1;
+    $dialog.on('shown.bs.modal', function(evt){
+        setTimeout(function(){
         $.ajax({
-            url: action,
+            url: option.action,
             type: 'POST',
             data: formData,
             cache: false,
             dataType: 'json',
             processData: false, // Don't process the files
             contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-            xhr: function()
-            {
-                var xhr = new window.XMLHttpRequest();
-                xhr.upload.addEventListener("progress", function(evt){
-                    if (evt.lengthComputable) {
-                        var percentComplete = evt.loaded / evt.total;
-                        $ele.find('.progress').width(percentComplete + '%');
-                    }
-                }, false);
+            progress : function(p) {
+                if(p==-1)p=100; $progressbar.width(p+'%');
+                if(p!=-1)$progressbar.find('.sr-only').html(Math.round(p)+'% Complete (success)');   
+                else $progressbar.find('.sr-only').html('Uploading...');   
             },
             success: function(response)
             {
@@ -72,76 +134,24 @@ var bootbox_fileupload = function(option) {
                 if(response.error_exist){
                     return;   
                 }
-                
+                setTimeout(function(){
+                    $btn.removeClass('btn-warning').addClass('btn-success').html('Close');
+                },successBtnDelay*1000);
             },
             error: function(xhr, optns, err)
             {
-                console.log(xhr.responseText);
+                //console.log(xhr.responseText);
                 if(optns == 'parsererror'){
-                    
+                    console.log(xhr.responseText);
                 }else{
-                    
+                    console.log(optns);
+                    console.log(err);
                 }
-            },
-            complete: function() { 
             }
         });
-    }
-    option.title = 'Import';
-    option.message = 
-    '<p class="text-info">' + option.file.name + '</p>' + 
-    '<div class="progress">'+
-    '<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">'+
-    '    <span class="sr-only">40% Complete (success)</span>'+
-    '</div>'+
-    '</div>';
-    option.className = 'modal-small',
-    option.buttons = {
-        Cancel:{
-            label:'Cancel',
-            className:'btn-primary',
-            callback:function(){
-
-            }
-        }
-    }
-    
-    var $dialog = bootbox.dialog(option);
-}
-
-if(!String.prototype.trim) {
-  String.prototype.trim = function () {
-    return this.replace(/^\s+|\s+$/g, '');
-  };
-}
-
-if(!String.prototype.capitalizeFirstChar) {
-    String.prototype.capitalizeFirstChar = function() {
-        return this[0].toUpperCase() + this.slice(1);
-    }
-}
-
-$.event.special.inputchange = {
-    setup: function() {
-        var self = this, val;
-        $.data(this, 'timer', window.setInterval(function() {
-            val = self.value;
-            if ( $.data( self, 'cache') != val ) {
-                $.data( self, 'cache', val );
-                $( self ).trigger( 'inputchange' );
-            }
-        }, 20));
-    },
-    teardown: function() {
-        window.clearInterval( $.data(this, 'timer') );
-    },
-    add: function() {
-        $.data(this, 'cache', this.value);
-    }
-};
-
-function createHiddenIframe(src) {
-    return $('iframe').hide().attr('src', src);
+            
+        },500);
+    });
 }
 
 var formFieldRenderers = {
@@ -253,6 +263,37 @@ var trueValidator = {
         return this.prop('disabled');
     }
 
+    $.fn.fileButton = function(option) {        
+        if(!(window.File && window.FileReader && window.FileList && window.Blob)){
+            console.log('File API is not supported on this browser!');
+            return this;
+        }
+        $.fn.fbClearInput = function() {
+            return this.closest('form').trigger('reset');
+        }
+        $.fn.fbGetBtn = function() {
+            
+            return this.closest('.btn');
+        }
+        this.each(function(i,ele) {
+            if($(this).is('input[type=file]')) {
+            }else{
+                throw 'it\'s not a valid target for fileButton';  
+                return true;
+            }
+            var $fileinput = $(this);
+            $fileinput.attr('title', option.title);
+            $fileinput.bootstrapFileInput();
+            $fileinput.removeClass(option.className);
+            $fileinputbtn = $fileinput.closest('.file-input-wrapper').add(option.className);
+            $fileinputbtn.find('.file-input-name').hide();
+            if(option.wrapForm === undefined || option.wrapForm == true)
+                $fileinput.wrap('<form>');
+            $fileinput.on('change', option.data, option.change);
+        });
+        return this;
+    }
+    
     $.fn.loginForm = function(option) {
         var _this = this;
 
@@ -526,21 +567,25 @@ var trueValidator = {
         }
         
         
-        var fileAPISupport = window.File && window.FileReader && window.FileList && window.Blob;
-        $fileinput = $functions.find('input[type=file].import-btn').attr('title', 'import').addClass('import-btn');
-        $fileinput.bootstrapFileInput();
-        $fileinput.find('input').removeClass('import-btn');
-        $functions.find('.import-btn input[type=file]').on('change', data, function(evt) {
-            var files = evt.target.files;
-            if(files.length == 0)return;
-            bootbox_fileupload({
-                file:files[0],
-                $ele:$(this)
-            });
+        $functions.find('.import-btn').fileButton({
+            data:data,
+            title:'Import',
+            className:'import-btn',
+            change: function(evt) {
+                var files = evt.target.files;
+                if(files.length == 0)return;
+                setTimeout(function(){
+                    bootbox_fileupload({
+                        files:files,
+                        $ele:$(this),
+                        action:actions.import
+                    });
+                },200);
+            }
         });
         
         $functions.find('.mail-btn').on('click', data, function(evt) {
-            //bootbox_underdevelopment();
+            bootbox_underdevelopment();
         });
         
         
@@ -548,15 +593,10 @@ var trueValidator = {
             var actions = data.actions;
             console.log(actions.export);
             $.fileDownload(actions.export, {
-                
                 prepareCallback : function(url ) {
-                
                 },
-                
-                successCallback : function(url ) {
-                    
+                successCallback : function(url ) {  
                 },
-                
                 failCallback : function(responseHtml, url) {
                     bootbox_small({ 
                         title:'Server Error',
