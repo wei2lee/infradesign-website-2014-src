@@ -1,3 +1,4 @@
-/.DS_Store
-/.brackets.json
-/resources/upload/*
+.DS_Store
+.brackets.json
+/resources/upload/
+*.bak*
