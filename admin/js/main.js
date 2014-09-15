@@ -51,8 +51,8 @@ $(function() {
                     }
                 },
                 { data: "interested", title: "Interested", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
-                { data: "updatedAt", title: "Last Modified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' },
-                { data: "businessType", title: "Business Type", nullable : true, render:GetColumnRenderer('text'), validators: {  } }
+                { data: "businessType", title: "Business Type", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
+                { data: "updatedAt", title: "Last Modified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' }
                 
             ],
             

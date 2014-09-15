@@ -58,6 +58,13 @@ class AUser {
 }
 
 class Form {
+    public $interestedValues = array(
+        'prosales'=>array('prosalesdemoversion'), 
+        'ar'=>array('augmented-reality'), 
+        'vt'=>array('virtual-tour'), 
+        'crm'=>array('crm'), 
+        'saleskit'=>array('saleskit'),
+        'mobileapp'=>array('mobileapplication'));
     public $readFields = array("id","name","email","contact","company","businessType","interested","website","createdAt","updatedAt");
     public $editFields = array("name","email","contact","company","businessType","interested","website");
     public $importFields = array("name","email","contact","company","businessType","interested","website","createdAt","updatedAt");
@@ -69,6 +76,18 @@ class Form {
         'message'=>null, 'budget'=>null, 'interested'=>null
     );
     public $table = "User";
+    
+    public function getFixedInterested($value) {
+        $array = explode(', *', $value);
+        foreach($array as $k => $v) {
+            foreach($this->interestedValues as $ak => $av) {
+                if(in_array($av, $v)){
+                    $array[$k] = $ak;   
+                }
+            }
+        }
+        return implode(',', $array);
+    }
     
     public function set($post) {
         foreach ($post as $key => $value) {
@@ -139,6 +158,9 @@ class Form {
         }
         $q3 = "";
         foreach($this->fields as $key => $value){
+            //if($key == "interested") {
+            //    $value = getFixedInterested($value);  
+            //}
             if($q3 === "") $q3 .= ($value === null ? 'NULL' : "'" . $value . "'");
             else $q3 .= ',' . ($value === null ? 'NULL' : "'" . $value . "'");
         }
