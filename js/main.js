@@ -763,8 +763,14 @@ function initHome() {
         this.testURL = function(link){
             if(link==''||link=='/'||link=='/home'||link.indexOf('/home')==0)
                 return true;
-            else
+            else{
+                for(i in this.controllers){
+                    if(link.indexOf(this.controllers[i].url) >= 0){
+                        return true;   
+                    }
+                }
                 return false;
+            }
         }
         return this;   
     }

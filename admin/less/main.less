@@ -4,6 +4,10 @@
 @import url('../../m/css/vendor/bootstrap/variables.less');
 //util    
 
+.abc {
+    transition:background-color 1s ease-out;  
+}
+
 .disable-text-selection {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -38,7 +42,13 @@
 .modal-footer {
     .btn { min-width:120px; }   
 }
-
+//top nav
+.navbar-top-links .dropdown-user {
+    @media (max-width:@screen-xs-max){
+        margin-left: 5px;
+        left:0;
+    }
+}
 
 //crud
 .dataTables_wrapper {

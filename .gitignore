@@ -2,3 +2,4 @@
 .brackets.json
 /resources/upload/
 *.bak*
+error_log
