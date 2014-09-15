@@ -1,5 +1,7 @@
 <?php
 include_once "lib/class.phpmailer.php";
+include_once 'lib/PHPExcel.php';
+
 function getResponseJSONString($error_exist, $error_no, $error_msg, $data) {
     $ret = array();
     $ret['error_exist'] = $error_exist;
@@ -58,6 +60,7 @@ class AUser {
 class Form {
     public $readFields = array("id","name","email","contact","company","businessType","interested","website","createdAt","updatedAt");
     public $editFields = array("name","email","contact","company","businessType","interested","website");
+    public $importFields = array("name","email","contact","company","businessType","interested","website","createdAt","updatedAt");
     public $config;
     public $con;
     public $fields = array(
@@ -168,7 +171,7 @@ class Form {
         
         $res=mysqli_query($this->con, $q);//get the result (ressource)
         /** Include PHPExcel */
-        require_once 'lib/PHPExcel.php';//change if necessary
+
 
         // Create new PHPExcel object
         $objPHPExcel = new PHPExcel();
@@ -197,27 +200,58 @@ class Form {
         $objWriter->save('php://output');
     }
     
-    public function import($files) {
+    public function import($files, $con) {
         if($files == null || count($files) == 0) {
             echo getResponseJSONString(1, 0, 'No file is uploaded', '');
+            die();
         }
-        
-        
-        
-        $error = false;
-        $uploadPath = $this->config['uploadPath'];
-        foreach($files as $file)
-        {
-            if(move_uploaded_file($file['tmp_name'], $uploadPath . '/' . basename($file['name'])))
-            {
-                $files[] = $uploadPath .$file['name'];
+        try {
+            $objPHPExcel = PHPExcel_IOFactory::load($files[0]['tmp_name']);
+            $worksheet = $objPHPExcel->getActiveSheet();
+            $highestRow         = $worksheet->getHighestRow(); // e.g. 10
+            $highestColumn      = $worksheet->getHighestColumn(); // e.g 'F'
+            $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+
+            for ($row = 2; $row <= $highestRow; ++ $row) {
+                $q = "";
+                $q2 = "";
+                $q3 = "";
+                $q4 = "";
+                $id = "";
+                for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+                    $propName = $worksheet->getCellByColumnAndRow($col, 1);
+                    if($propName == "id") {
+                        $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                        $id = mysql_real_escape_string($cell->getValue());
+                        continue;
+                    }
+                    if(!in_array($propName, $this->importFields)) continue;
+
+
+                    $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                    $val = mysql_real_escape_string($cell->getValue());
+
+                    //insert fields, values
+                    $q3 .= ($q3 === ""?"":", ") . $propName;
+                    $q4 .= ($q4 === ""?"":", ") . "'$val'";
+                    //update
+                    $q2 .= ($q2 === ""?"":", ") .  " $propName = '$val' ";
+                }
+                if($id == ""){
+                    $q = "INSERT INTO $this->table ($q3) VALUES($q4)";
+                }else{
+                    $q = "UPDATE $this->table SET $q2 WHERE id = $id";
+                }
+                $res = mysqli_query($con, $q);
+                if (mysqli_errno($con)) {
+                    echo getResponseJSONString(1, 0, "MySQL error: " . mysqli_error($con));
+                    die();
+                }
             }
-            else
-            {
-                $error = true;
-            }
+        } catch(Exception $e) {
+            echo getResponseJSONString(1, 0, 'Error loading file '.$e->getMessage());
+            die();
         }
-        $data = ($error) ? array('error' => 'There was an error uploading your files') : array('files' => $files);
     }
 };
 

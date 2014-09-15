@@ -100,9 +100,9 @@ if($action == 'login') {
             }
             echo getResponseJSONString(0, 0, '', '');
         }else if($action == 'export'){
-            $form->export();
+            $form->export($con);
         }else if($action == 'import'){
-            $form->import($_FILES);
+            $form->import($_FILES, $con);
             echo getResponseJSONString(0, 0, 'imported', '');
         }else{
             echo getResponseJSONString(1, 0, 'Unable to perform action', '');
