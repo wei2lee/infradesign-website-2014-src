@@ -17,6 +17,8 @@ if(!window.setTimeoutEx){
     }
 }
 
+
+
 (function($, window, undefined) {
     //is onprogress supported by browser?
     var hasOnProgress = ("onprogress" in $.ajaxSettings.xhr());
@@ -54,6 +56,18 @@ if(!window.setTimeoutEx){
     };
 })(jQuery, window);
 
+$(document).ready(function(){
+    $("body").on("show.bs.modal", ".modal", function(evt) {
+        console.log('shown' + evt.type);
+        $(this).css({
+            'top': '50%',
+            'margin-top': function () {
+                return -($(this).height() / 2);
+            }
+        });
+    }); 
+});
+
 
 var bootbox_small = function(option) {
     option = $.extend({
@@ -62,7 +76,7 @@ var bootbox_small = function(option) {
         className:'modal-small',
         hideAllOnClose:true,
         hideAllDelay:0.2,
-        showDelay:-1
+        showDelay:-1,
     }, option);
     option.message = '<p class="'+option.textClassName+'">' + option.message + '</p>';
     option.buttons = {
@@ -75,8 +89,13 @@ var bootbox_small = function(option) {
     }
     setTimeoutEx(function(){
         var $dialog = bootbox.dialog(option);
+        if(option.onShow)  option.onShown(); 
+        if(option.onShown)  $dialog.on('shown.bs.modal', option.onShown);
+        if(option.onHide)  $dialog.on('hide.bs.modal', option.onHide);
+        
         $dialog.on('hidden.bs.modal', function() {
-            setTimeout(function(){
+            if(option.onHidden) option.onHidden();
+            setTimeoutEx(function(){
                 if(option.hideAllOnClose)
                     bootbox.hideAll();
             },option.hideAllDelay);
@@ -111,7 +130,7 @@ var bootbox_fileupload = function(option) {
     option.message = 
     '<p class="text-info msg">'+option.actionText[0].capitalizeFirstChar()+' ' + option.files[0].name + ' ...</p>' + 
     '<div class="progress">'+
-    '<div class="progress-bar progress-bar-primary progress-bar-striped active" " role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">'+
+    '<div class="progress-bar progress-bar-primary active" " role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">'+
     '    <span class="sr-only"></span>'+
     '</div>'+
     '</div>';
@@ -174,7 +193,8 @@ var bootbox_fileupload = function(option) {
                         }
                         
                         setTimeoutEx(function(){
-                            $msg.html(filename + ' is '+ option.actionText[1].toLowerCase() + '.');
+                            $progressbar.removeClass('active');
+                            $msg.html(filename + ' is '+ option.actionText[1].toLowerCase() + '.' + '');
                             $btn.removeClass('btn-warning').addClass('btn-success').html('Close');
                         },showSuccessDelay);
                     },
@@ -194,8 +214,14 @@ var bootbox_fileupload = function(option) {
                                 message:'Fail to connect to server, please try again later.'
                             });
                         }
+                        
+                        setTimeoutEx(function(){
+                            $progressbar.removeClass('active');
+                        },showFailDelay);
                     },
-                    complete: option.complete
+                    complete: function(){
+                        option.complete();
+                    }
                 });
 
             },ajaxStartDelay);
