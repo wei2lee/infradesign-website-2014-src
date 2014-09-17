@@ -1203,11 +1203,11 @@ function initHome() {
         user.company = $("#"+prefix+"register_company").val().trim();
         user.businessType = $("#"+prefix+"register_businesstype").val().trim();
         user.interested = {};
-        user.interested.prosalesdemoversion = $("#"+prefix+"register_prosalesdemoversion").is(':checked');
+        user.interested.prosales = $("#"+prefix+"register_prosalesdemoversion").is(':checked');
         user.interested.ar = $("#"+prefix+"register_ar").is(':checked');
         user.interested.crm = $("#"+prefix+"register_crm").is(':checked');
-        user.interested.virtualtour = $("#"+prefix+"register_virtualtour").is(':checked');
-        user.interested.mobileapplication = $("#"+prefix+"register_mobileapplication").is(':checked');
+        user.interested.vt = $("#"+prefix+"register_virtualtour").is(':checked');
+        user.interested.mobileapp = $("#"+prefix+"register_mobileapplication").is(':checked');
         
         try {
             if(user.name == ""){
