@@ -1292,8 +1292,6 @@ function initHome() {
         openThankPopup();
     }
     function openThankPopup(){
-        console.log(popupThankHtml);
-        
         $.fancybox.open({
             content : popupThankHtml,
             afterClose : onThankPopupClosed
@@ -1307,9 +1305,6 @@ function initHome() {
         if(popupThankCloseTimeout){
             clearTimeout(popupThankCloseTimeout);
             popupThankCloseTimeout = 0;
-        }
-        if(submitted){
-            setRegistered(true);
         }
     }
     function openVideoPopup(videosrcs){

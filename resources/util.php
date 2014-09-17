@@ -55,6 +55,14 @@ class AUser {
         $q = "UPDATE {$this->table} SET lastLoginAt = now() WHERE id = $id";
         return $q;
     }
+    
+    public function getNotifyOnRegistrationQuery() {
+        $q = 
+        " SELECT email, firstName, lastName " .
+        " FROM {$this->table} " .
+        " WHERE notifyOnRegistration = 1 ";
+        return $q;
+    }
 }
 
 class Form {
@@ -168,14 +176,6 @@ class Form {
         return $q;
     }
     
-    public function getMailMsgHTML() {
-        $body = "";
-        foreach($this->fields as $key => $value){
-            $body .= "<b>" . ucfirst($key) . ":</b> $value<br/><br/>";
-        }
-        return $body;
-    }
-    
     public function getOnInsertQuery($user, $con) {
         $id = mysqli_insert_id($con);
         $q2 = "id = $id";
@@ -188,6 +188,8 @@ class Form {
         $q = "UPDATE {$this->table} SET updatedAt = now() WHERE $q2";   
         return $q;
     }
+    
+    
     public function export() {
         $q = $this->getReadQuery();
         
@@ -277,28 +279,49 @@ class Form {
     }
 };
 
+class NotifyOnRegistrationEmailTemplate {
+    public function render($user) {
+        $body = "";
+        foreach($user->fields as $key => $value){
+            $body .= "<b>" . ucfirst($key) . ":</b> $value<br/><br/>";
+        }
+        return $body;
+    }
+}
+
 class Mail {
-    public $form;
+    public $templateData;
+    public $template;
     public $config;
+    public $subject = "Registration";
+    public $addresses;
     public function send() {
-        $body = $form->getMailMsgHTML();
+        $body = $this->template->render($this->templateData);
         $email = "mail.infradesign.com.my";
         $name = "no-reply@infradesign.com.my";
         $sender = "no-reply@infradesign.com.my";
-        $subject = "Registration";
+        $subject = $this->subject;
+        
         $mailer = new PHPMailer();
         $mailer->IsSMTP();
-        $mailer->SMTPDebug = 2;
+        $mailer->SMTPDebug = false;
         $mailer->SMTPAuth = true;
-        $mailer->Host = $this->config['mail']['host'];
-        $mailer->Port = $this->config['mail']['port'];
-        $mailer->Username = $this->config['mail']['user'];
-        $mailer->Password = $this->config['mail']['pass'];
+        $mailer->Host = $this->config['smtp']['host'];
+        $mailer->Port = $this->config['smtp']['port'];
+        $mailer->Username = $this->config['smtp']['user'];
+        $mailer->Password = $this->config['smtp']['pass'];
         $mailer->CharSet = "UTF-8";
         $mailer->SetFrom($sender, $name);
-        $mailer->AddAddress("christina@infradesign.com.my", "Christina Leong");
+        foreach($this->addresses as $k => $address) {
+            $mailer->AddAddress($address[0], $address[1]);
+        }
         $mailer->Subject = $subject;
         $mailer->MsgHTML($body);
+        
+        if(!$mailer->send()) {
+            echo getResponseJSONString(1, 0, 'Error sending email', '');
+            die();
+        }
     }
 }
 ?>
