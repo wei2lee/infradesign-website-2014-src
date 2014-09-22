@@ -42,12 +42,17 @@ $(function() {
                         }
                     }
                 },
-                { data: "contact", title: "Contact", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
+                { data: "contact", title: "Contact", nullable : true, render:GetColumnRenderer('phone'), validators: {  } },
                 { data: "company", title: "Company", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
                 { data: "website", title: "Website", nullable : true, render:GetColumnRenderer('link'),
                     validators: { 
-                        callback: trueValidator ,
-                        uri: { message: 'The input is not a valid url.' }
+                        callback: {
+                            callback: GetBVValidators('true'),
+                            message: '' 
+                        },
+                        uri: { 
+                            message: 'The input is not a valid url.<br/>(valid pattern : http://www.abc.com)' 
+                        }
                     }
                 },
                 { data: "interested", title: "Interested", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
@@ -95,6 +100,16 @@ $(function() {
             }
         });
     }  
+    
+    $.address.prevEvent = null;
+    $.address.init(function(event) {
+        $.address.prevEvent = event;
+    }).bind('change', function(event) {
+        if($.address.prevEvent == null || event.value == $.address.prevEvent.value) return;
+        $.address.prevEvent = event;
+    });
+
+    
     //post init
     $('[data-template]').remove();
   

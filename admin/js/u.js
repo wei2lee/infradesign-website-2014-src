@@ -228,9 +228,38 @@ var bootbox_fileupload = function(option) {
         });
     },option.showDelay);
 }
+var BVValidators = {
+    'url':function(value, validator) {
+        var regex = /^ *((https?|s?ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)? *$/i;
+        return regex.test(value);
+    },
+    'true':function(value, validator, $field) { return true; }
+}
+function GetBVValidators(s){
+    if(BVValidators[s]){
+        return BVValidators[s];   
+    }else{
+        throw 'GetBVValidators ' + s + ' is not existed';  
+    }
+}
 
 var formFieldRenderers = {
-    str2text:{
+    'str2link':{
+        render:function(raw, $ele, col){
+            if(raw === null)raw=''; 
+            $ele.val(raw); 
+        },
+        get:function(raw, $ele, col){
+            var v = $ele.val().trim(); 
+            if(col.nullable && v === '') v = null; 
+            var regex = /^(https?|s?ftp):\/\//i;
+            if(v.indexOf(regex) != 0){
+                v = 'http://' + v;   
+            }
+            return v; 
+        }
+    },
+    'str2text':{
         render:function(raw, $ele, col){
             if(raw === null)raw=''; 
             $ele.val(raw); 
@@ -241,7 +270,7 @@ var formFieldRenderers = {
             return v; 
         }
     },
-    strs2checkboxes:{
+    'strs2checkboxes':{
         render:function(raw, $ele, col){
             if(raw===null)raw='';
             var v2 = raw.split(','); 
@@ -270,28 +299,35 @@ function GetFormFieldRenderer(s){
     if(formFieldRenderers[s]){
         return formFieldRenderers[s];   
     }else{
-        return formFieldRenderers['str2text']; 
+        throw 'GetFormFieldRenderer ' + s + ' is not existed';  
     }
 }
 var columnRenderers = {
-    link : function(data, type, row) { return data===null?'':('<a href="'+data+'" target="_blank">'+data+'</a>'); },
-    text : function(data, type, row) { return data===null?'':data; },
-    empty : function(data, type, row) { return ''; }
+    'link' : function(data, type, row) {
+        if(data===null)return '';
+        data = data.trim();
+        var regex = /^(https?|s?ftp):\/\//i;
+        var text = data.replace(regex, '');
+        var href = data;
+        return ('<a href="'+href+'" target="_blank">'+text+'</a>');
+    },
+    'text' : function(data, type, row) { return data===null?'':data; },
+    'phone' : function(data, type, row) {
+        if(data===null)return '';
+        data = data.replace(/[^\d]/, '');
+        if(data.indexOf('60') == 0) return '+' + data;
+        else if(data.indexOf('0') == 0) return '+6' + data;
+        else return data;
+    },
+    'empty' : function(data, type, row) { return ''; }
 }
 function GetColumnRenderer(s){
     if(columnRenderers[s]){
         return columnRenderers[s];   
     }else{
-        return columnRenderers['text'];   
+        throw 'GetColumnRenderer ' + s + ' is not existed';  
     }
 }
-
-var trueValidator = {
-    message : '',   
-    callback : function(value, validator, $field) { return true; }
-};
-
-
 
 (function( $ ) {
     $.fn.detectFormFieldChange = function(option) {
