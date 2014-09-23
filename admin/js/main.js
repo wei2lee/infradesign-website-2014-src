@@ -101,12 +101,120 @@ $(function() {
         });
     }  
     
+    if($('.agent-crud').length){
+        $('.agent-crud').crud({
+            tableSel : '.agent-crud table',
+            columns : [
+                { data: "firstName", title: "First Name", nullable : false, render:GetColumnRenderer('text'),
+                    validators: { 
+                        notEmpty: {
+                            message: 'The first name is required and cannot be empty.'
+                        }
+                    }
+                },
+                { data: "lastName", title: "Last Name", nullable : false, render:GetColumnRenderer('text'),
+                    validators: { 
+                        notEmpty: {
+                            message: 'The last name is required and cannot be empty.'
+                        }
+                    }
+                },
+                { data: "email", title: "Email", nullable : true, render:GetColumnRenderer('text'),
+                    validators: { 
+                        emailAddress : {
+                            message: 'The input is not a valid email address.'
+                        }
+                    }
+                },
+                { data: "contact", title: "Contact", nullable : true, render:GetColumnRenderer('phone'), validators: {  } },
+                { data: "role", title: "Role", nullable : false, render:GetColumnRenderer('text') },
+                { data: "notifyOnRegistration", title: "Email Notify", nullable : false, render:GetColumnRenderer('bool') },
+                { data: "updatedAt", title: "Last Modified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' }
+                
+            ],
+            
+            //ajax : '../resources/api_admin.php?action=read&target=user',
+            serverSide : true,
+            processing : true,
+            ajax : '../resources/api_crud_agent.php',
+            actions : {
+                add : '../resources/api_admin.php?action=new&target=agent',
+                delete : '../resources/api_admin.php?action=delete&target=agent',
+                update : '../resources/api_admin.php?action=update&target=agent',
+                export : '../resources/api_admin.php?action=export&target=agent',
+                import : '../resources/api_admin.php?action=import&target=agent'
+            },
+            target : 'agent',
+            editorForm : { 
+                tempSel : '#agent-form', 
+                columns : {
+                    lastName:{render:'str2text'},
+                    firstName:{render:'str2text'},
+                    email:{render:'str2text'},
+                    contact:{render:'str2text'},
+                    role:{render:'str2select'},
+                    notifyOnRegistration:{render:'str2checkbox'}
+                }
+            },
+            addForm : {
+                tempSel : '#agent-form', 
+                columns : {
+                    lastName:{render:'str2text'},
+                    firstName:{render:'str2text'},
+                    email:{render:'str2text'},
+                    contact:{render:'str2text'},
+                    role:{render:'str2select'},
+                    notifyOnRegistration:{render:'str2checkbox'}
+                }
+            }
+        });
+    }  
+    
+    $(document).on('click', 'nav a[href!="#"]', function(evt){
+    });
+    
+    function loadPage(evt) {
+        var $container = $('#page-wrapper');
+        var $prevcontentwrapper = $('.content-wrapper:visible');
+        var defPathNames = ['user', 'users'];
+        var error404url = 'error404';
+        var $error404 = $('#content-wrapper-error404');
+        var $loadingpage = $('#content-wrapper-pageloading');
+        
+        var pathNames = defPathNames;
+        if(evt.pathNames.length > 0) pathNames = evt.pathNames;
+        
+        var currcontentwrapperid = 'content-wrapper-'+pathNames.join('-');
+        var $currcontentwrapper = $('#'+currcontentwrapperid);
+        if($currcontentwrapper.length == 0) {
+            $prevcontentwrapper.hide();
+            $error404.show();
+        }else if($currcontentwrapper.is(':visible')) {
+            return;
+        }
+        
+        function onPreload(){
+            $prevcontentwrapper.hide();
+            $loadingpage.show();
+        }
+        function onLoaded(){
+            $loadingpage.hide();
+            $currcontentwrapper.delay(50).fadeIn(300);
+        }
+        onPreload();
+        setTimeoutEx(onLoaded, Math.random() * 2 + 0);
+    }
+    
     $.address.prevEvent = null;
     $.address.init(function(event) {
         $.address.prevEvent = event;
+        //console.log(event.value + ':' + event.pathNames);
+        loadPage(event);
     }).bind('change', function(event) {
         if($.address.prevEvent == null || event.value == $.address.prevEvent.value) return;
         $.address.prevEvent = event;
+        //console.log(event.value + ':' + event.pathNames);
+        loadPage(event);
     });
 
     

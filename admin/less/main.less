@@ -3,9 +3,16 @@
 @import url('../../m/css/lesshat.less');
 @import url('../../m/css/vendor/bootstrap/variables.less');
 //util    
+.padding-left-0 {
+    padding-left:0;   
+}
+.padding-top-0 {
+    padding-top:0;   
+}
 
-.abc {
-    transition:background-color 1s ease-out;  
+.list-unstyled {
+    padding-left:0;
+    list-style: none;
 }
 
 .disable-text-selection {
@@ -42,6 +49,9 @@
 .modal-footer {
     .btn { min-width:120px; }   
 }
+
+.content-wrapper { display:none; }
+
 //top nav
 .navbar-top-links .dropdown-user {
     @media (max-width:@screen-xs-max){
@@ -109,4 +119,9 @@ table.dataTable {
         right: 75px;
     }
 }
+
+//me
+
+
+
 

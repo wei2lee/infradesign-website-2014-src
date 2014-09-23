@@ -293,7 +293,52 @@ var formFieldRenderers = {
             });
             return ret;
         }
+    },
+    'str2checkbox':{
+        render:function(raw, $ele, col){
+            if(raw === 0 || raw === null || raw === false) raw = 0;
+            else raw = 1;
+            
+            var $checkboxes = $ele;
+            $checkboxes.find('input[type=checkbox]').each(function(){
+                $(this).prop('checked', raw);
+            });
+        },
+        get:function(raw, $ele, col){
+            var ret = '';
+            var $checkboxes = $ele;
+            $checkboxes.find('input[type=checkbox]').each(function(){
+                if($(this).prop('checked')){
+                    ret = $(this).is(':checked') ? 1 : 0;   
+                }
+            });
+            return ret;
+        }
+    },
+    'str2select':{
+        render:function(raw, $ele, col){
+            var $select = $ele;
+            $select.find('option').each(function(){
+                if(raw === null) {
+                    $(this).prop('selected', false);   
+                }else{
+                    $(this).prop('selected', raw == $(this).val());
+                }
+            });
+        },
+        get:function(raw, $ele, col){
+            var ret = null;
+            var $select = $ele;
+            $select.find('option').each(function(){
+                if($(this).prop('selected')){
+                    ret = $(this).val();  
+                    return false;
+                }
+            });
+            return ret;
+        }
     }
+    
 };
 function GetFormFieldRenderer(s){
     if(formFieldRenderers[s]){
@@ -313,12 +358,13 @@ var columnRenderers = {
     },
     'text' : function(data, type, row) { return data===null?'':data; },
     'phone' : function(data, type, row) {
-        if(data===null)return '';
+        if(data===null || data === undefined)return '';
         data = data.replace(/[^\d]/, '');
         if(data.indexOf('60') == 0) return '+' + data;
         else if(data.indexOf('0') == 0) return '+6' + data;
         else return data;
     },
+    'bool' : function(data, type, row) { return data===null?'No' : (data?'Yes':'No'); },
     'empty' : function(data, type, row) { return ''; }
 }
 function GetColumnRenderer(s){
@@ -763,6 +809,7 @@ function GetColumnRenderer(s){
             $form.find('.mail-btn').on('click', function() {
                 bootbox_underdevelopment();
             });
+            $form.find('select').selectpicker();
             $form.bootstrapValidator(formValidatorOption
             ).on('success.form.bv', function(evt) { 
                 evt.preventDefault();
@@ -880,6 +927,7 @@ function GetColumnRenderer(s){
             $form.find('.mail-btn').on('click', function() {
                 bootbox_underdevelopment();
             });
+            $form.find('select').selectpicker();
             $form.bootstrapValidator(formValidatorOption
             ).on('success.form.bv', function(evt) {
                 evt.preventDefault();

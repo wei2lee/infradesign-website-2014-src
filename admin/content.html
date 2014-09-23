@@ -14,6 +14,9 @@
     <!-- Bootstrap Core CSS -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Bootstrap Select -->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.2/css/bootstrap-select.css" rel="stylesheet">
+    
     <!-- Bootstrap Validator -->
     <link href="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.1/css/bootstrapValidator.min.css" rel="stylesheet" />
     
@@ -91,7 +94,7 @@
                             <a href="#"><i class="fa fa-user fa-fw"></i>User<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="javascript:void(0)">Users</a>
+                                    <a href="#user/users">Users</a>
                                 </li>
                             </ul>
                         </li>
@@ -99,7 +102,13 @@
                             <a href="#"><i class="fa fa-user-md fa-fw"></i>Admin<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 <li>
-                                    <a href="javascript:void(0)">Sales Agents</a>
+                                    <a href="#admin/agents">Agents</a>
+                                </li>
+                                <li>
+                                    <a href="#admin/assign-level">Assign Level</a>
+                                </li>
+                                <li>
+                                    <a href="#admin/follow-up">Follow Up</a>
                                 </li>
                             </ul>
                         </li>
@@ -109,33 +118,193 @@
             </div>
             <!-- /.navbar-static-side -->
         </nav>
-
         
-        <div id="page-wrapper">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h1 class="page-header">User Management</h1>
+        <div id="page-wrapper" style="">
+            <div class="content-wrapper" id="content-wrapper-user-users">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">User - Users</h1>
+                    </div>
+                    <!-- /.col-lg-12 -->
                 </div>
-                <!-- /.col-lg-12 -->
-            </div>
-            <!-- /.row -->
-            <div class="row">
+                <!-- /.row -->
+                <div class="row">
 
-                <form data-template class="form-horizontal crud-form" id='user-form' style='display:none;' action='javascript:void(0)'>
+                    <form data-template class="form-horizontal crud-form" id='user-form' style='display:none;' action='javascript:void(0)'>
+                        <fieldset>
+                            <!-- Text input-->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="user-name">Name</label>  
+                                <div class="col-sm-7">
+                                    <input id="user-name" name="user-name" type="text" placeholder="" class="form-control input-md">
+                                </div>
+                            </div>
+                            <!-- Text input-->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="user-email">Email</label>  
+                                <div class="col-sm-7">
+                                    <div class="input-group">
+                                        <input id="user-email" name="user-email" type="email" placeholder="" class="form-control input-md">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default mail-btn" type="button">Send</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Text input-->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="user-contact">Contact</label>  
+                                <div class="col-sm-7">
+                                    <!--<div class="input-group">-->
+                                        <input id="user-contact" name="user-contact" type="text" placeholder="" class="form-control input-md">
+                                        <!--<span class="input-group-btn">
+                                            <button class="btn btn-default sms-btn" type="button">SMS</button>
+                                        </span>
+                                    </div>-->
+                                </div>
+                            </div>
+                            <!-- Text input-->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="user-company">Company</label>  
+                                <div class="col-sm-7">
+                                    <input id="user-company" name="user-company" type="text" placeholder="" class="form-control input-md">
+                                </div>
+                            </div>
+                            <!-- Text input-->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="user-businessType">Business Type</label>  
+                                <div class="col-sm-7">
+                                    <input id="user-businessType" name="user-businessType" type="text" placeholder="" class="form-control input-md">
+                                </div>
+                            </div>
+                            <!-- Text input-->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="user-website">Website</label>  
+                                <div class="col-sm-7">
+                                    <div class="input-group">
+                                        <input id="user-website" name="user-website" type="text" placeholder="" class="form-control input-md">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default link-btn" type="button">Link</button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Multiple Checkboxes -->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" for="user-interested">Interested</label>
+                                <div class="col-sm-7">
+                                    <div class='row' id='user-interested'>
+                                        <div class="checkbox col-sm-6">
+                                            <label for="user-interested-0">
+                                            <input type="checkbox" name="user-interested" id="user-interested-0" value="prosales" value1="prosalesdemoversion">
+                                            Prosales
+                                            </label>
+                                        </div>
+                                        <div class="checkbox col-sm-6">
+                                            <label for="user-interested-1">
+                                            <input type="checkbox" name="user-interested" id="user-interested-1" value="ar">
+                                            AR
+                                            </label>
+                                        </div>
+                                        <div class="checkbox col-sm-6">
+                                            <label for="user-interested-2">
+                                            <input type="checkbox" name="user-interested" id="user-interested-2" value="crm">
+                                            CRM
+                                            </label>
+                                        </div>
+                                        <div class="checkbox col-sm-6">
+                                            <label for="user-interested-3">
+                                            <input type="checkbox" name="user-interested" id="user-interested-3" value="vt" value1="virtualtour">
+                                            Virtual Tour
+                                            </label>
+                                        </div>
+                                        <div class="checkbox col-sm-6">
+                                            <label for="user-interested-4">
+                                            <input type="checkbox" name="user-interested" id="user-interested-4" value="mobileapp" value1="mobileapplicatoin">
+                                            Mobile App
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Button (Double) -->
+                            <hr class='modal-footer-divider'>
+                            <div class='row'>
+                                <div class='col-sm-12'>
+                                    <small class="help-block"><span class="feedback text-danger"></span></small>
+                                </div>
+                            </div>
+                            <div class="form-group crud-form-buttons">
+                                <div class="col-sm-12">
+                                    <div class='row'>
+                                        <div class='col-xs-6 form-btn-group'>
+                                            <button id="user-undo" name="undo" type='button' class="btn-lg btn btn-primary">Reset</button>
+                                        </div>
+                                        <div class='col-xs-6 form-btn-group'>
+                                            <button id="user-commit" name="commit" type='submit' class="btn-lg btn btn-primary">Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+
+                    <div class="col-lg-12">
+                        <div class="user-crud crud">
+                            <!-- /.panel-heading -->
+                            <div class="">                                                   
+                                <table class="table table-striped table-bordered table-hover" width="100%">
+                                    <thead>
+                                        <tr>
+
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <!-- /.panel-body -->
+                        </div>
+                        <!-- /.panel -->
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+            </div>
+            
+            
+            <div class="content-wrapper" id="content-wrapper-admin-agents">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">Admin - Agents</h1>
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                
+                <form data-template class="form-horizontal crud-form" id='agent-form' style='display:none;' action='javascript:void(0)'>
                     <fieldset>
                         <!-- Text input-->
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-name">Name</label>  
+                            <label class="col-sm-3 control-label" for="agent-firstName">First Name</label>  
                             <div class="col-sm-7">
-                                <input id="user-name" name="user-name" type="text" placeholder="" class="form-control input-md">
+                                <input id="agent-firstName" name="agent-firstName" type="text" placeholder="" class="form-control input-md">
                             </div>
                         </div>
                         <!-- Text input-->
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-email">Email</label>  
+                            <label class="col-sm-3 control-label" for="agent-lastName">Last Name</label>  
+                            <div class="col-sm-7">
+                                <input id="agent-lastName" name="agent-lastName" type="text" placeholder="" class="form-control input-md">
+                            </div>
+                        </div>
+                        <!-- Text input-->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="agent-email">Email</label>  
                             <div class="col-sm-7">
                                 <div class="input-group">
-                                    <input id="user-email" name="user-email" type="email" placeholder="" class="form-control input-md">
+                                    <input id="agent-email" name="agent-email" type="email" placeholder="" class="form-control input-md">
                                     <span class="input-group-btn">
                                         <button class="btn btn-default mail-btn" type="button">Send</button>
                                     </span>
@@ -144,80 +313,42 @@
                         </div>
                         <!-- Text input-->
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-contact">Contact</label>  
+                            <label class="col-sm-3 control-label" for="agent-contact">Contact</label>  
                             <div class="col-sm-7">
                                 <!--<div class="input-group">-->
-                                    <input id="user-contact" name="user-contact" type="text" placeholder="" class="form-control input-md">
+                                    <input id="agent-contact" name="agent-contact" type="text" placeholder="" class="form-control input-md">
                                     <!--<span class="input-group-btn">
                                         <button class="btn btn-default sms-btn" type="button">SMS</button>
                                     </span>
                                 </div>-->
                             </div>
                         </div>
-                        <!-- Text input-->
+                        <!-- Single Checkboxes -->
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-company">Company</label>  
+                            <label class="col-sm-3 control-label" for="agent-notifyOnRegistration">Notify Email</label>
                             <div class="col-sm-7">
-                                <input id="user-company" name="user-company" type="text" placeholder="" class="form-control input-md">
-                            </div>
-                        </div>
-                        <!-- Text input-->
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-businessType">Business Type</label>  
-                            <div class="col-sm-7">
-                                <input id="user-businessType" name="user-businessType" type="text" placeholder="" class="form-control input-md">
-                            </div>
-                        </div>
-                        <!-- Text input-->
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-website">Website</label>  
-                            <div class="col-sm-7">
-                                <div class="input-group">
-                                    <input id="user-website" name="user-website" type="text" placeholder="" class="form-control input-md">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default link-btn" type="button">Link</button>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Multiple Checkboxes -->
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label" for="user-interested">Interested</label>
-                            <div class="col-sm-7">
-                                <div class='row' id='user-interested'>
+                                <div class='row' id='agent-notifyOnRegistration'>
                                     <div class="checkbox col-sm-6">
-                                        <label for="user-interested-0">
-                                        <input type="checkbox" name="user-interested" id="user-interested-0" value="prosales" value1="prosalesdemoversion">
-                                        Prosales
-                                        </label>
-                                    </div>
-                                    <div class="checkbox col-sm-6">
-                                        <label for="user-interested-1">
-                                        <input type="checkbox" name="user-interested" id="user-interested-1" value="ar">
-                                        AR
-                                        </label>
-                                    </div>
-                                    <div class="checkbox col-sm-6">
-                                        <label for="user-interested-2">
-                                        <input type="checkbox" name="user-interested" id="user-interested-2" value="crm">
-                                        CRM
-                                        </label>
-                                    </div>
-                                    <div class="checkbox col-sm-6">
-                                        <label for="user-interested-3">
-                                        <input type="checkbox" name="user-interested" id="user-interested-3" value="vt" value1="virtualtour">
-                                        Virtual Tour
-                                        </label>
-                                    </div>
-                                    <div class="checkbox col-sm-6">
-                                        <label for="user-interested-4">
-                                        <input type="checkbox" name="user-interested" id="user-interested-4" value="mobileapp" value1="mobileapplicatoin">
-                                        Mobile App
+                                        <label for="agent-notifyOnRegistration-0">
+                                            <input type="checkbox" name="agent-notifyOnRegistration" id="agent-notifyOnRegistration-0" value="">
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <!-- Single Select -->
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" for="agent-role">Role</label>
+                            <div class="col-sm-7">
+                                <select id="agent-role">
+                                    <option value="agent">Agent</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                        
                         <!-- Button (Double) -->
                         <hr class='modal-footer-divider'>
                         <div class='row'>
@@ -229,10 +360,10 @@
                             <div class="col-sm-12">
                                 <div class='row'>
                                     <div class='col-xs-6 form-btn-group'>
-                                        <button id="user-undo" name="undo" type='button' class="btn-lg btn btn-primary">Reset</button>
+                                        <button id="agent-undo" name="undo" type='button' class="btn-lg btn btn-primary">Reset</button>
                                     </div>
                                     <div class='col-xs-6 form-btn-group'>
-                                        <button id="user-commit" name="commit" type='submit' class="btn-lg btn btn-primary">Save</button>
+                                        <button id="agent-commit" name="commit" type='submit' class="btn-lg btn btn-primary">Save</button>
                                     </div>
                                 </div>
                             </div>
@@ -240,33 +371,90 @@
                     </fieldset>
                 </form>
                 
-                <div class="col-lg-12">
-                    <div class="panel panel-default user-crud crud">
-                        <div class="panel-heading">
-                            User
-                        </div>
-                        <!-- /.panel-heading -->
-                        <div class="panel-body">                                                   
-                            <table class="table table-striped table-bordered table-hover" width="100%">
-                                <thead>
-                                    <tr>
+                <!-- /.row -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="agent-crud crud">
+                            <!-- /.panel-heading -->
+                            <div class="">                                                      
+                                <table class="table table-striped table-bordered table-hover" width="100%">
+                                    <thead>
+                                        <tr>
 
-                                    </tr>
-                                </thead>
-                                <tfoot>
-                                    <tr>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
 
-                                    </tr>
-                                </tfoot>
-                            </table>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <!-- /.panel-body -->
                         </div>
-                        <!-- /.panel-body -->
+                        <!-- /.panel -->
                     </div>
-                    <!-- /.panel -->
                 </div>
-                <!-- /.col-lg-12 -->
             </div>
- 
+            
+            <div class="content-wrapper" id="content-wrapper-admin-assign-level">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">Admin - Assign Level</h1>
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                <!-- /.row -->
+                <div class="row">
+                </div>
+            </div>
+            
+            <div class="content-wrapper" id="content-wrapper-admin-follow-up">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">Admin - Follow Up</h1>
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                <!-- /.row -->
+                <div class="row">
+                </div>
+            </div>
+            
+            <div class="content-wrapper" id="content-wrapper-my-profile">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1 class="page-header">My Profile</h1>
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                <!-- /.row -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 >Jacky Lee</h3>
+                        <ul class="list-unstyled">
+                            <li><a href="#" class="btn padding-left-0"><i class="fa fa-phone  fa-fw"></i> +6012-1234567</a></li>
+                            <li><a href="#" class="btn padding-left-0"><i class="fa fa-envelope fa-fw"></i> jacky@infradesign.com.my</a></li>
+                            <li><a href="#" class="btn padding-left-0"><i class="fa fa-pencil fa-fw"></i> Change Password</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Invalid URL -->
+            <div class="content-wrapper" id="content-wrapper-error404">
+                <div class="row">
+                    <h>The page you requested could not found, either contact your webmaster or try again. Use your browsers <strong>Back</strong> button to navigate to the page you have previously come from.</h1>
+                </div>
+            </div>
+            
+            
+            <!-- Loading -->
+            <div class="content-wrapper" id="content-wrapper-pageloading">
+                <div class="row">
+                    <h4><i class="fa fa-cog fa-spin"></i> Loading...</h4>
+                </div>
+            </div>
         </div>
         <!-- /#page-wrapper -->
 
@@ -291,6 +479,8 @@
     <!-- Bootstrap Validator-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.1/js/bootstrapValidator.min.js"></script>
     
+    <!-- Bootstrap Select-->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.2/js/bootstrap-select.min.js"></script>
     
     <!-- Metis Menu Plugin JavaScript -->
     <script src="js/plugins/metisMenu/metisMenu.min.js"></script>
