@@ -119,6 +119,7 @@ $(function() {
                         }
                     }
                 },
+                
                 { data: "email", title: "Email", nullable : true, render:GetColumnRenderer('text'),
                     validators: { 
                         emailAddress : {
@@ -169,9 +170,10 @@ $(function() {
             }
         });
     }  
-    
-    $(document).on('click', 'nav a[href!="#"]', function(evt){
-    });
+    if($('nav').length) {
+        $(document).on('click', 'nav a[href!="#"]', function(evt){
+        });
+    }
     
     function loadPage(evt) {
         var $container = $('#page-wrapper');
@@ -205,17 +207,21 @@ $(function() {
         setTimeoutEx(onLoaded, Math.random() * 2 + 0);
     }
     
-    $.address.prevEvent = null;
-    $.address.init(function(event) {
-        $.address.prevEvent = event;
-        //console.log(event.value + ':' + event.pathNames);
-        loadPage(event);
-    }).bind('change', function(event) {
-        if($.address.prevEvent == null || event.value == $.address.prevEvent.value) return;
-        $.address.prevEvent = event;
-        //console.log(event.value + ':' + event.pathNames);
-        loadPage(event);
-    });
+    if($.address) {
+    
+        $.address.prevEvent = null;
+        $.address.init(function(event) {
+            $.address.prevEvent = event;
+            //console.log(event.value + ':' + event.pathNames);
+            loadPage(event);
+        }).bind('change', function(event) {
+            if($.address.prevEvent == null || event.value == $.address.prevEvent.value) return;
+            $.address.prevEvent = event;
+            //console.log(event.value + ':' + event.pathNames);
+            loadPage(event);
+        });
+        
+    }
 
     
     //post init

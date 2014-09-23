@@ -30,6 +30,8 @@ function getEscapeObjectProperties($o){
     }
 }
 
+
+
 class AUser {
     public $con;
     public $fields = array("id", "firstName", "lastName", "username", "email", "mobile", "mailChimpUsername", "role", "updatedAt");
@@ -48,7 +50,7 @@ class AUser {
         $q = 
         " SELECT $q2 " . 
         " FROM {$this->table} " . 
-        " WHERE role = 'admin' AND (username = '$authName' OR email = '$authName') AND password = '$authPassword'";
+        " WHERE (username = '$authName' OR email = '$authName') AND password = '$authPassword'";
         return $q;
     }
     public function getOnLoginQuery($id) {
@@ -63,6 +65,15 @@ class AUser {
         " WHERE notifyOnRegistration = 1 ";
         return $q;
     }
+}
+
+class CRUD {
+    public $con;
+    public $table;
+    public $where;
+    public $order;
+    
+    //function sql_
 }
 
 class Form {
