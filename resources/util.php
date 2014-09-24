@@ -1,6 +1,7 @@
 <?php
 include_once "lib/class.phpmailer.php";
-include_once 'lib/PHPExcel.php';
+include_once "lib/PHPExcel.php";
+
 
 function getResponseJSONString($error_exist, $error_no, $error_msg, $data) {
     $ret = array();
@@ -12,14 +13,9 @@ function getResponseJSONString($error_exist, $error_no, $error_msg, $data) {
 }
 
 function boolProperties2String($o){
-    $ret = "";
-    foreach($o as $key => $value){
-        if($value == "true"){
-            if($ret == "") $ret .= $key;
-            else $ret .= ", " . $key;
-        }
-    }
-    return $ret;
+    $arr = array();
+    foreach($o as $key => $value) if($value) $arr[] = $key;
+    return implode(', ', $arr);
 }
 
 function getEscapeObjectProperties($o){
@@ -30,51 +26,361 @@ function getEscapeObjectProperties($o){
     }
 }
 
+function var_dump_p($o){
+    echo '<pre>';
+    var_dump($o);
+    echo '</pre>';
+}
 
-
-class AUser {
-    public $con;
-    public $fields = array("id", "firstName", "lastName", "username", "email", "mobile", "mailChimpUsername", "role", "updatedAt");
-    public $table = "AUser";
-    public function getLoginQuery($user) {
-        getEscapeObjectProperties($user);
-        $authName = $user['authName'];
-        $authPassword = $user['authPassword'];
+function array_remove_not_exist_keys($array, $keys){
+    $removekeys = array();
+    foreach($array as $key => $val){
         
-        $q2 = "";
-        foreach($this->fields as $key => $value) {
-            if($q2 === "") $q2 .= " $value ";
-            else $q2 .= " ,$value ";
+        $b = in_array($key, $keys);
+        
+        
+        if(!$b){
+            $removekeys[] = $key;
         }
-        
-        $q = 
-        " SELECT $q2 " . 
-        " FROM {$this->table} " . 
-        " WHERE (username = '$authName' OR email = '$authName') AND password = '$authPassword'";
-        return $q;
     }
-    public function getOnLoginQuery($id) {
-        $q = "UPDATE {$this->table} SET lastLoginAt = now() WHERE id = $id";
-        return $q;
+    foreach($removekeys as $removekey){
+        unset($array[$removekey]);
     }
-    
-    public function getNotifyOnRegistrationQuery() {
-        $q = 
-        " SELECT email, firstName, lastName " .
-        " FROM {$this->table} " .
-        " WHERE notifyOnRegistration = 1 ";
-        return $q;
+    return $array;
+}
+
+function sql_connect($sql_details){
+    try {
+        $db = @new PDO(
+            "mysql:host={$sql_details['host']};dbname={$sql_details['db']}",
+            $sql_details['user'],
+            $sql_details['pass'],
+            array( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION )
+        );
     }
+    catch (PDOException $e) {
+        echo getResponseJSONString(1,0,
+            "An error occurred while connecting to the database. ".
+            "The error reported by the server was: ".$e->getMessage(),
+            ""
+        );
+        die();
+    }
+    return $db;
+}
+
+function val_map_binding($val){
+    return ':' . $val;
+}
+function val_map_update_binding($val){
+    return $val . ' = :' . $val;
 }
 
 class CRUD {
-    public $con;
+    public $db;
+    public $selectfields;
+    public $insertfields;
+    public $updatefields;
+    public $pk = "id";
     public $table;
-    public $where;
-    public $order;
+    public $validators = array();
+    public $onupdatedatetime = true;
     
-    //function sql_
+    public function __construct($db) {
+        $this->db=$db;
+        
+        if($this->updatefields == null) $this->updatefields = $this->insertfields;
+    }
+                   
+    public static function stmt_bind($stmt, $value){
+        foreach($value as $c => $v){
+            $stmt->bindValue(':'.$c, $v);
+        }
+    }
+    
+    public function validate(&$values) {
+        if(!is_array($values)) $values = array($values);
+        $ret = true;
+        foreach($values as &$value){
+            foreach($this->validators as $k => $validator){
+                if(isset($value[$k])){
+                    //ret : validate pass or fail
+                    //inout param : format the in value and out
+                    if(!$validator($value[$k])){
+                        $ret = false;   
+                    }
+                }
+            }
+        }
+        return $ret;
+    }
+    
+    public function insert($values){
+        if(!is_array($values)) $values = array($values);
+        
+        //TODO validate value
+        $this->validate($values);
+
+        //TODO permission to insert
+        
+        $array0 = array_remove_not_exist_keys($values[0], $this->insertfields);
+        
+        
+        
+        $col = implode(', ', array_keys($array0));
+        $bind = implode(',', array_map("val_map_binding", array_keys($array0)));
+        $pkbind = ":{$this->pk}";
+        $q = "INSERT INTO {$this->table} ($col) VALUES ($bind)";
+        $stmt = $this->db->prepare($q);
+        
+        if($this->onupdatedatetime){
+            $q2 = "UPDATE  {$this->table} SET createdAt = now(), updatedAt = now() WHERE {$this->pk} = $pkbind";
+            $stmt2 = $this->db->prepare($q2);
+        }
+
+        //*/
+        foreach($values as $value){
+            
+            self::stmt_bind($stmt, $value);
+            if($stmt->execute() && $this->onupdatedatetime){
+                $stmt2->bindValue($pkbind, intval($this->db->lastInsertId()), PDO::PARAM_INT);
+                
+                
+                $stmt2->execute();
+            }
+        }
+        
+        return $values;
+    }
+    
+    public function update($values){
+        if(!is_array($values)) $values = array($values);
+        
+        //TODO validate value here
+        $this->validate($values);
+        
+        //TODO permission to update
+        
+        $array0 = array_remove_not_exist_keys($values[0], $this->updatefields);
+        $bind = implode(', ', array_map("val_map_update_binding", array_keys($array0)));
+        $pkbind = ":{$this->pk}";
+        $q = "UPDATE {$this->table} SET $bind WHERE {$this->pk} = $pkbind";
+        $stmt = $this->db->prepare($q);
+        
+        $q2 = "UPDATE {$this->table} SET updatedAt = now() WHERE $pk = $pkbind";
+        $stmt2 = $this->db->prepare($q2);
+        
+        foreach($values as $value){
+            self::stmt_bind($stmt, $value);
+            $stmt->bindValue($pkbind, $value[$this->pk]);
+            if($stmt->execute() && $this->$onupdatedatetime){
+                $stmt2->bindValue($pkbind, $value[$this->pk], PDO::PARAM_INT);
+                $stmt2->execute();
+            }
+        }
+    }
+                   
+    public function insertOrUpdate($values){
+        if(!is_array($values)) $values = array($values);
+        
+        //TODO validate value here
+        $this->validate($values);
+        
+        //TODO permission to update
+        
+        $array0 = array_remove_not_exist_keys($values[0], $this->updatefields);
+        $col = implode(', ', array_keys($array0));
+        $updbind = implode(', ', array_map("val_map_update_binding", array_keys($array0)));
+        $insbind = implode(',', array_map("val_map_binding", array_keys($array0)));
+        $pkbind = ":{$this->pk}";
+        $q = "UPDATE {$this->table} SET $updbind WHERE {$this->pk} = $pkbind";
+        $upd_stmt = $this->db->prepare($q);
+        
+        $q2 = "UPDATE {$this->table} SET updatedAt = now() WHERE $pk = $pkbind";
+        $upded_stmt = $this->db->prepare($q2);
+        
+        $q3 = "INSERT INTO {$this->table} ($col) VALUES($insbind)";
+        $ins_stmt = $this->db->prepare($q2);
+        
+        foreach($values as $value){
+            self::stmt_bind($upd_stmt, $value);
+            $upd_stmt->bindValue($pkbind, $value[$this->pk], PDO::PARAM_INT);
+            $upded_stmt->execute();
+            if($upd_stmt->rowCount()){
+                if($this->$onupdatedatetime){
+                    $upded_stmt->bindValue($pkbind, $value[$this->pk], PDO::PARAM_INT);
+                    $upded_stmt->execute();
+                }
+            }else{
+                self::stmt_bind($ins_stmt, $value);
+                if($ins_stmt->execute() && $this->$onupdatedatetime){
+                    $upded_stmt->bindValue($pkbind, intval($this->db->lastInsertId()), PDO::PARAM_INT);
+                    $upded_stmt->execute();
+                }
+            }
+        }
+    }
+    
+    public function delete($values){
+        //TODO permission to delete
+        
+        if(!is_array($values)) $values = array($values);
+        $pkbind = ":{$this->pk}";
+        $q = "DELETE FROM {$this->table} WHERE {$this->pk} = $pkbind";  
+        $stmt = $this->db->prepare($q);
+        foreach($values as $value){
+            $stmt->bindValue($pkbind, $value[$this->pk], PDO::PARAM_INT);
+            $stmt->execute();
+        }
+    }
+    
+    public function select($columns=null, $filter="", $order="", $limit=""){
+        //TODO filter,order,limit
+        
+        //TODO permission to select
+        
+        
+        if($columns == null) $columns = $this->selectfields;
+        
+        $col = implode(', ', $columns);
+        $q = "SELECT $col FROM {$this->table} $filter";
+        $stmt = $this->db->prepare($q);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+                   
+    public function export() {
+        $res = $this->select();
+
+        $objPHPExcel = new PHPExcel();
+        $F=$objPHPExcel->getActiveSheet();
+        $Line=1;
+        $col=0;
+        foreach($this->readFields as $key => $value) {
+            $F->setCellValueByColumnAndRow($col, $Line, $value);
+            $col++;
+        }
+        ++$Line;
+        while($r=mysqli_fetch_assoc($res)){//extract each record
+            $col = 0;
+            foreach($r as $key => $value) {
+                if($value === null) $value = '';
+                $F->setCellValueByColumnAndRow($col, $Line, $value);
+                $col++;
+            }
+            ++$Line;
+        }
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="report.xls"');
+        header('Cache-Control: max-age=0');
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save('php://output');
+    }
+    
+    public function import($files, $con) {
+        if($files == null || count($files) == 0) {
+            echo getResponseJSONString(1, 0, 'No file is uploaded', '');
+            die();
+        }
+        try {
+            $objPHPExcel = PHPExcel_IOFactory::load($files[0]['tmp_name']);
+            $worksheet = $objPHPExcel->getActiveSheet();
+            $highestRow         = $worksheet->getHighestRow(); // e.g. 10
+            $highestColumn      = $worksheet->getHighestColumn(); // e.g 'F'
+            $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);
+
+            $rows = array();
+            for ($row = 2; $row <= $highestRow; ++ $row) {
+                $row = array();
+                $rows[] = $row;
+                for ($col = 0; $col < $highestColumnIndex; ++ $col) {
+                    $cell = $worksheet->getCellByColumnAndRow($col, $row);
+                    $key = mysql_real_escape_string($worksheet->getCellByColumnAndRow($col, 1));
+                    $val = mysql_real_escape_string($cell->getValue());
+                    $row[$key] = $val;
+                }
+            }
+            $this->insertOrUpdate($rows);
+        } catch(Exception $e) {
+            echo getResponseJSONString(1, 0, 'Error loading file '.$e->getMessage());
+            die();
+        }
+    }
 }
+
+
+class AUser extends CRUD{
+    public $loginfields;
+    public $table = "AUser";
+    
+    public function __construct($db) {
+        $this->db=$db;
+        $this->loginfields = array("id", "firstName", "lastName", "username", "email", "mobile", "role", "updatedAt");
+        $this->selectfields = array("id", "firstName", "lastName", "username", "email", "mobile", "role", "updatedAt", "remark");
+        $this->insertfields = array("firstName", "lastName", "username", "email", "mobile", "role", "remark");
+        $this->updatefields = $this->insertfields;
+    }
+    public function login($user) {
+        $col = implode(', ', $this->fields);
+        $q = 
+        " SELECT $col " . 
+        " FROM {$this->table} " . 
+        " WHERE (username = :authName OR email = :authName) AND password = :authPassword" .
+        " LIMIT 1 " ;
+        $stmt = $this->db->prepare($q);
+        $stmt->bindValue(':authName', $user['authName']);
+        $stmt->bindValue(':authPassword', $user['authPassword']);
+        $stmt->execute();
+        $res = $stmt->fetchAll();
+
+        if(count($res) > 0){
+            $q = "UPDATE {$this->table} SET lastLoginAt = now() WHERE id = :id";
+            $stmt = $this->db->prepare($q);
+            $stmt->bindValue(':id', $res[0]['id']);
+            $stmt->execute();
+            return $res[0];
+        }else{
+            return null;   
+        }
+    }
+    
+    public function getNotifyEmails(){
+        return $this->db->query("SELECT firstName, lastName, email, mobile FROM {$this->table} WHERE notifyOnRegistration = 1", PDO::FETCH_ASSOC);
+    }
+}
+
+class User extends CRUD {
+    public $table = "User";
+    
+    public function __construct($db) {
+        $this->db=$db;
+        $this->selectfields = array("id", 'name', 'email', 'contact', 'company', 'businessType', 'startDate', 'website', 'message', 'budget', 'interested', 'remark');
+        $this->insertfields = array('name', 'email', 'contact', 'company', 'businessType', 'startDate', 'website', 'message', 'budget', 'interested', 'remark');
+        $this->updatefields = $this->insertfields;
+        
+        $this->validators['interested'] = function(&$value){
+            if(is_array($value)){
+                $altvals = array(
+                    '/prosalesdemoversion/i'=>'prosales', 
+                    '/augmented-reality/i'=>'ar',
+                    '/virtual-tour/i'=>'vt',
+                    '/mobileapplication/i'=>'mobileapp');
+                $value = boolProperties2String($value);
+                foreach($altvals as $altk => $altv){
+                    $value = preg_replace($altk, $altv, $value); 
+                }
+            }else if(is_string($value)){
+            }else{
+                $value = "";
+            }
+            return true;
+        };  
+    }
+}
+
+
+
 
 class Form {
     public $interestedValues = array(
@@ -291,9 +597,10 @@ class Form {
 };
 
 class NotifyOnRegistrationEmailTemplate {
-    public function render($user) {
+    public function render($data) {
         $body = "";
-        foreach($user->fields as $key => $value){
+        
+        foreach($data as $key => $value){
             $body .= "<b>" . ucfirst($key) . ":</b> $value<br/><br/>";
         }
         return $body;

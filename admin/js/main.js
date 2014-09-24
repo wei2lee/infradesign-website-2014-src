@@ -191,6 +191,7 @@ $(function() {
         if($currcontentwrapper.length == 0) {
             $prevcontentwrapper.hide();
             $error404.show();
+            return;
         }else if($currcontentwrapper.is(':visible')) {
             return;
         }

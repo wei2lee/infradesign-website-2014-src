@@ -50,6 +50,10 @@ class SSP {
 
 		return $out;
 	}
+    
+    static function hello() {
+        return "hello";   
+    }
 
 
 	/**
@@ -315,6 +319,34 @@ class SSP {
 
 		// Return all
 		return $stmt->fetchAll();
+	}
+    
+	static function sql_execs ( $db, $bindingses, $sql )
+	{
+        $results = array();
+        $stmt = $db->prepare( $sql );
+        foreach($bindingses as $bindings) {
+
+            // Bind parameters
+            if ( is_array( $bindings ) ) {
+                for ( $i=0, $ien=count($bindings) ; $i<$ien ; $i++ ) {
+                    $binding = $bindings[$i];
+                    $stmt->bindValue( $binding['key'], $binding['val'], $binding['type'] );
+                }
+            }
+
+            // Execute
+            try {
+                $stmt->execute();
+            }
+            catch (PDOException $e) {
+                self::fatal( "An SQL error occurred: ".$e->getMessage() );
+            }
+
+            // Return all
+            $results[] =  $stmt->fetchAll();
+        }
+        return $results;
 	}
 
 
