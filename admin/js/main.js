@@ -57,7 +57,9 @@ $(function() {
                 },
                 { data: "interested", title: "Interested", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
                 { data: "businessType", title: "Business Type", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
-                { data: "updatedAt", title: "Last Modified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' }
+                { data: "remark", title: "Remark", nullable : true, render:GetColumnRenderer('text'), validators: {  }},
+                { data: "updatedAt", title: "LastModified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' }
+                
                 
             ],
             
@@ -105,14 +107,14 @@ $(function() {
         $('.agent-crud').crud({
             tableSel : '.agent-crud table',
             columns : [
-                { data: "firstName", title: "First Name", nullable : false, render:GetColumnRenderer('text'),
+                { data: "firstName", title: "FirstName", nullable : false, render:GetColumnRenderer('text'),
                     validators: { 
                         notEmpty: {
                             message: 'The first name is required and cannot be empty.'
                         }
                     }
                 },
-                { data: "lastName", title: "Last Name", nullable : false, render:GetColumnRenderer('text'),
+                { data: "lastName", title: "LastName", nullable : false, render:GetColumnRenderer('text'),
                     validators: { 
                         notEmpty: {
                             message: 'The last name is required and cannot be empty.'
@@ -127,10 +129,12 @@ $(function() {
                         }
                     }
                 },
-                { data: "contact", title: "Contact", nullable : true, render:GetColumnRenderer('phone'), validators: {  } },
+                { data: "mobile", title: "Mobile", nullable : true, render:GetColumnRenderer('phone'), validators: {  } },
                 { data: "role", title: "Role", nullable : false, render:GetColumnRenderer('text') },
-                { data: "notifyOnRegistration", title: "Email Notify", nullable : false, render:GetColumnRenderer('bool') },
-                { data: "updatedAt", title: "Last Modified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' }
+                //{ data: "notifyOnRegistration", title: "Email Notify", nullable : false, render:GetColumnRenderer('bool') },
+                { data: "remark", title: "Remark", nullable : true, render:GetColumnRenderer('text'), validators: {  }},
+                { data: "updatedAt", title: "LastModified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' }
+                
                 
             ],
             
@@ -152,9 +156,10 @@ $(function() {
                     lastName:{render:'str2text'},
                     firstName:{render:'str2text'},
                     email:{render:'str2text'},
-                    contact:{render:'str2text'},
+                    mobile:{render:'str2text'},
                     role:{render:'str2select'},
-                    notifyOnRegistration:{render:'str2checkbox'}
+                    notifyOnRegistration:{render:'str2checkbox'},
+                    remark:{render:'str2text'}
                 }
             },
             addForm : {
@@ -163,17 +168,28 @@ $(function() {
                     lastName:{render:'str2text'},
                     firstName:{render:'str2text'},
                     email:{render:'str2text'},
-                    contact:{render:'str2text'},
+                    mobile:{render:'str2text'},
                     role:{render:'str2select'},
-                    notifyOnRegistration:{render:'str2checkbox'}
+                    notifyOnRegistration:{render:'str2checkbox'},
+                    remark:{render:'str2text'}
                 }
             }
         });
     }  
-    if($('nav').length) {
-        $(document).on('click', 'nav a[href!="#"]', function(evt){
-        });
+
+    if($.fn.tree){
+        if($('.agent-hierachy-crud.tree').length){
+            $('.agent-hierachy-crud.tree').tree({
+                target:'agent-hierachy',
+                actions:{
+                    read : '../resources/api_admin.php?action=read&target=agent-hierachy',
+                    add : '../resources/api_admin.php?action=new&target=agent-hierachy',
+                    delete : '../resources/api_admin.php?action=delete&target=agent-hierachy'
+                }
+            });   
+        }
     }
+    
     
     function loadPage(evt) {
         var $container = $('#page-wrapper');
@@ -205,7 +221,12 @@ $(function() {
             $currcontentwrapper.delay(50).fadeIn(300);
         }
         onPreload();
-        setTimeoutEx(onLoaded, Math.random() * 2 + 0);
+        setTimeoutEx(onLoaded, Math.random() * 0.5);
+        
+        $('nav a[href!="#"]').each(function(){
+            var href = $(this).attr('href');
+            $(this).toggleClass('active', href == '#' + pathNames.join('/'));
+        });
     }
     
     if($.address) {
@@ -213,12 +234,10 @@ $(function() {
         $.address.prevEvent = null;
         $.address.init(function(event) {
             $.address.prevEvent = event;
-            //console.log(event.value + ':' + event.pathNames);
             loadPage(event);
         }).bind('change', function(event) {
             if($.address.prevEvent == null || event.value == $.address.prevEvent.value) return;
             $.address.prevEvent = event;
-            //console.log(event.value + ':' + event.pathNames);
             loadPage(event);
         });
         

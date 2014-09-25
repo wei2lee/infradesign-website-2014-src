@@ -2,22 +2,7 @@
 include_once "config.php";
 include_once "util.php";
 
-function checkMySQLError($con) {
-    if (mysqli_connect_errno()) {
-        echo getResponseJSONString(1, 0, "Failed to connect to MySQL: " . mysqli_connect_error(), '');
-        die();
-    }
-    if (mysqli_errno($con)) {
-        echo getResponseJSONString(1, 0, "MySQL error: " . mysqli_error($con), '');
-        die();
-    }
-}
-
 session_start();
-$con=mysqli_connect($config['db']['host'],$config['db']['user'],$config['db']['pass'],$config['db']['db']);
-mysqli_set_charset($con, 'utf8');
-checkMySQLError($con);
-
 $db = sql_connect($config['db']);
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -27,7 +12,7 @@ if($action == 'login') {
     $auser = new AUser($db);
     $loginuser = $auser->login($_POST['user']);
     if($loginuser == null) {
-        echo getResponseJSONString(1, 0, 'No user is matched with password', '');
+        echo getResponseJSONString(1, 0, 'No user is matched with password.', '');
     }else{
         $isRelogin = isset($_SESSION['id']);
         session_unset ();
@@ -43,36 +28,59 @@ if($action == 'login') {
 }else{
     if(!isset($_SESSION['id'])){
         //no session !
+        echo getResponseJSONString(1, 0, 'user is not logon.', '');
+        die();
     }
-    if($target == 'user') {
-        $user = new User($db);
-        $form = new Form();
-        $form->con = $con;
-        $form->config = $config;
-        
-        if($action == 'read') {
-            $data = $user->select();
+    if($target != '' || $action != ''){
+
+        $crud = null;
+        if($target == 'user') $crud = new User($db);
+        else if($target == 'agent') $crud = new AUser($db);
+        else if($target == 'agent-hierachy') $crud = new AgentHierachy($db);
+        else{
+            echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
+            die();
+        }
+        if($action == 'read' || $action == 'select' || $action == 'get') {
+            $data = $crud->select();
             echo getResponseJSONString(0, 0,'',$data);
-        }else if($action == 'update'){
-            $user->update($_POST['users']);
+        }else if($action == 'update' || $action == 'edit' || $action == 'set'){
+            if(!isset($_POST['users'])) {
+                echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
+                die();
+            }
+            $crud->update($_POST['users']);
             echo getResponseJSONString(0, 0, '', '');
-        }else if($action == 'delete'){
-            $user->delete($_POST['users']);
+        }else if($action == 'delete' || $action == 'remove'){
+            if(!isset($_POST['users'])) {
+                echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
+                die();
+            }
+            $crud->delete($_POST['users']);
             echo getResponseJSONString(0, 0, '', '');
-        }else if($action == 'new'){
-            $user->insert($_POST['users']);
+        }else if($action == 'new' || $action == 'insert' || $action == 'add' || $action == 'put'){
+            if(!isset($_POST['users'])) {
+                echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
+                die();
+            }
+            $crud->insert($_POST['users']);
             echo getResponseJSONString(0, 0, '', '');
         }else if($action == 'export'){
-            $form->export($con);
+            $crud->export($con);
             //No Response, this action will download
         }else if($action == 'import'){
-            $form->import($_FILES, $con);
+            $crud->import($_FILES, $con);
             echo getResponseJSONString(0, 0, 'imported', '');
         }else{
-            echo getResponseJSONString(1, 0, 'Unable to perform action', '');
+            echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
+            die();
         }
     }else{
-        echo getResponseJSONString(1, 0, 'Unable to perform action', '');   
+        echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
+        die();
     }
 }
+
+
+
 ?>

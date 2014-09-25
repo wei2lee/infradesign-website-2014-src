@@ -28,8 +28,8 @@
     <link href="//datatables.net/release-datatables/extensions/Plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet">
     <link href="//cdn.datatables.net/tabletools/2.2.3/css/dataTables.tableTools.css" rel="stylesheet">
     <link href="//cdn.datatables.net/responsive/1.0.1/css/dataTables.responsive.css" rel="stylesheet">
-    <link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">
-    <link href="//cdn.datatables.net/colvis/1.1.1/css/dataTables.colVis.css" rel="stylesheet">
+    <!--<link href="//cdn.datatables.net/fixedheader/2.1.2/css/dataTables.fixedHeader.css" rel="stylesheet">-->
+    <!--<link href="//cdn.datatables.net/colvis/1.1.1/css/dataTables.colVis.css" rel="stylesheet">-->
     
     <!-- Custom CSS -->
     <link href="css/sb-admin-2.css" rel="stylesheet">
@@ -228,6 +228,13 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- Textarea -->
+                            <div class="form-group">
+                              <label class="col-sm-3 control-label" for="user-remark">Remark</label>
+                              <div class="col-sm-7">                     
+                                <textarea class="form-control" rows=5 id="user-remark" name="user-remark"></textarea>
+                              </div>
+                            </div>
                             <!-- Button (Double) -->
                             <hr class='modal-footer-divider'>
                             <div class='row'>
@@ -251,9 +258,11 @@
                     </form>
 
                     <div class="col-lg-12">
-                        <div class="user-crud crud">
+                        <div class="user-crud crud panel panel-default">
+                            
+                            <div class="panel-heading">User</div>
                             <!-- /.panel-heading -->
-                            <div class="">                                                   
+                            <div class="panel-body">                                                   
                                 <table class="table table-striped table-bordered table-hover" width="100%">
                                     <thead>
                                         <tr>
@@ -314,10 +323,10 @@
                         </div>
                         <!-- Text input-->
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="agent-contact">Contact</label>  
+                            <label class="col-sm-3 control-label" for="agent-mobile">Contact</label>  
                             <div class="col-sm-7">
                                 <!--<div class="input-group">-->
-                                    <input id="agent-contact" name="agent-contact" type="text" placeholder="" class="form-control input-md">
+                                    <input id="agent-mobile" name="agent-mobile" type="text" placeholder="" class="form-control input-md">
                                     <!--<span class="input-group-btn">
                                         <button class="btn btn-default sms-btn" type="button">SMS</button>
                                     </span>
@@ -329,7 +338,7 @@
                             <label class="col-sm-3 control-label" for="agent-notifyOnRegistration">Notify Email</label>
                             <div class="col-sm-7">
                                 <div class='row' id='agent-notifyOnRegistration'>
-                                    <div class="checkbox col-sm-6">
+                                    <div class="checkbox col-sm-12">
                                         <label for="agent-notifyOnRegistration-0">
                                             <input type="checkbox" name="agent-notifyOnRegistration" id="agent-notifyOnRegistration-0" value="">
                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -349,7 +358,13 @@
                                 </select>
                             </div>
                         </div>
-                        
+                        <!-- Textarea -->
+                        <div class="form-group">
+                          <label class="col-sm-3 control-label" for="agent-remark">Remark</label>
+                          <div class="col-sm-7">                     
+                            <textarea class="form-control" rows=5 id="agent-remark" name="agent-remark"></textarea>
+                          </div>
+                        </div>
                         <!-- Button (Double) -->
                         <hr class='modal-footer-divider'>
                         <div class='row'>
@@ -407,6 +422,70 @@
                 </div>
                 <!-- /.row -->
                 <div class="row">
+                    <div class="col-lg-12">
+              
+<div class="tree agent-hierachy-crud">
+    <ul>
+        <li>
+            <span><i class="fa fa-plus-square"></i> Parent</span> <a href="">Goes somewhere</a>
+            <ul>
+                <li>
+                	<span><i class="icon-minus-sign"></i> Child</span> <a href="">Goes somewhere</a>
+                    <ul>
+                        <li>
+	                        <span><i class="icon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                	<span><i class="icon-minus-sign"></i> Child</span> <a href="">Goes somewhere</a>
+                    <ul>
+                        <li>
+	                        <span><i class="icon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
+                        </li>
+                        <li>
+                        	<span><i class="icon-minus-sign"></i> Grand Child</span> <a href="">Goes somewhere</a>
+                            <ul>
+                                <li>
+	                                <span><i class="icon-minus-sign"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
+		                            <ul>
+		                                <li>
+			                                <span><i class="icon-leaf"></i> Great great Grand Child</span> <a href="">Goes somewhere</a>
+		                                </li>
+		                                <li>
+			                                <span><i class="icon-leaf"></i> Great great Grand Child</span> <a href="">Goes somewhere</a>
+		                                </li>
+		                             </ul>
+                                </li>
+                                <li>
+	                                <span><i class="icon-leaf"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
+                                </li>
+                                <li>
+	                                <span><i class="icon-leaf"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+	                        <span><i class="icon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <span><i class="icon-folder-open"></i> Parent2</span> <a href="">Goes somewhere</a>
+            <ul>
+                <li>
+                	<span><i class="icon-leaf"></i> Child</span> <a href="">Goes somewhere</a>
+		        </li>
+		    </ul>
+        </li>
+    </ul>
+</div>
+
+                        
+                        
+                    </div>
                 </div>
             </div>
             
@@ -451,7 +530,7 @@
             
             
             <!-- Loading -->
-            <div class="content-wrapper" id="content-wrapper-pageloading">
+            <div class="content-wrapper loading" id="content-wrapper-pageloading">
                 <div class="row">
                     <h4><i class="fa fa-cog fa-spin"></i> Loading...</h4>
                 </div>
@@ -463,6 +542,8 @@
     <!-- /#wrapper -->
 
     <!-- jQuery Version 1.11.0 -->
+    
+    
     <script src="js/jquery-1.11.0.js"></script>
 
     <!-- jQuery Address -->
@@ -473,6 +554,7 @@
     
     <!-- jquery form -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/3.50/jquery.form.min.js"></script>
+    
     
     <!-- Bootstrap Core JavaScript -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -491,10 +573,14 @@
     <script src="//datatables.net/release-datatables/extensions/Plugins/integration/bootstrap/3/dataTables.bootstrap.js"></script>
     <script src="//cdn.datatables.net/tabletools/2.2.3/js/dataTables.tableTools.min.js"></script>
     <script src="//cdn.datatables.net/responsive/1.0.1/js/dataTables.responsive.min.js"></script>
-    <script src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>
-    <script src="//cdn.datatables.net/colvis/1.1.1/js/dataTables.colVis.min.js"></script>
+    <!--<script src="//cdn.datatables.net/fixedheader/2.1.2/js/dataTables.fixedHeader.min.js"></script>-->
+    <!--<script src="//cdn.datatables.net/colvis/1.1.1/js/dataTables.colVis.min.js"></script>-->
     <!--bootbox-->
     <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.2.0/bootbox.min.js"></script>
+    
+    <!--Bootstrap Tree-->
+    <script src="js/plugins/bootstrap-tree.js"></script>
+    
     
     <!--fileinput-->
     <script src="//gregpike.net/demos/bootstrap-file-input/bootstrap.file-input.js"></script>
@@ -504,6 +590,7 @@
     <script src="js/sb-admin-2.js"></script>
     <script src="js/u.js"></script>
     <script src="js/main.js"></script>
+
 </body>
 
 </html>

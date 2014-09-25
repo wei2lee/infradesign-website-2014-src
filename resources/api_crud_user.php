@@ -1,5 +1,12 @@
 <?php
 include_once "config.php";
+
+session_start();
+if(!isset($_SESSION['id'])){
+    //no session !
+    echo getResponseJSONString(1, 0, 'user is not logon', '');
+    die();
+}
 /*
  * DataTables example server-side processing script.
  *
@@ -38,7 +45,8 @@ $columns = array(
     array( 'db' => 'interested',     'dt' => 'interested' ),
     array( 'db' => 'website',     'dt' => 'website' ),
     array( 'db' => 'createdAt',     'dt' => 'createdAt' ),
-    array( 'db' => 'updatedAt',     'dt' => 'updatedAt' )
+    array( 'db' => 'updatedAt',     'dt' => 'updatedAt' ),
+    array( 'db' => 'remark',     'dt' => 'remark' )
 );
  
 // SQL server connection information
@@ -56,7 +64,9 @@ $sql_details = array(
  */
  
 require( 'lib/ssp.class.php' );
- 
+
+
+
 echo json_encode(
     SSP::simple( $_GET, $sql_details, $table, $primaryKey, $columns )
 );

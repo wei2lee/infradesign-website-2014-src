@@ -76,6 +76,110 @@ function val_map_update_binding($val){
     return $val . ' = :' . $val;
 }
 
+class TreeCRUD {
+    public $db;
+    public $selectfields;
+    public $insertfields;
+    public $table;
+    public $parentfield;
+    public $childfield;
+    
+    public $pk;
+    public $table1;
+    public $table1fields;
+    
+    public $table2;
+    public $table2fields;
+    
+    public $nodedatafield = 'data';
+    public $nodechildrenfield = 'children';
+    
+    public $validators;
+    
+    public function __construct($db) {
+        $this->db=$db;
+    }
+    
+    
+    public function select() {
+        
+        $col = implode(', ', $this->table1fields);
+        $q = "SELECT $col FROM {$this->table1} WHERE {$this->pk} = :{$this->pk} LIMIT 1";   
+        $stmt = $this->db->prepare($q);
+        
+        $q2 = "SELECT {$this->parentfield}, {$this->childfield} FROM {$this->table}";
+        $stmt2 = $this->db->prepare($q2);
+        
+        $stmt2->execute();
+        $res2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);        
+        
+        $root = $this->getHierachyObject(null, $stmt, $res2);
+        
+        return $root;
+    }
+    
+    private function getHierachyObject($parentId, $stmt, $res2) {
+        $parent = array();
+        
+        $stmt->bindValue(":{$this->pk}", intval($parentId), PDO::PARAM_INT);
+        $stmt->execute();
+
+        $fetch = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if(count($fetch)) $parent['data'] = $fetch[0];
+        else $parent['data'] = null;
+        
+        $noderaws = $this->findObjectWithProp($this->parentfield, $parentId, $res2);
+        if(count($noderaws)){
+            foreach($noderaws as $noderaw){
+                if($noderaw[$this->childfield] !== null){
+                    if(!array_key_exists($this->nodechildrenfield, $parent)) $parent[$this->nodechildrenfield] = array();
+                    $parent[$this->nodechildrenfield][] = $this->getHierachyObject($noderaw[$this->childfield], $stmt, $res2);
+                }
+            }
+        } 
+        return $parent;
+    }
+                
+    public static function findObjectWithProp($key, $val, $array) {
+        $ret = array();
+        foreach($array as $ele){
+            if(array_key_exists($key, $ele)){
+                if($ele[$key] === $val) $ret[] = $ele;
+            }
+        }
+        return $ret;
+    }
+    
+    public function insert($data){
+        
+    }
+    public function delete($data){
+        
+    }
+    public function update($data){
+        
+    }
+}
+
+class AgentHierachy extends TreeCRUD {
+    public function __construct($db) {
+        $this->db=$db;
+        
+        $this->selectfields = array('parentId', 'childId');
+        $this->insertfields = array('parentId', 'childId');
+        $this->table = 'AUserHierachy';
+        $this->parentfield = 'parentId';
+        $this->childfield = 'childId';
+        
+        $this->pk = 'id';
+        $this->table1 = 'AUser';
+        $this->table1fields = array('id', 'firstName', 'lastName', 'role');
+    }
+}
+                
+
+
+
 class CRUD {
     public $db;
     public $selectfields;
@@ -92,9 +196,10 @@ class CRUD {
         if($this->updatefields == null) $this->updatefields = $this->insertfields;
     }
                    
-    public static function stmt_bind($stmt, $value){
+    public static function stmt_bind($stmt, $value, $allowfields = null){
         foreach($value as $c => $v){
-            $stmt->bindValue(':'.$c, $v);
+            if($allowfields == null || in_array($c, $allowfields))
+                $stmt->bindValue(':'.$c, $v);
         }
     }
     
@@ -141,7 +246,7 @@ class CRUD {
         //*/
         foreach($values as $value){
             
-            self::stmt_bind($stmt, $value);
+            self::stmt_bind($stmt, $value, $this->insertfields);
             if($stmt->execute() && $this->onupdatedatetime){
                 $stmt2->bindValue($pkbind, intval($this->db->lastInsertId()), PDO::PARAM_INT);
                 
@@ -162,18 +267,19 @@ class CRUD {
         //TODO permission to update
         
         $array0 = array_remove_not_exist_keys($values[0], $this->updatefields);
+        
         $bind = implode(', ', array_map("val_map_update_binding", array_keys($array0)));
         $pkbind = ":{$this->pk}";
         $q = "UPDATE {$this->table} SET $bind WHERE {$this->pk} = $pkbind";
         $stmt = $this->db->prepare($q);
         
-        $q2 = "UPDATE {$this->table} SET updatedAt = now() WHERE $pk = $pkbind";
+        $q2 = "UPDATE {$this->table} SET updatedAt = now() WHERE {$this->pk} = $pkbind";
         $stmt2 = $this->db->prepare($q2);
         
         foreach($values as $value){
-            self::stmt_bind($stmt, $value);
+            self::stmt_bind($stmt, $value, $this->updatefields);
             $stmt->bindValue($pkbind, $value[$this->pk]);
-            if($stmt->execute() && $this->$onupdatedatetime){
+            if($stmt->execute() && $this->onupdatedatetime){
                 $stmt2->bindValue($pkbind, $value[$this->pk], PDO::PARAM_INT);
                 $stmt2->execute();
             }
@@ -196,24 +302,24 @@ class CRUD {
         $q = "UPDATE {$this->table} SET $updbind WHERE {$this->pk} = $pkbind";
         $upd_stmt = $this->db->prepare($q);
         
-        $q2 = "UPDATE {$this->table} SET updatedAt = now() WHERE $pk = $pkbind";
+        $q2 = "UPDATE {$this->table} SET updatedAt = now() WHERE {$this->pk} = $pkbind";
         $upded_stmt = $this->db->prepare($q2);
         
         $q3 = "INSERT INTO {$this->table} ($col) VALUES($insbind)";
         $ins_stmt = $this->db->prepare($q2);
         
         foreach($values as $value){
-            self::stmt_bind($upd_stmt, $value);
+            self::stmt_bind($upd_stmt, $value, $this->updatefields);
             $upd_stmt->bindValue($pkbind, $value[$this->pk], PDO::PARAM_INT);
             $upded_stmt->execute();
             if($upd_stmt->rowCount()){
-                if($this->$onupdatedatetime){
-                    $upded_stmt->bindValue($pkbind, $value[$this->pk], PDO::PARAM_INT);
+                if($this->onupdatedatetime){
+                    $upded_stmt->bindValue($pkbind, intval($value[$this->pk]), PDO::PARAM_INT);
                     $upded_stmt->execute();
                 }
             }else{
-                self::stmt_bind($ins_stmt, $value);
-                if($ins_stmt->execute() && $this->$onupdatedatetime){
+                self::stmt_bind($ins_stmt, $value, $this->updatefields);
+                if($ins_stmt->execute() && $this->onupdatedatetime){
                     $upded_stmt->bindValue($pkbind, intval($this->db->lastInsertId()), PDO::PARAM_INT);
                     $upded_stmt->execute();
                 }
@@ -229,7 +335,7 @@ class CRUD {
         $q = "DELETE FROM {$this->table} WHERE {$this->pk} = $pkbind";  
         $stmt = $this->db->prepare($q);
         foreach($values as $value){
-            $stmt->bindValue($pkbind, $value[$this->pk], PDO::PARAM_INT);
+            $stmt->bindValue($pkbind, intval($value[$this->pk]), PDO::PARAM_INT);
             $stmt->execute();
         }
     }
@@ -322,7 +428,7 @@ class AUser extends CRUD{
         $this->updatefields = $this->insertfields;
     }
     public function login($user) {
-        $col = implode(', ', $this->fields);
+        $col = implode(', ', $this->loginfields);
         $q = 
         " SELECT $col " . 
         " FROM {$this->table} " . 
@@ -332,7 +438,7 @@ class AUser extends CRUD{
         $stmt->bindValue(':authName', $user['authName']);
         $stmt->bindValue(':authPassword', $user['authPassword']);
         $stmt->execute();
-        $res = $stmt->fetchAll();
+        $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if(count($res) > 0){
             $q = "UPDATE {$this->table} SET lastLoginAt = now() WHERE id = :id";

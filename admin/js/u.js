@@ -6,7 +6,10 @@ if(!String.prototype.trim) {
 
 if(!String.prototype.capitalizeFirstChar) {
     String.prototype.capitalizeFirstChar = function() {
-        return this[0].toUpperCase() + this.slice(1);
+        if(this.length > 0)
+            return this[0].toUpperCase() + this.slice(1);
+        else
+            return this;
     }
 }
 
@@ -58,7 +61,6 @@ if(!window.setTimeoutEx){
 
 $(document).ready(function(){
     $("body").on("show.bs.modal", ".modal", function(evt) {
-        console.log('shown' + evt.type);
         $(this).css({
             'top': '50%',
             'margin-top': function () {
@@ -376,6 +378,8 @@ function GetColumnRenderer(s){
 }
 
 (function( $ ) {
+
+    
     $.fn.detectFormFieldChange = function(option) {
         var $form = this;
         var onChanged = option.onChanged;
@@ -461,9 +465,16 @@ function GetColumnRenderer(s){
     
     $.fn.loginForm = function(option) {
         var _this = this;
-
+        var $form = this;
+        var $feedback_loading = _this.find('.loading').hide();
+        var $feedback = _this.find('.feedback').hide();
+        var $fields = _this.find('fieldset');
+        var $namefields = $form.find('input[name=username]');
+        var $passfields = $form.find('input[name=password]');
+        
         this.action = option.action;
         this.successRedirectURL = option.successRedirectURL;
+
         
         this.bootstrapValidator({
             feedbackIcons: {
@@ -492,9 +503,11 @@ function GetColumnRenderer(s){
             
             var $form = $(evt.target);
             var bv = $form.data('bootstrapValidator');
-            var authName = $form.find('input[name=username]').val().trim();
-            var authPassword = $form.find('input[name=password]').val().trim();
+            var authName = $namefields.val().trim();
+            var authPassword = $passfields.val().trim();
             
+            $feedback_loading.show();
+            $fields.prop('disabled',true);
             $.ajax({
                 type:'POST',
                 url:_this.action,
@@ -508,27 +521,40 @@ function GetColumnRenderer(s){
                 success: function(response)
                 {
                     if(response.error_exist){
-                        $form.find('.feedback').html(response.error_msg);
+                        $feedback.html(response.error_msg).show();
+                        $feedback_loading.hide();
+                        $fields.prop('disabled',false);
+                        $namefields.focus();
                         return;   
                     }
-                    window.location = _this.successRedirectURL; 
+                    if(_this.successRedirectURL){
+                        setTimeoutEx(function(){
+                            window.location = _this.successRedirectURL;   
+                        },0.5);
+                        $feedback_loading.show();
+                    }
                 },
                 error: function(xhr, optns, err)
                 {
                     console.log(xhr.responseText);
                     if(optns == 'parsererror'){
-                        $form.find('.feedback').html('Fail to receive reply from server, please try again later.');
+                        $feedback.html('Fail to receive reply from server, please try again later.').show();
                     }else{
-                        $form.find('.feedback').html('Fail to connect to server, please try again later.');
+                        $feedback.html('Fail to connect to server, please try again later.').show();
                     }
+                    $feedback_loading.hide();
+                    $fields.prop('disabled',false);
+                    $namefields.focus();
                 },
                 complete: function() { 
                     bv.resetForm(true);
+                    
                 }
             });
         }).on('success.field.bv', function(evt,data) {
             var $form = data.bv.$form;
-            $form.find('.feedback').html('');
+            $feedback.hide();
+            $feedback_loading.hide();
         });
         
         return this;
@@ -762,7 +788,6 @@ function GetColumnRenderer(s){
         
         $functions.find('.export-btn').on('click', data, function(evt) {
             var actions = data.actions;
-            console.log(actions.export);
             $.fileDownload(actions.export, {
                 prepareCallback : function(url ) {
                 },

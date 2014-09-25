@@ -1,7 +1,12 @@
-// out: ../css/main.min.css, compress: true, strictMath: false
+// out: ../css/main.min.css, compress: false, strictMath: false
+//.version { font-size:99px; }
 
 @import url('../../m/css/lesshat.less');
 @import url('../../m/css/vendor/bootstrap/variables.less');
+@import url('plugins/bootstrap-tree.less');
+
+ 
+
 //util    
 .padding-left-0 {
     padding-left:0;   
@@ -52,6 +57,9 @@
 
 .content-wrapper { display:none; }
 
+//
+
+
 //top nav
 .navbar-top-links .dropdown-user {
     @media (max-width:@screen-xs-max){
@@ -61,6 +69,7 @@
 }
 
 //crud
+
 .dataTables_wrapper {
     .btn-toolbar { 
         &.top { padding-bottom:15px; }
@@ -86,6 +95,7 @@
         display:inline-block;
         @media (max-width:@screen-xs-max) { float:left; }
     }
+    
 }
 table.dataTable {
     tbody tr{
@@ -96,7 +106,7 @@ table.dataTable {
         th, td { white-space: nowrap; }
     }
     tfoot > tr > th { padding-left:18px; padding-right:18px; }
-}
+}//*/
 
 .crud-form {
     hr.modal-footer-divider { margin-bottom:15px; }
@@ -117,6 +127,9 @@ table.dataTable {
     }
     .input-group + .form-control-feedback {
         right: 75px;
+    }
+    textarea {
+        resize:none  
     }
 }
 

@@ -1,5 +1,12 @@
 <?php
 include_once "config.php";
+
+session_start();
+if(!isset($_SESSION['id'])){
+    //no session !
+    echo getResponseJSONString(1, 0, 'user is not logon', '');
+    die();
+}
 /*
  * DataTables example server-side processing script.
  *
@@ -33,10 +40,11 @@ $columns = array(
     array( 'db' => 'firstName', 'dt' => 'firstName' ),
     array( 'db' => 'lastName',  'dt' => 'lastName' ),
     array( 'db' => 'email',   'dt' => 'email' ),
-    array( 'db' => 'mobile',     'dt' => 'contact' ),
+    array( 'db' => 'mobile',     'dt' => 'mobile' ),
     array( 'db' => 'role',     'dt' => 'role' ),
     array( 'db' => 'notifyOnRegistration',     'dt' => 'notifyOnRegistration' ),
-    array( 'db' => 'updatedAt',     'dt' => 'updatedAt' )
+    array( 'db' => 'updatedAt',     'dt' => 'updatedAt' ),
+    array( 'db' => 'remark',     'dt' => 'remark' )
 );
  
 // SQL server connection information
