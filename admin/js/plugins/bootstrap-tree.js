@@ -64,6 +64,9 @@ $.fn.tree = function(_option){
             },
             drawNode : function($parent, node){                
                 $node = $('<li>').append($(this.renderNode(node.data, node)));
+                
+                $node.append(this.drawNodeToolbar(node));
+                
                 $parent.append($node);
 
                 if(node.children && node.children.length){
