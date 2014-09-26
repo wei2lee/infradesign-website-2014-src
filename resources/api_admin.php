@@ -44,6 +44,9 @@ if($action == 'login') {
         if($action == 'read' || $action == 'select' || $action == 'get') {
             $data = $crud->select();
             echo getResponseJSONString(0, 0,'',$data);
+        }else if($action == 'select_no_parent'){
+            $data = $crud->select_no_parent();
+            echo getResponseJSONString(0, 0,'',$data);
         }else if($action == 'update' || $action == 'edit' || $action == 'set'){
             if(!isset($_POST['users'])) {
                 echo getResponseJSONString(1, 0, 'Unable to perform action.', '');

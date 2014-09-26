@@ -184,7 +184,14 @@ $(function() {
                 actions:{
                     read : '../resources/api_admin.php?action=read&target=agent-hierachy',
                     add : '../resources/api_admin.php?action=new&target=agent-hierachy',
-                    delete : '../resources/api_admin.php?action=delete&target=agent-hierachy'
+                    delete : '../resources/api_admin.php?action=delete&target=agent-hierachy',
+                    select_no_parent : '../resources/api_admin.php?action=select_no_parent&target=agent-hierachy'
+                },
+                addForm : {
+                    tempSel : '#agent-hierachy-form',
+                    columns: [
+                        'lastName', 'firstName', 'role'
+                    ]
                 }
             });   
         }

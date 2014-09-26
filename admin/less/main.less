@@ -56,6 +56,17 @@
 }
 
 .content-wrapper { display:none; }
+.btn-icon { border:0; }
+
+.btn-toolbar { 
+    &.top { padding-bottom:15px; }
+    .btn-group {
+        .btn { min-width:80px; margin-top:4px;
+            .fa, .glyphicon { display:none; }
+        }
+        .file-input-name { display:none; }
+    }
+}
 
 //
 
@@ -71,15 +82,6 @@
 //crud
 
 .dataTables_wrapper {
-    .btn-toolbar { 
-        &.top { padding-bottom:15px; }
-        .btn-group {
-            .btn { min-width:80px; margin-top:4px;
-                .fa, .glyphicon { display:none; }
-            }
-            .file-input-name { display:none; }
-        }
-    }
     .dataTables_length {
         float:right;
         @media (max-width:@screen-xs-max) { display:none; }
@@ -109,6 +111,10 @@ table.dataTable {
 }//*/
 
 .crud-form {
+    div.dataTables_paginate { float:none; }
+    
+    
+    
     hr.modal-footer-divider { margin-bottom:15px; }
     .crud-form-buttons {
         margin-bottom:0px;

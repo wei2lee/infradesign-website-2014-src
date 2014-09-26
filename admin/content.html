@@ -422,69 +422,47 @@
                 </div>
                 <!-- /.row -->
                 <div class="row">
-                    <div class="col-lg-12">
-              
-<div class="tree agent-hierachy-crud">
-    <ul>
-        <li>
-            <span><i class="fa fa-plus-square"></i> Parent</span> <a href="">Goes somewhere</a>
-            <ul>
-                <li>
-                	<span><i class="icon-minus-sign"></i> Child</span> <a href="">Goes somewhere</a>
-                    <ul>
-                        <li>
-	                        <span><i class="icon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                	<span><i class="icon-minus-sign"></i> Child</span> <a href="">Goes somewhere</a>
-                    <ul>
-                        <li>
-	                        <span><i class="icon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
-                        </li>
-                        <li>
-                        	<span><i class="icon-minus-sign"></i> Grand Child</span> <a href="">Goes somewhere</a>
-                            <ul>
-                                <li>
-	                                <span><i class="icon-minus-sign"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
-		                            <ul>
-		                                <li>
-			                                <span><i class="icon-leaf"></i> Great great Grand Child</span> <a href="">Goes somewhere</a>
-		                                </li>
-		                                <li>
-			                                <span><i class="icon-leaf"></i> Great great Grand Child</span> <a href="">Goes somewhere</a>
-		                                </li>
-		                             </ul>
-                                </li>
-                                <li>
-	                                <span><i class="icon-leaf"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
-                                </li>
-                                <li>
-	                                <span><i class="icon-leaf"></i> Great Grand Child</span> <a href="">Goes somewhere</a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li>
-	                        <span><i class="icon-leaf"></i> Grand Child</span> <a href="">Goes somewhere</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-        <li>
-            <span><i class="icon-folder-open"></i> Parent2</span> <a href="">Goes somewhere</a>
-            <ul>
-                <li>
-                	<span><i class="icon-leaf"></i> Child</span> <a href="">Goes somewhere</a>
-		        </li>
-		    </ul>
-        </li>
-    </ul>
-</div>
+                    <div class="col-lg-12">              
+                        <div class="tree agent-hierachy-crud">
+                        </div>
+                        
+                        <form data-template class="form-horizontal crud-form" id='agent-hierachy-form' style='display:none;' action='javascript:void(0)'>
+                            <fieldset>
+                                <table class="table table-striped table-bordered table-hover" width="100%">
+                                    <thead>
+                                        <tr>
 
-                        
-                        
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                
+                                <!-- Button (Double) -->
+                                <hr class='modal-footer-divider'>
+                                <div class='row'>
+                                    <div class='col-sm-12'>
+                                        <small class="help-block"><span class="feedback text-danger"></span></small>
+                                    </div>
+                                </div>
+                                <div class="form-group crud-form-buttons">
+                                    <div class="col-sm-12">
+                                        <div class='row'>
+                                            <div class='col-xs-6 form-btn-group'>
+                                                <button id="agent-hierachy-close" name="close" type='button' class="btn-lg btn btn-primary">Close</button>
+                                            </div>
+                                            <div class='col-xs-6 form-btn-group'>
+                                                <button id="agent-hierachy-commit" name="commit" type='submit' class="btn-lg btn btn-primary">Add</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+
                     </div>
                 </div>
             </div>

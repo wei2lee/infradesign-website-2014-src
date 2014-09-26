@@ -20,7 +20,45 @@ if(!window.setTimeoutEx){
     }
 }
 
+var AJAX_HANDLES = {
+    error:function(xhr, optns, err)
+    {
+        console.log(xhr.responseText);
+        if(optns == 'parsererror'){
+            bootbox_small({ 
+                title:'Server Error',
+                message:'Fail to receive reply from server, please try again later.'
+            });
+        }else{
+            bootbox_small({ 
+                title:'Server Error',
+                message:'Fail to connect to server, please try again later.'
+            });
+        }
+    },
+    success:function(response){
+        if(response.error_exist){
+            console.log(response);
+            bootbox_small({ 
+                showDelay:showFailDelay,
+                title:'Server Error',
+                message:'Reason: '+response.error_msg + '<br/>' + 'please try again later.'
+            });
+            return false;   
+        }
+        return true;
+    }
+}
 
+function joinName(){
+    var ret = [];
+    for(i in arguments){
+        if(arguments[i] && arguments[i].length){
+            ret.push(arguments[i].capitalizeFirstChar());
+        }
+    }
+    return ret.join(' ');
+}
 
 (function($, window, undefined) {
     //is onprogress supported by browser?
@@ -694,21 +732,7 @@ function GetColumnRenderer(s){
                     }
                     bootbox.hideAll();
                 },
-                error: function(xhr, optns, err)
-                {
-                    console.log(optns + ',' + xhr.responseText);
-                    if(optns == 'parsererror'){
-                        bootbox_small({ 
-                            title:'Server Error',
-                            message:'Fail to receive reply from server, please try again later.'
-                        });
-                    }else{
-                        bootbox_small({ 
-                            title:'Server Error',
-                            message:'Fail to connect to server, please try again later.'
-                        });
-                    }
-                },
+                error:AJAX_HANDLES.error,
                 complete: function() { 
                     $dataTable.fnDraw();
                 }

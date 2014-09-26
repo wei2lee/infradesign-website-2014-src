@@ -81,12 +81,12 @@ class TreeCRUD {
     public $selectfields;
     public $insertfields;
     public $table;
-    public $parentfield;
-    public $childfield;
+    public $parentfield = 'parentId';
+    public $childfield = 'childId';
     
-    public $pk;
-    public $table1;
-    public $table1fields;
+    public $pk = 'id';
+    public $table1;//which table will included in select when output tree
+    public $table1fields; //which column will included in select when output tree
     
     public $table2;
     public $table2fields;
@@ -100,11 +100,31 @@ class TreeCRUD {
         $this->db=$db;
     }
     
+    public function select_no_parent() {
+        $col = implode(', ', $this->table1fields);
+        //select id, firstName, lastName, role from AUser where AUser.id not in (select distinct childId from AUserHierachy)
+        $q = "SELECT $col FROM {$this->table1} WHERE {$this->table1}.{$this->pk} NOT IN (SELECT DISTINCT {$this->childfield} FROM {$this->table})";
+        $stmt = $this->db->prepare($q);
+        $stmt->execute();
+        $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $res;
+    }
+    
     
     public function select() {
         
         $col = implode(', ', $this->table1fields);
-        $q = "SELECT $col FROM {$this->table1} WHERE {$this->pk} = :{$this->pk} LIMIT 1";   
+        $q3 = "SELECT $col FROM {$this->table1}";  
+        $stmt3 = $this->db->prepare($q3);
+        $stmt3->execute();
+        $res3 = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+        $table1 = array();
+        foreach($res3 as $r){
+            $table1[$r[$this->pk]] = $r;
+        }
+        
+        
+        $q = "SELECT $col FROM {$this->table1} WHERE {$this->pk} = :{$this->pk}";   
         $stmt = $this->db->prepare($q);
         
         $q2 = "SELECT {$this->parentfield}, {$this->childfield} FROM {$this->table}";
@@ -115,7 +135,7 @@ class TreeCRUD {
         
         $root = $this->getHierachyObject(null, $stmt, $res2);
         
-        return $root;
+        return array('tree'=>$root, 'table1'=>$table1);
     }
     
     private function getHierachyObject($parentId, $stmt, $res2) {
@@ -151,13 +171,28 @@ class TreeCRUD {
     }
     
     public function insert($data){
-        
+        if(!is_array($data)) $data = array($data);
+        $q = "INSERT INTO {$this->table} ({$this->parentfield}, {$this->childfield}) VALUES (:{$this->parentfield}, :{$this->childfield})";
+        $stmt = $this->db->prepare($q);
+        $allowfield = array($this->parentfield, $this->childfield);
+        foreach($data as $d){
+            self::stmt_bind($stmt, $d, $allowfield);
+            $stmt->execute();
+        }
     }
     public function delete($data){
         
     }
     public function update($data){
         
+    }
+    
+    public static function stmt_bind($stmt, $value, $allowfields = null){
+        foreach($value as $c => $v){
+            if($allowfields == null || in_array($c, $allowfields)){
+                $stmt->bindValue(':'.$c, $v);
+            }
+        }
     }
 }
 
