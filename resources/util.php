@@ -57,6 +57,8 @@ function sql_connect($sql_details){
             $sql_details['pass'],
             array( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION )
         );
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }
     catch (PDOException $e) {
         echo getResponseJSONString(1,0,
@@ -77,22 +79,29 @@ function val_map_update_binding($val){
 }
 
 class TreeCRUD {
+
+    
     public $db;
     public $selectfields;
     public $insertfields;
     public $table;
-    public $parentfield = 'parentId';
-    public $childfield = 'childId';
+    public $parentId = 'parentId';
+    public $childId = 'childId';
     
-    public $pk = 'id';
-    public $table1;//which table will included in select when output tree
-    public $table1fields; //which column will included in select when output tree
+    public $isSingleRoot = true;
+    public $isParentChildSameTable = true;
     
-    public $table2;
-    public $table2fields;
+    public $parentTableId = 'id';
+    public $parentTable;//which table will included in select when output tree
+    public $parentTableFields; //which column will included in select when output tree
     
-    public $nodedatafield = 'data';
-    public $nodechildrenfield = 'children';
+    public $childTableId = 'id';
+    public $childTable;
+    public $childFields;
+    
+    public $nodeDataProp = 'data';
+    public $nodeChildrenProp = 'children';
+    public $nodeTreeProp = 'tree';
     
     public $validators;
     
@@ -101,65 +110,66 @@ class TreeCRUD {
     }
     
     public function select_no_parent() {
-        $col = implode(', ', $this->table1fields);
-        //select id, firstName, lastName, role from AUser where AUser.id not in (select distinct childId from AUserHierachy)
-        $q = "SELECT $col FROM {$this->table1} WHERE {$this->table1}.{$this->pk} NOT IN (SELECT DISTINCT {$this->childfield} FROM {$this->table})";
+        $col = implode(', ', $this->parentTableFields);
+        $q = "SELECT $col FROM {$this->parentTable} WHERE {$this->parentTable}.{$this->parentTableId} NOT IN (SELECT DISTINCT {$this->childId} FROM {$this->table})";
         $stmt = $this->db->prepare($q);
         $stmt->execute();
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $res;
     }
     
-    
-    public function select() {
+    public function select($data = null) {
+        $id = null;
+        if($data && array_key_exists("id", $data)) $id = $data["id"];
         
-        $col = implode(', ', $this->table1fields);
-        $q3 = "SELECT $col FROM {$this->table1}";  
-        $stmt3 = $this->db->prepare($q3);
-        $stmt3->execute();
-        $res3 = $stmt3->fetchAll(PDO::FETCH_ASSOC);
-        $table1 = array();
-        foreach($res3 as $r){
-            $table1[$r[$this->pk]] = $r;
-        }
+        $col = implode(', ', $this->parentTableFields);
+        $parentfieldq = "SELECT $col FROM {$this->parentTable} WHERE {$this->parentTableId} = :{$this->parentTableId} LIMIT 1";   
+        $parentfieldstmt = $this->db->prepare($parentfieldq);
         
+        $selectchildq = "SELECT {$this->childId} FROM {$this->table} WHERE {$this->parentId} = :{$this->parentId}";
+        $selectchildstmt = $this->db->prepare($selectchildq);
         
-        $q = "SELECT $col FROM {$this->table1} WHERE {$this->pk} = :{$this->pk}";   
-        $stmt = $this->db->prepare($q);
-        
-        $q2 = "SELECT {$this->parentfield}, {$this->childfield} FROM {$this->table}";
-        $stmt2 = $this->db->prepare($q2);
-        
-        $stmt2->execute();
-        $res2 = $stmt2->fetchAll(PDO::FETCH_ASSOC);        
-        
-        $root = $this->getHierachyObject(null, $stmt, $res2);
-        
-        return array('tree'=>$root, 'table1'=>$table1);
-    }
-    
-    private function getHierachyObject($parentId, $stmt, $res2) {
-        $parent = array();
-        
-        $stmt->bindValue(":{$this->pk}", intval($parentId), PDO::PARAM_INT);
-        $stmt->execute();
+        $selectchildnullq = "SELECT {$this->childId} FROM {$this->table} WHERE {$this->parentId} IS NULL LIMIT 1";
+        $selectchildnullstmt = $this->db->prepare($selectchildnullq);
 
-        $fetch = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if(count($fetch)) $parent['data'] = $fetch[0];
-        else $parent['data'] = null;
-        
-        $noderaws = $this->findObjectWithProp($this->parentfield, $parentId, $res2);
-        if(count($noderaws)){
-            foreach($noderaws as $noderaw){
-                if($noderaw[$this->childfield] !== null){
-                    if(!array_key_exists($this->nodechildrenfield, $parent)) $parent[$this->nodechildrenfield] = array();
-                    $parent[$this->nodechildrenfield][] = $this->getHierachyObject($noderaw[$this->childfield], $stmt, $res2);
-                }
-            }
-        } 
-        return $parent;
-    }
+        $class = __CLASS__;
+        $recursiveSelect = function($_id) use ($class, &$recursiveSelect, $selectchildstmt, $selectchildnullstmt, $parentfieldstmt){
+            $id = $_id == null ? null : intval($_id);
+            
+            $class::stmt_bind_value($parentfieldstmt, $this->parentTableId, $id);
+            $parentfieldstmt->execute();
+            $data = $parentfieldstmt->fetchAll(PDO::FETCH_ASSOC);
+            if(count($data)) $data = $data[0];
+            else $data = null;
+            
+            if(!is_null($id)){
+                $class::stmt_bind_value($selectchildstmt, $this->parentId, $id);
+                $selectchildstmt->execute();
+                $childids = $selectchildstmt->fetchAll(PDO::FETCH_ASSOC);
                 
+            }else{
+                $selectchildnullstmt->execute();
+                $childids = $selectchildnullstmt->fetchAll(PDO::FETCH_ASSOC);
+                
+            }
+
+            $node = array();
+            $node[$this->nodeDataProp] = $data;
+            
+            $node[$this->nodeChildrenProp] = array();
+            foreach($childids as $childid){
+                $childnode = $recursiveSelect($childid[$this->childId]);
+                $node[$this->nodeChildrenProp][] = $childnode;
+            }
+            return $node;
+        };
+        $root = $recursiveSelect($id);
+        if(is_null($id) && $this->isSingleRoot && count($root[$this->nodeChildrenProp])){
+            //$root = $root[$this->nodeChildrenProp][0];
+        }
+        return array($this->nodeTreeProp => $root);
+    }
+       
     public static function findObjectWithProp($key, $val, $array) {
         $ret = array();
         foreach($array as $ele){
@@ -172,16 +182,47 @@ class TreeCRUD {
     
     public function insert($data){
         if(!is_array($data)) $data = array($data);
-        $q = "INSERT INTO {$this->table} ({$this->parentfield}, {$this->childfield}) VALUES (:{$this->parentfield}, :{$this->childfield})";
+        $q = "INSERT INTO {$this->table} ({$this->parentId}, {$this->childId}) VALUES (:{$this->parentId}, :{$this->childId})";
         $stmt = $this->db->prepare($q);
-        $allowfield = array($this->parentfield, $this->childfield);
+        $allowfield = array($this->parentId, $this->childId);
         foreach($data as $d){
-            self::stmt_bind($stmt, $d, $allowfield);
+            //self::stmt_bind($stmt, $d, $allowfield);
+            $stmt->bindValue(":{$this->parentId}", empty($d[$this->parentId]) ? null : $d[$this->parentId]);
+            $stmt->bindValue(":{$this->childId}", $d[$this->childId]);
             $stmt->execute();
         }
     }
     public function delete($data){
+        if(!is_array($data)) $data = array($data);
         
+        $q = "SELECT {$this->childId} FROM {$this->table} WHERE {$this->parentId} = :{$this->parentId}";
+        $stmt = $this->db->prepare($q);
+        
+        $delchildq = "DELETE FROM {$this->table} WHERE {$this->parentId} = :{$this->parentId}";
+        $delchildstmt = $this->db->prepare($delchildq);
+        
+        $delselfq = "DELETE FROM {$this->table} WHERE {$this->childId} = :{$this->childId}";
+        $delselfstmt = $this->db->prepare($delselfq);
+          
+        $class = __CLASS__;
+        $recursiveDelete = function($parentid) use ($class, &$recursiveDelete, $stmt, $delchildstmt, $delselfstmt){
+            $class::stmt_bind_value($stmt, $this->parentId, $parentid);
+            $stmt->execute();
+            $childrows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $class::stmt_bind_value($delselfstmt, $this->childId, $parentid);
+            $delselfstmt->execute();
+            
+            foreach($childrows as $childrow){
+                $recursiveDelete($childrow[$this->childId]);   
+            }
+        };
+        
+        foreach($data as $d){
+            $id = $d[$this->parentTableId];
+            $id = $id == null ? null : intval($id);
+            $recursiveDelete($id);    
+        }
     }
     public function update($data){
         
@@ -190,8 +231,28 @@ class TreeCRUD {
     public static function stmt_bind($stmt, $value, $allowfields = null){
         foreach($value as $c => $v){
             if($allowfields == null || in_array($c, $allowfields)){
-                $stmt->bindValue(':'.$c, $v);
+                //$stmt->bindValue(':'.$c, $v);
+                self::stmt_bind_value($stmt, $c, $v);
             }
+        }
+    }
+    
+    public static function stmt_bind_value($stmt, $key, $value){
+        $valid = true;
+        $param = FALSE;
+        if(is_int($value))
+            $param = PDO::PARAM_INT;
+        elseif(is_bool($value))
+            $param = PDO::PARAM_BOOL;
+        elseif(is_null($value))
+            $param = PDO::PARAM_NULL;
+        elseif(is_string($value))
+            $param = PDO::PARAM_STR;
+        else
+            $valid = false;
+
+        if($valid){
+            $stmt->bindValue(":$key",$value,$param);
         }
     }
 }
@@ -203,12 +264,12 @@ class AgentHierachy extends TreeCRUD {
         $this->selectfields = array('parentId', 'childId');
         $this->insertfields = array('parentId', 'childId');
         $this->table = 'AUserHierachy';
-        $this->parentfield = 'parentId';
-        $this->childfield = 'childId';
+        $this->parentId = 'parentId';
+        $this->childId = 'childId';
         
-        $this->pk = 'id';
-        $this->table1 = 'AUser';
-        $this->table1fields = array('id', 'firstName', 'lastName', 'role');
+        $this->parentTableId = 'id';
+        $this->parentTable = 'AUser';
+        $this->parentTableFields = array('id', 'firstName', 'lastName', 'role');
     }
 }
                 
@@ -284,8 +345,6 @@ class CRUD {
             self::stmt_bind($stmt, $value, $this->insertfields);
             if($stmt->execute() && $this->onupdatedatetime){
                 $stmt2->bindValue($pkbind, intval($this->db->lastInsertId()), PDO::PARAM_INT);
-                
-                
                 $stmt2->execute();
             }
         }
