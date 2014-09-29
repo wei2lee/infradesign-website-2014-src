@@ -3,6 +3,7 @@ include_once "config.php";
 include_once "util.php";
 
 session_start();
+
 $db = sql_connect($config['db']);
 
 $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -37,6 +38,7 @@ if($action == 'login') {
         if($target == 'user') $crud = new User($db);
         else if($target == 'agent') $crud = new AUser($db);
         else if($target == 'agent-hierachy') $crud = new AgentHierachy($db);
+        else if($target == 'agent-followup') $crud = new AgentFollowup($db);
         else{
             echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
             die();

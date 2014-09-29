@@ -154,7 +154,8 @@ $.fn.tree = function(_option){
                                         for(i in nodes) { treeobj.nodeAdd($parentnode, nodes[i], true); }
                                         setTimeoutEx(bootbox.hideAll, 0.1);
                                     },
-                                    error:AJAX_HANDLES.error
+                                    error:AJAX_HANDLES.error,
+                                    complete:AJAX_HANDLES.complete
                                 });
                             });
                         },

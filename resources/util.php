@@ -57,8 +57,8 @@ function sql_connect($sql_details){
             $sql_details['pass'],
             array( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION )
         );
-        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        //$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        //$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }
     catch (PDOException $e) {
         echo getResponseJSONString(1,0,
@@ -257,6 +257,31 @@ class TreeCRUD {
     }
 }
 
+class RelationCRUD {
+    public $db;
+    public $selectfields;
+    public $insertfields;
+    public $table;
+    public $parentId = 'parentId';
+    public $childId = 'childId';
+    
+    public $isParentChildSameTable = false;
+    
+    public $parentTableId = 'id';
+    public $parentTable;//which table will included in select when output tree
+    public $parentTableFields; //which column will included in select when output tree
+    
+    public $childTableId = 'id';
+    public $childTable;
+    public $childFields;
+    
+    public $nodeDataProp = 'data';
+    public $nodeChildrenProp = 'children';
+    public $nodeTreeProp = 'tree';
+    
+    public $validators;
+}
+
 class AgentHierachy extends TreeCRUD {
     public function __construct($db) {
         $this->db=$db;
@@ -270,6 +295,59 @@ class AgentHierachy extends TreeCRUD {
         $this->parentTableId = 'id';
         $this->parentTable = 'AUser';
         $this->parentTableFields = array('id', 'firstName', 'lastName', 'role');
+    }
+}
+
+class AgentFollowup extends RelationCRUD {
+    public function __construct($db) {
+        $this->db=$db;
+        
+        $this->selectfields = array('parentId', 'childId');
+        $this->insertfields = array('parentId', 'childId');
+        $this->table = 'AUserFollowup';
+        $this->parentId = 'parentId';
+        $this->childId = 'childId';
+        
+        $this->parentTableId = 'id';
+        $this->parentTable = 'AUser';
+        $this->parentTableFields = array('id', 'firstName', 'lastName');
+        
+        $this->childTableId = 'id';
+        $this->childTable = 'User';
+        $this->childTableFields = array('id', 'name');
+    }
+    
+    public function select($data = null) {
+        if(!is_array($data)) $data = array($data);
+        $filter = "";
+        $class = __CLASS__;
+        
+        $map = function($v){ return "$this->childTable.$v"; };
+        $col = array_map($map, $this->childTableFields);
+        $col = implode(', ', $col);
+        
+        $q = 
+        " SELECT {$this->table}.{$this->parentId}, $col FROM {$this->table} INNER JOIN {$this->childTable} ON {$this->table}.{$this->childId} = {$this->childTable}.{$this->childTableId} ";
+        //if($data) $q .= " WHERE {$this->table}.{$this->childId} = :{$this->childId}";
+        
+        
+        $stmt = $this->db->prepare($q);
+        
+        $res = array();
+        foreach($data as $d){
+            //$stmt->bindValue(":{$this->childId}", $d[$this->childId]);
+            $stmt->execute();
+            $res[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        return $res[0];
+    }
+    
+    public function insert($data) {
+        if(!is_array($data)) $data = array($data);
+    }
+    
+    public function delete($data){
+        if(!is_array($data)) $data = array($data);
     }
 }
                 
@@ -522,18 +600,21 @@ class AUser extends CRUD{
         $this->updatefields = $this->insertfields;
     }
     public function login($user) {
+
         $col = implode(', ', $this->loginfields);
         $q = 
         " SELECT $col " . 
         " FROM {$this->table} " . 
         " WHERE (username = :authName OR email = :authName) AND password = :authPassword" .
+        //" WHERE (username = 'infra' OR email = 'infra') AND password = 'infra'" .
         " LIMIT 1 " ;
         $stmt = $this->db->prepare($q);
-        $stmt->bindValue(':authName', $user['authName']);
-        $stmt->bindValue(':authPassword', $user['authPassword']);
+        $stmt->bindValue(':authName', $user['authName'], PDO::PARAM_STR);
+        $stmt->bindValue(':authPassword', $user['authPassword'], PDO::PARAM_STR);
+        
         $stmt->execute();
         $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
+        
         if(count($res) > 0){
             $q = "UPDATE {$this->table} SET lastLoginAt = now() WHERE id = :id";
             $stmt = $this->db->prepare($q);

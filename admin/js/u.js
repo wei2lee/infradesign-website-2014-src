@@ -47,6 +47,9 @@ var AJAX_HANDLES = {
             return false;   
         }
         return true;
+    },
+    complete:function(){
+           
     }
 }
 
@@ -603,7 +606,7 @@ function GetColumnRenderer(s){
         var sel = this.selector;
         var tableSel = option.tableSel;
         var columns = option.columns;
-        var ajax = option.ajax;
+        var ajax = option.ajax == null ? option.actions.read :option.ajax;
         var serverSide = option.serverSide;
         var processing = option.processing;
         var target = option.target;
@@ -652,6 +655,7 @@ function GetColumnRenderer(s){
             order: [[ 0, 'asc' ]]
         });
         
+
         var $tableTool = new $.fn.dataTable.TableTools($dataTable, {
             sRowSelect: "os"
         });

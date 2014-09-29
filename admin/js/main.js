@@ -26,6 +26,22 @@ $(function() {
     
     if($('.user-crud').length){
         $('.user-crud').crud({
+            toolbar : [
+                {
+                    'refresh':null,
+                    'add':null,
+                    'delete':null,
+                    'edit':null,
+                    'select-all':null
+                },
+                {
+                    'mail':null
+                },
+                {
+                    'import':null,
+                    'export':null
+                }
+            ],
             tableSel : '.user-crud table',
             columns : [
                 { data: "name", title: "Name", nullable : false, render:GetColumnRenderer('text'),
@@ -105,6 +121,22 @@ $(function() {
     
     if($('.agent-crud').length){
         $('.agent-crud').crud({
+            toolbar : [
+                {
+                    'refresh':null,
+                    'add':null,
+                    'delete':null,
+                    'edit':null,
+                    'select-all':null
+                },
+                {
+                    'mail':null
+                },
+                {
+                    'import':null,
+                    'export':null
+                }
+            ],
             tableSel : '.agent-crud table',
             columns : [
                 { data: "firstName", title: "FirstName", nullable : false, render:GetColumnRenderer('text'),
@@ -176,10 +208,98 @@ $(function() {
             }
         });
     }  
+    
+    $('.agent-followup-crud table').dataTable( {
+        "ajax":{
+            url:"../resources/api_admin.php?action=read&target=agent-followup",
+            data:function(json){
+                console.log(json);
+                return [{firstName:'a', lastName:'b'}];
+            }
+        },
+        "columns": [
+            { "data": "firstName" },
+            { "data": "lastName" }
+        ]
+    } );
+    
+    
+    /*
+    if($('.agent-followup-crud').length && false){
+        $('.agent-followup-crud').crud({
+            toolbar : [
+                {
+                    'refresh':null,
+                    'add':null,
+                    'delete':null,
+                    'select-all':null
+                }
+            ],
+            tableSel : '.agent-followup-crud table',
+            columns : [
+                { data: "name", title: "Name", nullable : false, render:GetColumnRenderer('text'),
+                    validators: { 
+                        notEmpty: {
+                            message: 'The name is required and cannot be empty.'
+                        }
+                    }
+                },
+                { data: "email", title: "Email", nullable : true, render:GetColumnRenderer('text'),
+                    validators: { 
+                        emailAddress : {
+                            message: 'The input is not a valid email address.'
+                        }
+                    }
+                },
+                { data: "contact", title: "Contact", nullable : true, render:GetColumnRenderer('phone'), validators: {  } },
+                { data: "company", title: "Company", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
+                { data: "website", title: "Website", nullable : true, render:GetColumnRenderer('link'),
+                    validators: { 
+                        callback: {
+                            callback: GetBVValidators('true'),
+                            message: '' 
+                        },
+                        uri: { 
+                            message: 'The input is not a valid url.<br/>(valid pattern : http://www.abc.com)' 
+                        }
+                    }
+                },
+                { data: "interested", title: "Interested", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
+                { data: "businessType", title: "Business Type", nullable : true, render:GetColumnRenderer('text'), validators: {  } }
+            ],
+            serverSide : false,
+            processing : false,
+            actions : {
+                read : '../resources/api_admin.php?action=read&target=agent-followup',
+                add : '../resources/api_admin.php?action=new&target=agent-followup',
+                delete : '../resources/api_admin.php?action=delete&target=agent-followup',
+            },
+            target : 'agent-followup',
+            addForm : {
+                tempSel : '#agent-form', 
+                columns : {
+                    lastName:{render:'str2text'},
+                    firstName:{render:'str2text'},
+                    email:{render:'str2text'},
+                    mobile:{render:'str2text'},
+                    role:{render:'str2select'},
+                    notifyOnRegistration:{render:'str2checkbox'},
+                    remark:{render:'str2text'}
+                }
+            }
+        });
+    }//*/
 
     if($.fn.tree){
         if($('.agent-hierachy-crud.tree').length){
             $('.agent-hierachy-crud.tree').tree({
+                toolbar : [
+                    {
+                        'refresh':null,
+                        'expand-all':null,
+                        'add-root':null
+                    }
+                ],
                 target:'agent-hierachy',
                 actions:{
                     read : '../resources/api_admin.php?action=read&target=agent-hierachy',
@@ -189,6 +309,31 @@ $(function() {
                 },
                 addForm : {
                     tempSel : '#agent-hierachy-form',
+                    columns: [
+                        'lastName', 'firstName', 'role'
+                    ]
+                }
+            });   
+        }
+        
+        if($('.agent-followup-crud.tree').length){
+            $('.agent-followup-crud.tree').tree({
+                toolbar : [
+                    {
+                        'refresh':null,
+                        'expand-all':null,
+                        'add-root':null
+                    }
+                ],
+                target:'agent-followup',
+                actions:{
+                    read : '../resources/api_admin.php?action=read&target=agent-hierachy',
+                    add : '../resources/api_admin.php?action=new&target=agent-hierachy',
+                    delete : '../resources/api_admin.php?action=delete&target=agent-hierachy',
+                    select_no_parent : '../resources/api_admin.php?action=select_no_parent&target=agent-hierachy'
+                },
+                addForm : {
+                    tempSel : '#agent-followup-form',
                     columns: [
                         'lastName', 'firstName', 'role'
                     ]
