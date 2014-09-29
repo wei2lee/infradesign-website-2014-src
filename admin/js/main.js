@@ -212,14 +212,14 @@ $(function() {
     $('.agent-followup-crud table').dataTable( {
         "ajax":{
             url:"../resources/api_admin.php?action=read&target=agent-followup",
-            data:function(json){
-                console.log(json);
-                return [{firstName:'a', lastName:'b'}];
-            }
+            type:"POST",
+            data:function(req){
+                req.users = [];
+            },
+            dataSrc:function(json){ return json.data[0];}
         },
         "columns": [
-            { "data": "firstName" },
-            { "data": "lastName" }
+            { "data": "name" }
         ]
     } );
     

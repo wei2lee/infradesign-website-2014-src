@@ -44,7 +44,8 @@ if($action == 'login') {
             die();
         }
         if($action == 'read' || $action == 'select' || $action == 'get') {
-            $data = $crud->select();
+            $users = array_key_exists('users', $_POST) ? $_POST['users'] : null;
+            $data = $crud->select(null, $users);
             echo getResponseJSONString(0, 0,'',$data);
         }else if($action == 'select_no_parent'){
             $data = $crud->select_no_parent();
