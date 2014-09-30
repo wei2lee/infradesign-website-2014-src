@@ -20,6 +20,7 @@ if($action == 'login') {
         foreach($loginuser as $key => $value) {
             $_SESSION[$key] = $value;   
         }
+        $_SESSION["permission"] = $loginuser;
         echo getResponseJSONString(0, 0, $isRelogin?'Relogin':'', '');
     }
 }else if($action == 'logout'){
@@ -32,44 +33,32 @@ if($action == 'login') {
         echo getResponseJSONString(1, 0, 'user is not logon.', '');
         die();
     }
-    if($target != '' || $action != ''){
-
+    if($target != '' && $action != ''){
+        $users = array_key_exists('users', $_POST) ? $_POST['users'] : array();
+        $perm = $_SESSION["permission"];
         $crud = null;
-        if($target == 'user') $crud = new User($db);
-        else if($target == 'agent') $crud = new AUser($db);
-        else if($target == 'agent-hierachy') $crud = new AgentHierachy($db);
-        else if($target == 'agent-followup') $crud = new AgentFollowup($db);
+        if($target == 'user') $crud = new User($db, $perm);
+        else if($target == 'agent') $crud = new AUser($db, $perm);
+        else if($target == 'agent-hierachy') $crud = new AgentHierachy($db, $perm);
+        else if($target == 'agent-followup') $crud = new AgentFollowup($db, $perm);
         else{
             echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
             die();
         }
         if($action == 'read' || $action == 'select' || $action == 'get') {
-            $users = array_key_exists('users', $_POST) ? $_POST['users'] : null;
             $data = $crud->select(null, $users);
             echo getResponseJSONString(0, 0,'',$data);
         }else if($action == 'select_no_parent'){
-            $data = $crud->select_no_parent();
+            $data = $crud->select_no_parent(null, $users);
             echo getResponseJSONString(0, 0,'',$data);
         }else if($action == 'update' || $action == 'edit' || $action == 'set'){
-            if(!isset($_POST['users'])) {
-                echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
-                die();
-            }
-            $crud->update($_POST['users']);
+            $crud->update($users);
             echo getResponseJSONString(0, 0, '', '');
         }else if($action == 'delete' || $action == 'remove'){
-            if(!isset($_POST['users'])) {
-                echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
-                die();
-            }
-            $crud->delete($_POST['users']);
+            $crud->delete($users);
             echo getResponseJSONString(0, 0, '', '');
         }else if($action == 'new' || $action == 'insert' || $action == 'add' || $action == 'put'){
-            if(!isset($_POST['users'])) {
-                echo getResponseJSONString(1, 0, 'Unable to perform action.', '');
-                die();
-            }
-            $crud->insert($_POST['users']);
+            $crud->insert($users);
             echo getResponseJSONString(0, 0, '', '');
         }else if($action == 'export'){
             $crud->export($con);

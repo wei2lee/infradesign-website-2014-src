@@ -334,10 +334,10 @@ $.fn.tree = function(_option){
                 $this.off('click', 'li > .btn');
                 $this.on('click', 'li > .btn', this, this.onNodeClick);
             },
-            onNodeClick : function(e){  console.log('btn click');
+            onNodeClick : function(e){ 
                 e.stopPropagation();
             },
-            onNodeIconClick : function(e){ console.log('btni click');
+            onNodeIconClick : function(e){ 
                 var $node = $(this).closest('li.parent_li');
                 e.data.nodeToggleExpand($node, true);
                 e.stopPropagation();

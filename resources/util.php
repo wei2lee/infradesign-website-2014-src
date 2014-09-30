@@ -58,6 +58,8 @@ function sql_connect($sql_details){
             array( PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION )
         );
         //$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        //the current server setup simply wouldnt work with emulate_prepare = false
         //$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     }
     catch (PDOException $e) {
@@ -79,7 +81,7 @@ function val_map_update_binding($val){
 }
 
 class TreeCRUD {
-
+    public $permission;
     
     public $db;
     public $selectfields;
@@ -105,8 +107,9 @@ class TreeCRUD {
     
     public $validators;
     
-    public function __construct($db) {
+    public function __construct($db, $permission = null) {
         $this->db=$db;
+        $this->permission = $permission;
     }
     
     public function select_no_parent() {
@@ -283,8 +286,9 @@ class RelationCRUD {
 }
 
 class AgentHierachy extends TreeCRUD {
-    public function __construct($db) {
+    public function __construct($db, $permission = null) {
         $this->db=$db;
+        $this->permission = $permission;
         
         $this->selectfields = array('parentId', 'childId');
         $this->insertfields = array('parentId', 'childId');
@@ -299,8 +303,9 @@ class AgentHierachy extends TreeCRUD {
 }
 
 class AgentFollowup extends RelationCRUD {
-    public function __construct($db) {
+    public function __construct($db, $permission = null) {
         $this->db=$db;
+        $this->permission = $permission;
         
         $this->selectfields = array('parentId', 'childId');
         $this->insertfields = array('parentId', 'childId');
@@ -314,11 +319,44 @@ class AgentFollowup extends RelationCRUD {
         
         $this->childTableId = 'id';
         $this->childTable = 'User';
-        $this->childTableFields = array('id', 'name');
+        $this->childTableFields = array('id', 'name', 'company');
+    }
+    
+    public function select_no_parent($columns=null, $rowids=null, $filter=null, $order=null, $limit=null) {
+        $class = __CLASS__;
+        
+        if($rowids==null || !count($rowids)) return array(array());
+        
+        $map = function($v){ return "$this->childTable.$v"; };
+        $col = array_map($map, $this->childTableFields);
+        $col = implode(', ', $col);
+        
+        
+        $on_rowid_cause = " 1 = 1 ";
+        if($rowids && count($rowids)) $on_rowid_cause = " {$this->childTable}.{$this->childTableId} NOT IN (SELECT {$this->childId} FROM {$this->table} WHERE {$this->parentId} = :{$this->parentTableId}) ";
+        
+        $q  = " SELECT $col FROM {$this->childTable} LEFT JOIN {$this->table} ON {$this->childTable}.{$this->childTableId} = {$this->table}.{$this->childId} ";
+        $q .= " WHERE $on_rowid_cause ";
+        
+        $stmt = $this->db->prepare($q);
+        $res = array();
+        if(is_array($rowids) && count($rowids)){
+            foreach($rowids as $rowid){
+                $stmt->bindValue(":{$this->parentTableId}", $rowid[$this->parentTableId]);
+                $stmt->execute();
+                $res[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+        }else{
+            $stmt->execute();
+            $res[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+        return $res;
     }
     
     public function select($columns=null, $rowids=null, $filter=null, $order=null, $limit=null) {
         $class = __CLASS__;
+        
+        if($rowids==null || !count($rowids)) return array(array());
         
         $map = function($v){ return "$this->childTable.$v"; };
         $col = array_map($map, $this->childTableFields);
@@ -326,14 +364,13 @@ class AgentFollowup extends RelationCRUD {
         
         $q = 
         " SELECT {$this->table}.{$this->parentId}, $col FROM {$this->table} INNER JOIN {$this->childTable} ON {$this->table}.{$this->childId} = {$this->childTable}.{$this->childTableId} ";
-        if(is_array($rowids) && count($rowids)) $q .= " WHERE {$this->table}.{$this->childId} = :{$this->childId}";
+        if(is_array($rowids) && count($rowids)) $q .= " WHERE {$this->table}.{$this->parentId} = :{$this->parentTableId}";
         
         $stmt = $this->db->prepare($q);
-        
         $res = array();
         if(is_array($rowids) && count($rowids)){
-            foreach($data as $d){
-                $stmt->bindValue(":{$this->childId}", $rowids[$this->childId]);
+            foreach($rowids as $rowid){
+                $stmt->bindValue(":{$this->parentTableId}", $rowid[$this->parentTableId]);
                 $stmt->execute();
                 $res[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
@@ -345,11 +382,17 @@ class AgentFollowup extends RelationCRUD {
     }
     
     public function insert($data) {
-        if(!is_array($data)) $data = array($data);
+        $q = "INSERT INTO {$this->table} ({$this->parentId}, {$this->childId}) VALUES (:{$this->parentId}, :{$this->childId})";
+        $stmt = $this->db->prepare($q);
+        foreach($data as $d){
+            $stmt->bindValue(":{$this->parentId}", empty($d[$this->parentId]) ? null : $d[$this->parentId]);
+            $stmt->bindValue(":{$this->childId}", $d[$this->childId]);
+            $stmt->execute();
+        }
     }
     
     public function delete($data){
-        if(!is_array($data)) $data = array($data);
+
     }
 }
                 
@@ -366,8 +409,9 @@ class CRUD {
     public $validators = array();
     public $onupdatedatetime = true;
     
-    public function __construct($db) {
+    public function __construct($db, $permission = null) {
         $this->db=$db;
+        $this->permission = $permission;
         
         if($this->updatefields == null) $this->updatefields = $this->insertfields;
     }
@@ -594,8 +638,10 @@ class AUser extends CRUD{
     public $loginfields;
     public $table = "AUser";
     
-    public function __construct($db) {
+    public function __construct($db, $permission = null) {
         $this->db=$db;
+        $this->permission = $permission;
+        
         $this->loginfields = array("id", "firstName", "lastName", "username", "email", "mobile", "role", "updatedAt");
         $this->selectfields = array("id", "firstName", "lastName", "username", "email", "mobile", "role", "updatedAt", "remark");
         $this->insertfields = array("firstName", "lastName", "username", "email", "mobile", "role", "remark");
@@ -635,9 +681,11 @@ class AUser extends CRUD{
 class User extends CRUD {
     public $table = "User";
     
-    public function __construct($db) {
+    public function __construct($db, $permission = null) {
         $this->db=$db;
-        $this->selectfields = array("id", 'name', 'email', 'contact', 'company', 'businessType', 'startDate', 'website', 'message', 'budget', 'interested', 'remark');
+        $this->permission = $permission;
+        
+        $this->selectfields = array("id", 'name', 'email', 'contact', 'company', 'businessType', 'startDate', 'website', 'message', 'budget', 'interested', 'remark', 'updatedAt');
         $this->insertfields = array('name', 'email', 'contact', 'company', 'businessType', 'startDate', 'website', 'message', 'budget', 'interested', 'remark');
         $this->updatefields = $this->insertfields;
         
@@ -658,6 +706,21 @@ class User extends CRUD {
             }
             return true;
         };  
+    }
+    
+    public function select($columns=null, $filter="", $order="", $limit=""){
+        //TODO filter,order,limit
+        if($columns == null) $columns = $this->selectfields;
+        $col = implode(', ', $columns);
+        
+        if($this->permission['role'] == 'admin') {
+            $q = "SELECT $col FROM {$this->table}";
+        }else{
+            $q = "SELECT $col FROM {$this->table} JOIN AUserFollowup ON {$this->table}.{$this->pk} = AuserFollowup.childId WHERE AuserFollowup.parentId = {$this->permission['id']}";
+        }
+        $stmt = $this->db->prepare($q);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
 

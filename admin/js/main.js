@@ -42,7 +42,6 @@ $(function() {
                     'export':null
                 }
             ],
-            tableSel : '.user-crud table',
             columns : [
                 { data: "name", title: "Name", nullable : false, render:GetColumnRenderer('text'),
                     validators: { 
@@ -78,11 +77,14 @@ $(function() {
                 
                 
             ],
-            
-            //ajax : '../resources/api_admin.php?action=read&target=user',
-            serverSide : true,
-            processing : true,
-            ajax : '../resources/api_crud_user.php',
+            serverSide : false,
+            processing : false,
+            //ajax : '../resources/api_crud_user.php',
+            "ajax":{
+                url:"../resources/api_admin.php?action=select&target=user",
+                type:"POST",
+                dataSrc:function(json){ return json.data;}
+            },
             actions : {
                 add : '../resources/api_admin.php?action=new&target=user',
                 delete : '../resources/api_admin.php?action=delete&target=user',
@@ -137,7 +139,6 @@ $(function() {
                     'export':null
                 }
             ],
-            tableSel : '.agent-crud table',
             columns : [
                 { data: "firstName", title: "FirstName", nullable : false, render:GetColumnRenderer('text'),
                     validators: { 
@@ -208,91 +209,9 @@ $(function() {
             }
         });
     }  
-    
-    $('.agent-followup-crud table').dataTable( {
-        "ajax":{
-            url:"../resources/api_admin.php?action=read&target=agent-followup",
-            type:"POST",
-            data:function(req){
-                req.users = [];
-            },
-            dataSrc:function(json){ return json.data[0];}
-        },
-        "columns": [
-            { "data": "name" }
-        ]
-    } );
-    
-    
-    /*
-    if($('.agent-followup-crud').length && false){
-        $('.agent-followup-crud').crud({
-            toolbar : [
-                {
-                    'refresh':null,
-                    'add':null,
-                    'delete':null,
-                    'select-all':null
-                }
-            ],
-            tableSel : '.agent-followup-crud table',
-            columns : [
-                { data: "name", title: "Name", nullable : false, render:GetColumnRenderer('text'),
-                    validators: { 
-                        notEmpty: {
-                            message: 'The name is required and cannot be empty.'
-                        }
-                    }
-                },
-                { data: "email", title: "Email", nullable : true, render:GetColumnRenderer('text'),
-                    validators: { 
-                        emailAddress : {
-                            message: 'The input is not a valid email address.'
-                        }
-                    }
-                },
-                { data: "contact", title: "Contact", nullable : true, render:GetColumnRenderer('phone'), validators: {  } },
-                { data: "company", title: "Company", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
-                { data: "website", title: "Website", nullable : true, render:GetColumnRenderer('link'),
-                    validators: { 
-                        callback: {
-                            callback: GetBVValidators('true'),
-                            message: '' 
-                        },
-                        uri: { 
-                            message: 'The input is not a valid url.<br/>(valid pattern : http://www.abc.com)' 
-                        }
-                    }
-                },
-                { data: "interested", title: "Interested", nullable : true, render:GetColumnRenderer('text'), validators: {  } },
-                { data: "businessType", title: "Business Type", nullable : true, render:GetColumnRenderer('text'), validators: {  } }
-            ],
-            serverSide : false,
-            processing : false,
-            actions : {
-                read : '../resources/api_admin.php?action=read&target=agent-followup',
-                add : '../resources/api_admin.php?action=new&target=agent-followup',
-                delete : '../resources/api_admin.php?action=delete&target=agent-followup',
-            },
-            target : 'agent-followup',
-            addForm : {
-                tempSel : '#agent-form', 
-                columns : {
-                    lastName:{render:'str2text'},
-                    firstName:{render:'str2text'},
-                    email:{render:'str2text'},
-                    mobile:{render:'str2text'},
-                    role:{render:'str2select'},
-                    notifyOnRegistration:{render:'str2checkbox'},
-                    remark:{render:'str2text'}
-                }
-            }
-        });
-    }//*/
-
     if($.fn.tree){
-        if($('.agent-hierachy-crud.tree').length){
-            $('.agent-hierachy-crud.tree').tree({
+        if($('.agent-hierachy-crud').length){
+            $('.agent-hierachy-crud').tree({
                 toolbar : [
                     {
                         'refresh':null,
@@ -314,31 +233,89 @@ $(function() {
                     ]
                 }
             });   
+            
+            var $hierachy = $('.agent-hierachy-crud');
+            var $followup = $('.agent-followup-crud');
+            $hierachy.on('click', 'li>.btn', function(){
+                var users = [];
+                var node = $(this).closest('li').data('tree.node');
+                if(node && node.data) users.push(node.data);
+                $followup.find('table').data("filter.users", users);
+                $followup.find('table').DataTable().ajax.reload(); 
+                $hierachy.find('li>.btn').removeClass('active');
+                $(this).addClass('active');
+            });
         }
         
-        if($('.agent-followup-crud.tree').length){
-            $('.agent-followup-crud.tree').tree({
+        if($('.agent-followup-crud').length){
+            var $followup = $('.agent-followup-crud');
+            $followup.crud({
                 toolbar : [
                     {
                         'refresh':null,
-                        'expand-all':null,
-                        'add-root':null
+                        'add':null,
+                        'delete':null,
+                        'select-all':null
                     }
                 ],
-                target:'agent-followup',
-                actions:{
-                    read : '../resources/api_admin.php?action=read&target=agent-hierachy',
-                    add : '../resources/api_admin.php?action=new&target=agent-hierachy',
-                    delete : '../resources/api_admin.php?action=delete&target=agent-hierachy',
-                    select_no_parent : '../resources/api_admin.php?action=select_no_parent&target=agent-hierachy'
+                columns : [
+                    { data: "name", title: "Name", nullable : false, render:GetColumnRenderer('text') },
+                    { data: "company", title: "Company", nullable : false, render:GetColumnRenderer('text') }
+                ],
+                iDisplayLength : 10,
+                serverSide : false,
+                processing : false,
+                "ajax":{
+                    url:"../resources/api_admin.php?action=read&target=agent-followup",
+                    type:"POST",
+                    data:function(req){
+                        var users = $followup.find('table').data("filter.users") || [];
+                        req.users = users;
+                        return req;
+                    },
+                    dataSrc:function(json){ return json.data[0];}
                 },
+                "columns": [
+                    { "data": "name", "title": "Name" },
+                    { "data": "company", "title": "Company" }
+                ],
+                "actions": {
+                    "add": "../resources/api_admin.php?action=add&target=agent-followup",
+                    "delete": "../resources/api_admin.php?action=delete&target=agent-followup"
+                },
+                target : 'agent-followup',
                 addForm : {
-                    tempSel : '#agent-followup-form',
-                    columns: [
-                        'lastName', 'firstName', 'role'
-                    ]
+                    title : function(rowdata){
+                        return 'Select follow-up users to Agent' + joinName(rowdata.lastName, rowdata.firstName);
+                    },
+                    tempSel : '#agent-followup-form', 
+                    columns : {
+                        'name':{},
+                        'company':{}
+                    },
+                    selectRowsTableOption : {
+                        dom: 'frtp',
+                        ajax: {
+                            url:"../resources/api_admin.php?action=select_no_parent&target=agent-followup",
+                            type:"POST",
+                            data:function(req){
+                                var users = $followup.find('table').data("filter.users") || [];
+                                req.users = users;
+                                return req;
+                            },
+                            dataSrc:function(json){
+                                return json.data[0];   
+                            }
+                        },
+                        columns: [
+                            {"data":"name", "title":"Name", "width":"50%"},
+                            {"data":"company", "title":"Company", "width":"50%"}
+                        ],
+                        iDisplayLength: 7,
+                        responsive: false
+                    }
                 }
-            });   
+            });
         }
     }
     
