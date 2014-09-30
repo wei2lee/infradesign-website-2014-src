@@ -1,5 +1,9 @@
+var user = null;
+
 
 $(function() {
+    
+    
 
     if($('.login-form').length){
         $('.login-form').loginForm({
@@ -169,12 +173,14 @@ $(function() {
                 { data: "updatedAt", title: "LastModified", nullable : true, render:GetColumnRenderer('text'), validators: {  }, type: 'date' }
                 
                 
-            ],
-            
-            //ajax : '../resources/api_admin.php?action=read&target=user',
-            serverSide : true,
-            processing : true,
-            ajax : '../resources/api_crud_agent.php',
+            ],            
+            serverSide : false,
+            processing : false,
+            "ajax":{
+                url:"../resources/api_admin.php?action=read&target=agent",
+                type:"POST",
+                dataSrc:function(json){ return json.data[0];}
+            },
             actions : {
                 add : '../resources/api_admin.php?action=new&target=agent',
                 delete : '../resources/api_admin.php?action=delete&target=agent',
@@ -192,7 +198,8 @@ $(function() {
                     mobile:{render:'str2text'},
                     role:{render:'str2select'},
                     notifyOnRegistration:{render:'str2checkbox'},
-                    remark:{render:'str2text'}
+                    remark:{render:'str2text'},
+                    password:{render:'str2text'}
                 }
             },
             addForm : {
@@ -204,7 +211,8 @@ $(function() {
                     mobile:{render:'str2text'},
                     role:{render:'str2select'},
                     notifyOnRegistration:{render:'str2checkbox'},
-                    remark:{render:'str2text'}
+                    remark:{render:'str2text'},
+                    password:{render:'str2text'}
                 }
             }
         });

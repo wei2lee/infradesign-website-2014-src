@@ -567,7 +567,7 @@ class CRUD {
         if($columns == null) $columns = $this->selectfields;
         
         $col = implode(', ', $columns);
-        $q = "SELECT $col FROM {$this->table} $filter";
+        $q = "SELECT $col FROM {$this->table}";
         $stmt = $this->db->prepare($q);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -643,8 +643,8 @@ class AUser extends CRUD{
         $this->permission = $permission;
         
         $this->loginfields = array("id", "firstName", "lastName", "username", "email", "mobile", "role", "updatedAt");
-        $this->selectfields = array("id", "firstName", "lastName", "username", "email", "mobile", "role", "updatedAt", "remark");
-        $this->insertfields = array("firstName", "lastName", "username", "email", "mobile", "role", "remark");
+        $this->selectfields = array("id", "firstName", "lastName", "username", "email", "mobile", "role", "updatedAt", "remark", "password");
+        $this->insertfields = array("firstName", "lastName", "username", "email", "mobile", "role", "remark", "password");
         $this->updatefields = $this->insertfields;
     }
     public function login($user) {
